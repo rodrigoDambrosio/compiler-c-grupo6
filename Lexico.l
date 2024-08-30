@@ -55,8 +55,13 @@ OP_OR        "OR"
 OP_NOT       "NOT"
 CA           "["
 CC           "]"
+COMA         ","
 %%
 
+{INIT}          {printf("\nINIT: %s\n", yytext);return INIT;}
+{TIPO_F}        {printf("\nTIPO_F: %s\n", yytext);return TIPO_F;}
+{TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
+{TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
 {CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
 {ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
 {OP_SUM}		{printf("\nSuma: %s\n", yytext);return OP_SUM;}
@@ -78,10 +83,6 @@ CC           "]"
 {OP_MEN}        {printf("\nOP_MEN: %s\n", yytext);return OP_MEN;}
 {OP_MAYORI}     {printf("\nOP_MAYOR IGUAL: %s\n", yytext);return OP_MAYORI;}
 {OP_MENI}       {printf("\nOP_MENOR IGUAL: %s\n", yytext);return OP_MENI;}
-{TIPO_F}        {printf("\nTIPO_F: %s\n", yytext);return TIPO_F;}
-{TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
-{TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
-{INIT}          {printf("\nINIT: %s\n", yytext);return INIT;}
 {DP}            {printf("\nDP: %s\n", yytext);return DP;}
 {LEER}          {printf("\nLEER: %s\n", yytext);return LEER;}
 {ESCRIBIR}      {printf("\nESCRIBIR: %s\n", yytext);return ESCRIBIR;}
@@ -92,7 +93,7 @@ CC           "]"
 {CC}            {printf("\nCORCHETE CIERRA: %s\n", yytext);return CC;}
 {SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
 {TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
-
+{COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
 
 "\n"      		
 "\t"

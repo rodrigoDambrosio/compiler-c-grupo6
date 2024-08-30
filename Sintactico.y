@@ -48,10 +48,27 @@ FILE  *yyin;
 %token TRIANG
 %token OP_MAYORI
 %token OP_MENI
+%token COMA
 %%
+
+programa: sentencia | programa sentencia
 sentencia:  	   
-	asignacion {printf(" FIN\n");}
+	asignacion {printf(" FIN\n");} |
+  bloque_asig {printf(" BLOQUE ASIG\n");}
 	 ;
+
+bloque_asig:
+INIT LA lista_asignacion LC {printf("    BLOQUE VAR\n");}
+;
+
+lista_asignacion : lista_variables asig_tipo | lista_asignacion lista_variables asig_tipo
+;
+
+lista_variables: lista_variables COMA ID
+                | ID
+
+asig_tipo: DP TIPO_S | DP TIPO_F | DP TIPO_I
+;
 
 asignacion: 
           ID OP_AS expresion {printf("    ID = Expresion es ASIGNACION\n");}
