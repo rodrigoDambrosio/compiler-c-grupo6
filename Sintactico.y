@@ -42,6 +42,8 @@ FILE  *yyin;
 %token OP_AND
 %token OP_OR
 %token OP_NOT
+%token OP_IGUAL
+%token OP_NOT_IGUAL
 %token CA
 %token CC
 %token SUM_ULT
@@ -52,10 +54,19 @@ FILE  *yyin;
 %%
 
 programa: sentencia | programa sentencia
+;
 sentencia:  	   
 	asignacion {printf(" FIN\n");} |
-  bloque_asig {printf(" BLOQUE ASIG\n");}
+  bloque_asig {printf(" BLOQUE ASIG\n");} |
+  mientras {printf("MIENTRAS\n");}
 	 ;
+
+mientras:
+WHILE PA condicion PC
+LA
+  programa
+LC
+;
 
 bloque_asig:
 INIT LA lista_asignacion LC {printf("    BLOQUE VAR\n");}
@@ -71,7 +82,7 @@ asig_tipo: DP TIPO_S | DP TIPO_F | DP TIPO_I
 ;
 
 asignacion: 
-          ID OP_AS expresion {printf("    ID = Expresion es ASIGNACION\n");}
+    ID OP_AS expresion {printf("    ID = Expresion es ASIGNACION\n");}
 	  ;
 
 expresion:
@@ -79,6 +90,30 @@ expresion:
 	 |expresion OP_SUM termino {printf("    Expresion+Termino es Expresion\n");}
 	 |expresion OP_RES termino {printf("    Expresion-Termino es Expresion\n");}
 	 ;
+
+condicion:
+  condicion OP_OR expresion_logica |
+  condicion OP_AND expresion_logica |
+  OP_NOT condicion |
+  expresion_logica 
+
+;
+
+// to-do not condicion
+
+expresion_logica:
+  expresion operador_comparacion expresion |
+  PA condicion PC
+;
+
+operador_comparacion:
+  OP_MAYOR |
+  OP_MAYORI |
+  OP_MEN |
+  OP_MENI |
+  OP_IGUAL |
+  OP_NOT_IGUAL
+;
 
 termino: 
        factor {printf("    Factor es Termino\n");}

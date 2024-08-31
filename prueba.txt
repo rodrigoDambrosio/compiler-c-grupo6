@@ -3,8 +3,20 @@
 
 c:=d*(e-21)/4
 
+*- Declaración de variables -*
+
 init {
     a1, b1 : Float
     variable1 : Int
     p1, p2, p3 : String
+}
+
+*- while -*
+a := 1
+b := 3
+
+mientras (NOT a>b)
+{
+    *- escribir("a es mas grande que b") -*
+    a := a + 1
 }

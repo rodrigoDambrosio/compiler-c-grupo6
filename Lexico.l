@@ -53,6 +53,8 @@ OP_MENI      "<="
 OP_AND       "AND"
 OP_OR        "OR"
 OP_NOT       "NOT"
+OP_IGUAL     "=="
+OP_NOT_IGUAL "!="
 CA           "["
 CC           "]"
 COMA         ","
@@ -62,8 +64,8 @@ COMA         ","
 {TIPO_F}        {printf("\nTIPO_F: %s\n", yytext);return TIPO_F;}
 {TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
 {TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
-{CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
-{ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
+{WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
+{OP_NOT}        {printf("\nNOT: %s\n", yytext);return OP_NOT;}
 {OP_SUM}		{printf("\nSuma: %s\n", yytext);return OP_SUM;}
 {OP_AS}			{printf("\nAsignacion: %s\n", yytext);return OP_AS;}
 {OP_MUL}		{printf("\nMultiplicacion: %s\n", yytext);return OP_MUL;}
@@ -76,24 +78,26 @@ COMA         ","
 {COMENTARIO}    {printf("\nCOMENTARIO: %s\n", yytext);}
 {CONS_STR}	    {printf("\nCTE STR: %s\n", yytext);return CONS_STR;}
 {CONS_FLOAT}	{printf("\nCTE FLOAT: %s\n", yytext);return CONS_FLOAT;}    	
-{WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
 {IF}            {printf("\nIF: %s\n", yytext);return IF;}
 {ELSE}          {printf("\nELSE: %s\n", yytext);return ELSE;}
 {OP_MAYOR}      {printf("\nOP_MAYOR: %s\n", yytext);return OP_MAYOR;}
 {OP_MEN}        {printf("\nOP_MEN: %s\n", yytext);return OP_MEN;}
 {OP_MAYORI}     {printf("\nOP_MAYOR IGUAL: %s\n", yytext);return OP_MAYORI;}
 {OP_MENI}       {printf("\nOP_MENOR IGUAL: %s\n", yytext);return OP_MENI;}
+{OP_IGUAL}      {printf("\nOP_IGUAL: %s\n", yytext);return OP_IGUAL;}
+{OP_NOT_IGUAL}  {printf("\nOP_NOT_IGUAL: %s\n", yytext);return OP_NOT_IGUAL;}
 {DP}            {printf("\nDP: %s\n", yytext);return DP;}
 {LEER}          {printf("\nLEER: %s\n", yytext);return LEER;}
 {ESCRIBIR}      {printf("\nESCRIBIR: %s\n", yytext);return ESCRIBIR;}
 {OP_AND}        {printf("\nAND: %s\n", yytext);return OP_AND;}
 {OP_OR}         {printf("\nOR: %s\n", yytext);return OP_OR;}
-{OP_NOT}        {printf("\nNOT: %s\n", yytext);return OP_NOT;}
 {CA}            {printf("\nCORCHETE ABRE: %s\n", yytext);return CA;}
 {CC}            {printf("\nCORCHETE CIERRA: %s\n", yytext);return CC;}
 {SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
 {TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
 {COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
+{CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
+{ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
 
 "\n"      		
 "\t"
