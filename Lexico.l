@@ -99,8 +99,8 @@ PTO_COMA     ";"
 {SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
 {TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
 {COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
-{PTO_COMA}      {printf("\PTO_COMA: %s\n", yytext);return PTO_COMA;}
-{IGUAL}         {printf("\IGUAL: %s\n", yytext);return IGUAL;}
+{PTO_COMA}      {printf("\nPTO_COMA: %s\n", yytext);return PTO_COMA;}
+{IGUAL}         {printf("\nIGUAL: %s\n", yytext);return IGUAL;}
 {CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
 {ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
 
