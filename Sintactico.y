@@ -1,5 +1,3 @@
-// Usa Lexico_ClasePractica
-//Solo expresiones sin ()
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,8 +73,6 @@ sentencia:
   | triangulos 
   | ultimos
 	;
-
-
 
 si: 
   IF PA condicion PC LA programa LC 
@@ -169,7 +165,6 @@ num: CTE_INT | CTE_FLOAT
 triangulos:
 ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC
 ;
-
 
 %%
 

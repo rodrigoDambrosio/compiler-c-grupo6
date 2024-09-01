@@ -26,10 +26,8 @@ LEER        "leer"
 ESCRIBIR    "escribir"
 SUM_ULT     "sumaLosUltimos"
 TRIANG      "triangulo"
-
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
-
 CTE		        {DIGITO}+
 CTE_STRING  	\"[^\"]+[{DIGITO}|{LETRA}]*[^\"]+\"
 CTE_FLOAT 		{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
