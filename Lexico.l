@@ -55,9 +55,11 @@ OP_OR        "OR"
 OP_NOT       "NOT"
 OP_IGUAL     "=="
 OP_NOT_IGUAL "!="
+IGUAL        "="
 CA           "["
 CC           "]"
 COMA         ","
+PTO_COMA     ";"
 %%
 
 {INIT}          {printf("\nINIT: %s\n", yytext);return INIT;}
@@ -97,6 +99,8 @@ COMA         ","
 {SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
 {TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
 {COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
+{PTO_COMA}      {printf("\PTO_COMA: %s\n", yytext);return PTO_COMA;}
+{IGUAL}         {printf("\IGUAL: %s\n", yytext);return IGUAL;}
 {CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
 {ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
 

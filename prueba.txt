@@ -29,6 +29,8 @@ b := 3
 
 mientras (NOT(a>b OR a == b) AND b>c)
 {
-    *- escribir("a es mas grande que b") -*
+    escribir("a es mas grande que b")
     a := a + 1
 }
+
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])

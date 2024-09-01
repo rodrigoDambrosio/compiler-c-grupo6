@@ -51,6 +51,8 @@ FILE  *yyin;
 %token OP_MAYORI
 %token OP_MENI
 %token COMA
+%token PTO_COMA
+%token IGUAL
 %%
 
 // to-do validar tipos de datos, 
@@ -62,7 +64,11 @@ sentencia:
 	asignacion {printf(" FIN\n");} |
   bloque_asig {printf(" BLOQUE ASIG\n");} |
   mientras {printf("MIENTRAS\n");} |
-  si {printf("SI\n");} 
+  si {printf("SI\n");} |
+  leer |
+  escribir |
+  triangulos |
+  ultimos
 	 ;
 
 mientras:
@@ -132,6 +138,34 @@ factor:
       | CTE_FLOAT
 	    | PA expresion PC {printf("    Expresion entre parentesis es Factor\n");}
      	;
+
+leer : 
+     LEER PA ID PC
+;
+
+escribir:
+    ESCRIBIR PA CTE_STRING PC |
+    ESCRIBIR PA ID PC
+
+// x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])  // x = 74.5 // (5.5 + 17 + 52)
+ultimos: 
+    ID IGUAL SUM_ULT PA CTE_INT PTO_COMA CA lista_num CC PC
+;
+
+lista_num: lista_num COMA num | num
+;
+
+num: CTE_INT | CTE_FLOAT 
+  ;
+//x = 2, z = 3 // asignaciones a fines de entender los ejemplos
+// y = triangulo(x, 1+1, x)  // y = "equilatero"
+// y = triangulo(0, 1/x, 0) // y = "isóceles"
+// y = triangulo((32+5+x)*z, 1/x, 100) // y = "escaleno"
+
+triangulos:
+ID OP_IGUAL TRIANG PA expresion COMA expresion COMA expresion PC
+;
+
 
 %%
 
