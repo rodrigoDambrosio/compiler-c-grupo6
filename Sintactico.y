@@ -55,40 +55,44 @@ FILE  *yyin;
 %token IGUAL
 %%
 
-// to-do validar tipos de datos, 
+// TODO: validar tipos de datos
+// TODO: ver como guardar tabla simbolos
 
-programa: sentencia | programa sentencia
+programa: instrucciones
+;
+
+instrucciones: sentencia 
+               | instrucciones sentencia
 ;
 
 sentencia:  	   
-	asignacion {printf(" FIN\n");} |
-  bloque_asig {printf(" BLOQUE ASIG\n");} |
-  mientras {printf("MIENTRAS\n");} |
-  si {printf("SI\n");} |
-  leer |
-  escribir |
-  triangulos |
-  ultimos
-	 ;
+	asignacion {printf(" FIN\n");} 
+  | bloque_asig {printf(" BLOQUE ASIG\n");} 
+  | mientras {printf("MIENTRAS\n");} 
+  | si {printf("SI\n");} 
+  | leer 
+  | escribir 
+  | triangulos 
+  | ultimos
+	;
 
-mientras:
-  WHILE PA condicion PC LA programa LC
-;
+
 
 si: 
-  IF PA condicion PC LA programa LC |
-  IF PA condicion PC LA programa LC ELSE LA programa LC;
+  IF PA condicion PC LA programa LC 
+  | IF PA condicion PC LA programa LC ELSE LA programa LC;
 ;
 
 bloque_asig:
 INIT LA lista_asignacion LC {printf("    BLOQUE VAR\n");}
 ;
 
-lista_asignacion : lista_variables asig_tipo | lista_asignacion lista_variables asig_tipo
+lista_asignacion : lista_variables asig_tipo 
+                   | lista_asignacion lista_variables asig_tipo
 ;
 
 lista_variables: lista_variables COMA ID
-                | ID
+                 | ID
 
 asig_tipo: DP TIPO_S | DP TIPO_F | DP TIPO_I
 ;
@@ -98,30 +102,34 @@ asignacion:
 	  ;
 
 expresion:
-         termino {printf("    Termino es Expresion\n");}
-	 |expresion OP_SUM termino {printf("    Expresion+Termino es Expresion\n");}
-	 |expresion OP_RES termino {printf("    Expresion-Termino es Expresion\n");}
+   termino {printf("    Termino es Expresion\n");}
+	 | expresion OP_SUM termino {printf("    Expresion+Termino es Expresion\n");}
+	 | expresion OP_RES termino {printf("    Expresion-Termino es Expresion\n");}
 	 ;
+   
+mientras:
+  WHILE PA condicion PC LA programa LC
+;
 
 condicion:
-  condicion OP_OR expresion_logica |
-  condicion OP_AND expresion_logica |
-  OP_NOT condicion |
-  expresion_logica 
+  OP_NOT comparacion 
+  | condicion OP_OR comparacion 
+  | condicion OP_AND comparacion 
+  | comparacion
 ;
 
-expresion_logica:
-  expresion operador_comparacion expresion |
-  PA condicion PC
-;
+comparacion: 
+    expresion operador_comparacion expresion 
+    | PA condicion PC
+    ;
 
 operador_comparacion:
-  OP_MAYOR |
-  OP_MAYORI |
-  OP_MEN |
-  OP_MENI |
-  OP_IGUAL |
-  OP_NOT_IGUAL
+  OP_MAYOR 
+  | OP_MAYORI 
+  | OP_MEN 
+  | OP_MENI 
+  | OP_IGUAL 
+  | OP_NOT_IGUAL
 ;
 
 termino: 
@@ -144,26 +152,22 @@ leer :
 ;
 
 escribir:
-    ESCRIBIR PA CTE_STRING PC |
-    ESCRIBIR PA ID PC
+    ESCRIBIR PA CTE_STRING PC 
+    | ESCRIBIR PA ID PC
 
-// x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])  // x = 74.5 // (5.5 + 17 + 52)
 ultimos: 
     ID IGUAL SUM_ULT PA CTE_INT PTO_COMA CA lista_num CC PC
 ;
 
-lista_num: lista_num COMA num | num
+lista_num: lista_num COMA num 
+           | num
 ;
 
 num: CTE_INT | CTE_FLOAT 
   ;
-//x = 2, z = 3 // asignaciones a fines de entender los ejemplos
-// y = triangulo(x, 1+1, x)  // y = "equilatero"
-// y = triangulo(0, 1/x, 0) // y = "isóceles"
-// y = triangulo((32+5+x)*z, 1/x, 100) // y = "escaleno"
 
 triangulos:
-ID OP_IGUAL TRIANG PA expresion COMA expresion COMA expresion PC
+ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC
 ;
 
 
