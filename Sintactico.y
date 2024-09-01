@@ -11,6 +11,13 @@ FILE  *yyin;
 
 %}
 
+%union {
+int tipo_int;
+double tipo_double;
+char *tipo_str;
+}
+
+%start programa
 %token CTE
 %token ID
 %token OP_AS

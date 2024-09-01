@@ -1,14 +1,26 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
+#include <math.h>
 #include "y.tab.h"
+
+#define MAX_STRING 40
+#define MAX_INTEGER 65535
+#define LIMIT_FLOAT_INF pow(-1.17549,-38)
+#define LIMIT_FLOAT_SUP pow(3.40282,38)
+
 FILE  *yyin;
 int yylval;
 char *yyltext;
 
+void validacion_string(char[]);
+void validacion_integer(int);
+void validacion_float(float);
 
 int yyerror(void);
+
+
 
 %}
 
@@ -65,7 +77,21 @@ PTO_COMA     ";"
 {TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
 {TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
 {WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
-{CTE_STRING}	{printf("\nCTE STRING: %s\n", yytext);return CTE_STRING;}
+{CTE_STRING}	{
+                    validacion_string(yytext); 
+                    printf("\nCTE STRING: %s\n", yytext); 
+                    return CTE_STRING;
+                }
+{CTE_FLOAT}	    {
+                    validacion_float(atof(yytext));
+                    printf("\nCTE FLOAT: %s\n", yytext);
+                    return CTE_FLOAT;
+                }    	
+{CTE_INT}	    {
+                    validacion_integer(atoi(yytext));
+                    printf("\nCTE INT: %s\n", yytext);
+                    return CTE_INT;
+                } 
 {OP_NOT}        {printf("\nNOT: %s\n", yytext);return OP_NOT;}
 {OP_SUM}		{printf("\nSuma: %s\n", yytext);return OP_SUM;}
 {OP_AS}			{printf("\nAsignacion: %s\n", yytext);return OP_AS;}
@@ -77,8 +103,6 @@ PTO_COMA     ";"
 {LA}			{printf("\nLlaveAbre: %s\n", yytext);return LA;}
 {LC}			{printf("\nLlaveCierra: %s\n", yytext);return LC;}
 {COMENTARIO}    {printf("\nCOMENTARIO: %s\n", yytext);}
-{CTE_FLOAT}	    {printf("\nCTE FLOAT: %s\n", yytext);return CTE_FLOAT;}    	
-{CTE_INT}	    {printf("\nCTE INT: %s\n", yytext);return CTE_INT;} 
 {IF}            {printf("\nIF: %s\n", yytext);return IF;}
 {ELSE}          {printf("\nELSE: %s\n", yytext);return ELSE;}
 {OP_MAYOR}      {printf("\nOP_MAYOR: %s\n", yytext);return OP_MAYOR;}
@@ -102,11 +126,40 @@ PTO_COMA     ";"
 {CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
 {ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
 
+
 "\n"      		
 "\t"
 "\n\t"
 " "             		
 "\r\n"
 .			 { printf( "ERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
+%%
 
+void validacion_string(char cadena[])
+{
+    int largo = strlen(cadena);
+    if(largo > MAX_STRING)
+    {
+        printf("Error: Rango de string excedido en linea %d. Se permite un maximo de %d caracteres", yylineno, MAX_STRING);
+        yyerror();
+    }
+}
 
+void validacion_float(float numero)
+{   
+    if (numero > LIMIT_FLOAT_SUP || numero < LIMIT_FLOAT_INF)
+    {
+        printf("Error: Rango de float excedido. Se permite float de 32 bits.\n");
+        yyerror();
+    } 
+
+}
+
+void validacion_integer(int numero)
+{
+    if(numero > 65535)
+    {
+        printf("Error: Valor de int excedido, el mayor posible es 65535");
+        yyerror();
+    }
+}
