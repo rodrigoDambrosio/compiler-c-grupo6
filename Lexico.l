@@ -31,9 +31,9 @@ DIGITO			[0-9]
 LETRA			[a-zA-Z]
 
 CTE		        {DIGITO}+
-CONS_STR  		\"({LETRA}|{DIGITO})({LETRA}|{DIGITO}|" ")\"
-CONS_FLOAT 		{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
-CONS_INT  		{DIGITO}+
+CTE_STRING  	\"[^\"]+[{DIGITO}|{LETRA}]*[^\"]+\"
+CTE_FLOAT 		{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
+CTE_INT  		{DIGITO}+
 ID			{LETRA}({LETRA}|{DIGITO})*
 OP_AS   		":""="
 OP_SUM		        "+"
@@ -65,6 +65,7 @@ COMA         ","
 {TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
 {TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
 {WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
+{CTE_STRING}	{printf("\nCTE STRING: %s\n", yytext);return CTE_STRING;}
 {OP_NOT}        {printf("\nNOT: %s\n", yytext);return OP_NOT;}
 {OP_SUM}		{printf("\nSuma: %s\n", yytext);return OP_SUM;}
 {OP_AS}			{printf("\nAsignacion: %s\n", yytext);return OP_AS;}
@@ -76,8 +77,8 @@ COMA         ","
 {LA}			{printf("\nLlaveAbre: %s\n", yytext);return LA;}
 {LC}			{printf("\nLlaveCierra: %s\n", yytext);return LC;}
 {COMENTARIO}    {printf("\nCOMENTARIO: %s\n", yytext);}
-{CONS_STR}	    {printf("\nCTE STR: %s\n", yytext);return CONS_STR;}
-{CONS_FLOAT}	{printf("\nCTE FLOAT: %s\n", yytext);return CONS_FLOAT;}    	
+{CTE_FLOAT}	    {printf("\nCTE FLOAT: %s\n", yytext);return CTE_FLOAT;}    	
+{CTE_INT}	    {printf("\nCTE INT: %s\n", yytext);return CTE_INT;} 
 {IF}            {printf("\nIF: %s\n", yytext);return IF;}
 {ELSE}          {printf("\nELSE: %s\n", yytext);return ELSE;}
 {OP_MAYOR}      {printf("\nOP_MAYOR: %s\n", yytext);return OP_MAYOR;}

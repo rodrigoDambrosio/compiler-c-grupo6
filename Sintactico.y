@@ -24,9 +24,9 @@ FILE  *yyin;
 %token PC
 %token LA
 %token LC
-%token CONS_STR
-%token CONS_FLOAT
-%token CONS_INT
+%token CTE_STRING
+%token CTE_FLOAT
+%token CTE_INT
 %token WHILE
 %token IF
 %token ELSE
@@ -53,19 +53,25 @@ FILE  *yyin;
 %token COMA
 %%
 
+// to-do validar tipos de datos, 
+
 programa: sentencia | programa sentencia
 ;
+
 sentencia:  	   
 	asignacion {printf(" FIN\n");} |
   bloque_asig {printf(" BLOQUE ASIG\n");} |
-  mientras {printf("MIENTRAS\n");}
+  mientras {printf("MIENTRAS\n");} |
+  si {printf("SI\n");} 
 	 ;
 
 mientras:
-WHILE PA condicion PC
-LA
-  programa
-LC
+  WHILE PA condicion PC LA programa LC
+;
+
+si: 
+  IF PA condicion PC LA programa LC |
+  IF PA condicion PC LA programa LC ELSE LA programa LC;
 ;
 
 bloque_asig:
@@ -96,10 +102,7 @@ condicion:
   condicion OP_AND expresion_logica |
   OP_NOT condicion |
   expresion_logica 
-
 ;
-
-// to-do not condicion
 
 expresion_logica:
   expresion operador_comparacion expresion |
@@ -123,8 +126,11 @@ termino:
 
 factor: 
       ID {printf("    ID es Factor \n");}
+      | CTE_STRING
       | CTE {printf("    CTE es Factor\n");}
-	| PA expresion PC {printf("    Expresion entre parentesis es Factor\n");}
+      | CTE_INT
+      | CTE_FLOAT
+	    | PA expresion PC {printf("    Expresion entre parentesis es Factor\n");}
      	;
 
 %%
