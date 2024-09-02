@@ -36,11 +36,11 @@ typedef struct
 }t_tabla;
 
 
-void crearTablaTS();
-int insertarTS(const char*, const char*, const char*, int, double);
+void crear_tabla_simbolos();
+int insertar_tabla_simbolos(const char*, const char*, const char*, int, double);
 t_data* crearDatos(const char*, const char*, const char*, int, double);
-void guardarTS();
-t_tabla tablaTS;
+void guardar_tabla_simbolos();
+t_tabla tabla_simbolos;
 
 int cantid = 0;
 char mensajes[100];
@@ -115,8 +115,8 @@ char *tipo_str;
 // TODO: ver como guardar tabla simbolos
 
 programa: instrucciones{
-  guardarTS();
-  printf(" FIN\n");
+  guardar_tabla_simbolos();
+  printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
 }
 ;
 
@@ -126,18 +126,18 @@ instrucciones:
 ;
 
 sentencia:  	   
-	asignacion {printf("ASIGNACION\n");}
-  | bloque_asig {printf(" BLOQUE ASIG\n");} 
-  | mientras {printf("MIENTRAS\n");} 
-  | si {printf("SI\n");} 
-  | leer {printf("LEER\n");}
-  | escribir {printf("ESCRIBIR\n");}
-  | triangulos {printf("TRIANGULOS\n");}
-  | ultimos {printf("SUMAR ULTIMOS\n");}
+	asignacion    {printf("SENTENCIA ES ASIGNACION\n");}
+  | bloque_asig {printf("SENTENCIA ES BLOQUE ASIGNACIONES\n");} 
+  | mientras    {printf("SENTENCIA ES MIENTRAS\n");} 
+  | si          {printf("SENTENCIA ES SI\n");} 
+  | leer        {printf("SENTENCIA ES LEER\n");}
+  | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
+  | triangulos  {printf("SENTENCIA ES TRIANGULOS\n");}
+  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n");}
 	;
 
 si: 
-  IF PA condicion PC LA instrucciones LC {printf("ES CONDICION\n");}
+  IF PA condicion PC LA instrucciones LC {printf("ES CONDICION SI\n");}
   | IF PA condicion PC LA instrucciones LC ELSE LA instrucciones LC {printf("ES CONDICION SINO \n");}
 ;
 
@@ -149,7 +149,7 @@ lista_asignacion :
           lista_variables asig_tipo {
                   for(i=0;i<cantid;i++)
 													{
-														if(insertarTS(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0) //solo se guarda la primer ocurrencia
+														if(insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0) //solo se guarda la primer ocurrencia
 														{
 															sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
 															yyerror();
@@ -160,7 +160,7 @@ lista_asignacion :
           | lista_asignacion lista_variables asig_tipo{
             for(i=0;i<cantid;i++)
 													{
-														if(insertarTS(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0)
+														if(insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0)
 														{
 															sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
 															yyerror();
@@ -253,17 +253,17 @@ factor:
       | CTE_STRING {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
-        insertarTS(nombre_id, "CTE_STR", $1, 0, 0.0);
+        insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-        insertarTS(nombre_id, "CTE_INT", "", $1, 0.0);
+        insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
-        insertarTS(nombre_id, "CTE_FLOAT", "", 0, $1);
+        insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
       }
 	    | PA expresion PC {printf("Expresion entre parentesis es Factor\n");}
      	;
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
     }
     else
     { 
-        crearTablaTS();
+        crear_tabla_simbolos();
         yyparse();
         
     }
@@ -315,9 +315,9 @@ int yyerror(void)
 	 exit (1);
      }
 
-int insertarTS(const char *nombre,const char *tipo, const char* valString, int valInt, double valDouble)
+int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* valString, int valInt, double valDouble)
 {
-    t_simbolo *tabla = tablaTS.primero;
+    t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
     
@@ -377,9 +377,9 @@ int insertarTS(const char *nombre,const char *tipo, const char* valString, int v
     nuevo->data = *data;
     nuevo->next = NULL;
 
-    if(tablaTS.primero == NULL)
+    if(tabla_simbolos.primero == NULL)
     {
-        tablaTS.primero = nuevo;
+        tabla_simbolos.primero = nuevo;
     }
     else
     {
@@ -444,7 +444,7 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
     return NULL;
 }
 
-void guardarTS()
+void guardar_tabla_simbolos()
 {
     FILE* arch;
     if((arch = fopen("ts.txt", "wt")) == NULL)
@@ -452,13 +452,13 @@ void guardarTS()
             printf("\nNo se pudo crear la tabla de simbolos.\n\n");
             return;
     }
-    else if(tablaTS.primero == NULL)
+    else if(tabla_simbolos.primero == NULL)
             return;
     
     fprintf(arch, "%-30s%-30s%-40s%-30s\n", "NOMBRE", "TIPODATO", "VALOR", "LONGITUD");
 
     t_simbolo *aux;
-    t_simbolo *tabla = tablaTS.primero;
+    t_simbolo *tabla = tabla_simbolos.primero;
     char linea[100];
 
     while(tabla)
@@ -497,7 +497,7 @@ void guardarTS()
     fclose(arch); 
 }
 
-void crearTablaTS()
+void crear_tabla_simbolos()
 {
-    tablaTS.primero = NULL;
+    tabla_simbolos.primero = NULL;
 }
