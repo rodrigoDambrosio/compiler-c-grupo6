@@ -1,8 +1,13 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
-_c                                                          21                                      
 _c                                                          4                                       
-_j                                                          5.200000                                
-_z                                                          hola rodri!                             11
+_x4                                                         27                                      
+_xy                                                         500                                     
+_xx                                                         3                                       
+_a3                                                         99999.992188                            
+_a4                                                         99.000000                               
+_a5                                                         0.999900                                
+_b78                                                        asldk  fh sjf                           13
+_b76                                                        @sdaaaaaaaaaaaafg                       17
 a1                            FLOAT                         --                                      
 b1                            FLOAT                         --                                      
 variable1                     INTEGER                       --                                      
@@ -12,29 +17,5 @@ p3                            STRING                        --
 variable2                     INTEGER                       --                                      
 a2                            FLOAT                         --                                      
 b3                            FLOAT                         --                                      
-a1                            FLOAT                         --                                      
-b1                            FLOAT                         --                                      
-_a                                                          1                                       
-_a                                                          1                                       
-_a                                                          1                                       
-_a                                                          1                                       
+_a                                                          100                                     
 _b                                                          3                                       
-_a                                                          1                                       
-_x4                                                         27                                      
-_xy                                                         500                                     
-_xx                                                         34                                      
-_xx                                                         3                                       
-_a3                                                         99999.992188                            
-_a4                                                         99.000000                               
-_a5                                                         0.999900                                
-_b76                                                        @sdADaSjfla%dfg                         15
-_b78                                                        asldk  fh sjffg                         13
-_b78                                                        1                                       
-_b78                                                        1                                       
-_b78                                                        0                                       
-_b78                                                        1                                       
-_b78                                                        0                                       
-_b78                                                        32                                      
-_b78                                                        5                                       
-_b78                                                        1                                       
-_b78                                                        100                                     

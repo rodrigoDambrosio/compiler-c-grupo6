@@ -320,17 +320,34 @@ int yyerror(void)
 }
 
 int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
-                            const char* valString, int valor_var_int, 
+                            const char* valor_string, int valor_var_int, 
                             float valor_var_float)
 {
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
     while(tabla)
-    {  
+    { 
+      // Para evitar repetidos / actualizar asignaciones
+      if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
+      {
+          if (strcmp(tipo, "CTE_STR") == 0)
+            {
+                strcpy(tabla->data.valor.valor_var_str, valor_string);
+            }
+            else if (strcmp(tipo, "CTE_INT") == 0)
+            {
+                tabla->data.valor.valor_var_int = valor_var_int;
+            }
+            else if (strcmp(tipo, "CTE_FLOAT") == 0)
+            {
+                tabla->data.valor.valor_var_float = valor_var_float;
+            }
+            return 1;
+      }    
       if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
       {
-            if(strcmp(tabla->data.valor.valor_var_str, valString) == 0)
+            if(strcmp(tabla->data.valor.valor_var_str, valor_string) == 0)
             {
                 return 1;
             }
@@ -343,7 +360,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     }
 
     t_data *data = (t_data*)malloc(sizeof(t_data));
-    data = crearDatos(nombre, tipo, valString, valor_var_int, valor_var_float);
+    data = crearDatos(nombre, tipo, valor_string, valor_var_int, valor_var_float);
 
     if(data == NULL)
     {
