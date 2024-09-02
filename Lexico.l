@@ -83,7 +83,7 @@ PTO_COMA     ";"
                     return CTE_STRING;
                 }
 {CTE_FLOAT}	    {
-                    yylval.tipo_double = atof(yytext);
+                    yylval.tipo_float = atof(yytext);
                     validacion_float(atof(yytext));
                     printf("\nCTE FLOAT: %s\n", yytext);
                     return CTE_FLOAT;

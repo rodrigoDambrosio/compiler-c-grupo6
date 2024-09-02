@@ -1,7 +1,83 @@
+
+*- c:=d*(e-21)/4 -*
+
+c:=d*(e-21)/4
+
+*- Declaración de variables -*
+j:=5.2
+z:="hola rodri!"
+
 init {
     a1, b1 : Float
     variable1 : Int
     p1, p2, p3 : String
+    variable2 : Int
+    a2, b3 : Float
 }
 
-j := "aaaaaaaaaaaaaaaaaaaaaaaaa"
+init {
+    a1, b1 : Float
+}
+
+
+mientras ( (a>b AND b>c) OR a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si (NOT a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si  (a > b OR b>g)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+
+a := 1
+b := 3
+
+mientras (a > b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si (a > b)
+{
+    escribir("a es mas grande que b")
+}
+sino
+{
+    escribir("a es mas chico o igual a b")
+}
+
+
+x4 := 27 - c
+xy := r + 500
+xx := 34 * 3
+xz := z / f
+
+a3 := 99999.99
+a4 := 99.
+a5 := .9999
+
+b76 := "@sdADaSjfla%dfg"
+b78 := "asldk  fh sjf"
+
+leer(base) *- base es una variable -*
+
+
+escribir("ewr")  *- “ewr” es una cte string -*
+escribir(var1)  *- var1 es una variable numerica definida previamente -*
+
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+
+y = triangulo(x, 1+1, x)  
+y = triangulo(0, 1/x, 0) 
+y = triangulo((32+5+x)*z, 1/x, 100) 

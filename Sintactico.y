@@ -16,9 +16,9 @@ typedef struct
         char *nombre;
         char *tipo;
         union Valor{
-                int valor_int;
-                double valor_double;
-                char *valor_str;
+                int valor_var_int;
+                float valor_var_float;
+                char *valor_var_str;
         }valor;
         int longitud;
 }t_data;
@@ -37,8 +37,8 @@ typedef struct
 
 
 void crear_tabla_simbolos();
-int insertar_tabla_simbolos(const char*, const char*, const char*, int, double);
-t_data* crearDatos(const char*, const char*, const char*, int, double);
+int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
+t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
 t_tabla tabla_simbolos;
 
@@ -65,14 +65,14 @@ char aux_string[40];
 
 %union {
 int tipo_int;
-double tipo_double;
+float tipo_float;
 char *tipo_str;
 }
 
 %start programa
 %token <tipo_str>ID
 %token <tipo_int>CTE_INT
-%token <tipo_double>CTE_FLOAT
+%token <tipo_float>CTE_FLOAT
 %token <tipo_str>CTE_STRING
 %token OP_AS
 %token OP_SUM
@@ -111,9 +111,6 @@ char *tipo_str;
 %token IGUAL
 %%
 
-// TODO: validar tipos de datos
-// TODO: ver como guardar tabla simbolos
-
 programa: instrucciones{
   guardar_tabla_simbolos();
   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
@@ -122,7 +119,7 @@ programa: instrucciones{
 
 instrucciones: 
             sentencia {printf(" INSTRUCCIONES ES SENTENCIA\n");}
-          | instrucciones sentencia 
+          | instrucciones sentencia {printf(" INSTRUCCIONES Y SENTENCIA ES PROGRAMA\n");}
 ;
 
 sentencia:  	   
@@ -146,28 +143,23 @@ INIT LA lista_asignacion LC {printf("BLOQUE ASIGNACION\n");}
 ;
 
 lista_asignacion : 
-          lista_variables asig_tipo {
+          lista_variables asig_tipo 
+          {
                   for(i=0;i<cantid;i++)
-													{
-														if(insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0) //solo se guarda la primer ocurrencia
-														{
-															sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
-															yyerror();
-														}
-													}
-													cantid=0;
+									{
+									  insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
+									}
+									cantid=0;
           }
-          | lista_asignacion lista_variables asig_tipo{
-            for(i=0;i<cantid;i++)
-													{
-														if(insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0) != 0)
-														{
-															sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
-															yyerror();
-														}
-													}
-													cantid=0;
-          }
+          | lista_asignacion lista_variables asig_tipo
+            {
+              for(i=0;i<cantid;i++)
+              {
+                insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
+              }
+              cantid=0;
+					 }
+										
 ;
 
 lista_variables: lista_variables COMA ID {
@@ -288,7 +280,7 @@ num: CTE_INT | CTE_FLOAT
 ;
 
 triangulos:
-ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC  {printf("ES TRIANGULOS\n");}
+           ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC  {printf("ES TRIANGULOS\n");}
 ;
 
 %%
@@ -306,53 +298,31 @@ int main(int argc, char *argv[])
         yyparse();
         
     }
-	fclose(yyin);
-        return 0;
+  fclose(yyin);
+  return 0;
 }
-int yyerror(void)
-     {
-       printf("Error Sintactico\n");
-	 exit (1);
-     }
 
-int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* valString, int valInt, double valDouble)
+int yyerror(void)
+{
+  printf("Error Sintactico\n");
+	exit (1);
+}
+
+int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* valString, int valor_var_int, float valor_var_float)
 {
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    
     while(tabla)
-    {
-	    if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
+    {  
+      if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
       {
-           // Actualizamos los valores dependiendo del tipo
-            if (strcmp(tipo, "CTE_STR") == 0)
-            {
-                strcpy(tabla->data.valor.valor_str, valString);
-            }
-            else if (strcmp(tipo, "CTE_INT") == 0)
-            {
-                tabla->data.valor.valor_int = valInt;
-            }
-            else if (strcmp(tipo, "CTE_DOUBLE") == 0)
-            {
-                tabla->data.valor.valor_double = valDouble;
-            }
-
-            // Actualizar el tipo?
-            strcpy(tabla->data.tipo, tipo);
-
-            return 0;
-      }
-      else if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
-      {
-            if(strcmp(tabla->data.valor.valor_str, valString) == 0)
+            if(strcmp(tabla->data.valor.valor_var_str, valString) == 0)
             {
                 return 1;
             }
       }
-        
-        if(tabla->next == NULL)
+      if(tabla->next == NULL)
         {
             break;
         }
@@ -360,8 +330,8 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* val
     }
 
     t_data *data = (t_data*)malloc(sizeof(t_data));
-    data = crearDatos(nombre, tipo, valString, valInt, valDouble);
-    
+    data = crearDatos(nombre, tipo, valString, valor_var_int, valor_var_float);
+
     if(data == NULL)
     {
         return 1;
@@ -370,7 +340,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* val
     t_simbolo* nuevo = (t_simbolo*)malloc(sizeof(t_simbolo));
 
     if(nuevo == NULL)
-    {
+    {   
         return 2;
     }
 
@@ -390,7 +360,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* val
 }
 
 
-t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, int valInt, double valDouble)
+t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, int valor_var_int, float valor_var_float)
 {
     char full[50] = "_";
     char aux[20];
@@ -400,8 +370,6 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
     {
         return NULL;
     }
-
-    
 
     data->tipo = (char*)malloc(sizeof(char) * (strlen(tipo) + 1));
     strcpy(data->tipo, tipo);
@@ -416,11 +384,11 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
     {      
         if(strcmp(tipo, "CTE_STR") == 0)
         {
-            data->valor.valor_str = (char*)malloc(sizeof(char) * strlen(valString) +1);
+            data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(valString) +1);
             data->nombre = (char*)malloc(sizeof(char) * (strlen(valString) + 1));
             strcat(full, nombre);
             strcpy(data->nombre, full);    
-            strcpy(data->valor.valor_str, valString);
+            strcpy(data->valor.valor_var_str, valString);
         }
         if(strcmp(tipo, "CTE_FLOAT") == 0)
         {
@@ -429,7 +397,7 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
 
             strcpy(data->nombre, full);
-            data->valor.valor_double = valDouble;
+            data->valor.valor_var_float = valor_var_float;
         }
         if(strcmp(tipo, "CTE_INT") == 0)
         {
@@ -437,7 +405,7 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
             strcat(full, aux);
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);
-            data->valor.valor_int = valInt;
+            data->valor.valor_var_int = valor_var_int;
         }
         return data;
     }
@@ -472,7 +440,7 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_INT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_int, "");
+            sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_var_int, "");
         }
         else if(strcmp(aux->data.tipo, "FLOAT") ==0)
         {
@@ -480,7 +448,7 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_double, "");
+            sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_var_float, "");
         }
         else if(strcmp(aux->data.tipo, "STRING") == 0)
         {
@@ -488,8 +456,8 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_STR") == 0)
         {
-            strncpy(aux_string, aux->data.valor.valor_str + 1, strlen(aux->data.valor.valor_str)-2);
-            sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_str) -2);
+            strncpy(aux_string, aux->data.valor.valor_var_str + 1, strlen(aux->data.valor.valor_var_str)-2);
+            sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_var_str) -2);
         }
         fprintf(arch, "%s", linea);
         free(aux);
