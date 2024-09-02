@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 
 int yyerror(void)
 {
-  printf("Error Sintactico\n");
+printf("\n ********* Error Sintactico ********* \n");
 	exit (1);
 }
 

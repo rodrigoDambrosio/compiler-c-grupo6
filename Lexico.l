@@ -145,7 +145,7 @@ void validacion_string(char cadena[])
     int largo = strlen(cadena);
     if(largo > MAX_STRING)
     {
-        printf("Error: Rango de string excedido en linea %d. Se permite un maximo de %d caracteres", yylineno, MAX_STRING);
+        printf("ERROR: Rango de string excedido en linea %d. Se permite un maximo de %d caracteres \n", yylineno, MAX_STRING);
         yyerror();
     }
 }
@@ -154,7 +154,7 @@ void validacion_float(float numero)
 {   
     if (numero > LIMIT_FLOAT_SUP || numero < LIMIT_FLOAT_INF)
     {
-        printf("Error: Rango de float excedido. Se permite float de 32 bits.\n");
+        printf("ERROR: Rango de float excedido. Se permite float de 32 bits.\n");
         yyerror();
     } 
 
@@ -162,9 +162,9 @@ void validacion_float(float numero)
 
 void validacion_integer(int numero)
 {
-    if(numero > 65535)
+    if(numero > MAX_INTEGER)
     {
-        printf("Error: Valor de int excedido, el mayor posible es 65535");
+        printf("\n ERROR: Valor de int excedido, el mayor posible es %d \n", MAX_INTEGER);
         yyerror();
     }
 }
