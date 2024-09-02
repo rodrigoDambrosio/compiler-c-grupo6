@@ -1,10 +1,21 @@
-NOMBRE                        TIPODATO                      VALOR                         LONGITUD                      
-a1                            FLOAT                         --                            
-b1                            FLOAT                         --                            
-variable1                     INTEGER                       --                            
-p1                            STRING                        --                            
-p2                            STRING                        --                            
-p3                            STRING                        --                            
-_a                                                          1                             
-_b                                                          3                             
-_x                                                          27                            
+NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
+_c                                                          4                                       
+_x4                                                         27                                      
+_xy                                                         500                                     
+_xx                                                         3                                       
+_a3                                                         99999.992188                            
+_a4                                                         99.000000                               
+_a5                                                         0.999900                                
+_b78                                                        asldk  fh sjf                           13
+_b76                                                        @sdaaaaaaaaaaaafg                       17
+a1                            FLOAT                         --                                      
+b1                            FLOAT                         --                                      
+variable1                     INTEGER                       --                                      
+p1                            STRING                        --                                      
+p2                            STRING                        --                                      
+p3                            STRING                        --                                      
+variable2                     INTEGER                       --                                      
+a2                            FLOAT                         --                                      
+b3                            FLOAT                         --                                      
+_a                                                          100                                     
+_b                                                          3                                       

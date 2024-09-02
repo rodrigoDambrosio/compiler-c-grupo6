@@ -7,20 +7,18 @@
 
 #define MAX_STRING 40
 #define MAX_INTEGER 65535
-#define LIMIT_FLOAT_INF pow(-1.17549,-38)
-#define LIMIT_FLOAT_SUP pow(3.40282,38)
+#define COTA_INFERIOR_FLOAT pow(-1.17549,-38)
+#define COTA_SUPERIOR_FLOAT pow(3.40282,38)
 
 FILE  *yyin;
-int yyval;
-char *yyltext;
+int   yyval;
+char  *yyltext;
 
 void validacion_string(char[]);
 void validacion_integer(int);
 void validacion_float(float);
 
 int yyerror(void);
-
-
 
 %}
 
@@ -38,17 +36,17 @@ LEER        "leer"
 ESCRIBIR    "escribir"
 SUM_ULT     "sumaLosUltimos"
 TRIANG      "triangulo"
-DIGITO			[0-9]
-LETRA			[a-zA-Z]
-CTE_STRING  	\"[^\"]+[{DIGITO}|{LETRA}]*[^\"]+\"
-CTE_FLOAT 		{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
-CTE_INT  		{DIGITO}+
+DIGITO	    [0-9]
+LETRA		[a-zA-Z]
+CTE_STRING  \"[^\"]+[{DIGITO}|{LETRA}]*[^\"]+\"
+CTE_FLOAT 	{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
+CTE_INT  	{DIGITO}+
 ID			{LETRA}({LETRA}|{DIGITO})*
-OP_AS   		":="
-OP_SUM		        "+"
-OP_MUL                  "*"
-OP_RES		        "-"
-OP_DIV                  "/"
+OP_AS   	":="
+OP_SUM		"+"
+OP_MUL      "*"
+OP_RES		"-"
+OP_DIV      "/"
 PA			"("
 PC			")"
 DP          ":"
@@ -76,6 +74,10 @@ PTO_COMA     ";"
 {TIPO_I}        {printf("\nTIPO_I: %s\n", yytext);return TIPO_I;}
 {TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
 {WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
+{ESCRIBIR}      {printf("\nESCRIBIR: %s\n", yytext);return ESCRIBIR;}
+{LEER}          {printf("\nLEER: %s\n", yytext);return LEER;}
+{SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
+{TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
 {CTE_STRING}	{
                     yylval.tipo_str = yytext;
                     validacion_string(yytext); 
@@ -83,7 +85,7 @@ PTO_COMA     ";"
                     return CTE_STRING;
                 }
 {CTE_FLOAT}	    {
-                    yylval.tipo_double = atof(yytext);
+                    yylval.tipo_float = atof(yytext);
                     validacion_float(atof(yytext));
                     printf("\nCTE FLOAT: %s\n", yytext);
                     return CTE_FLOAT;
@@ -114,14 +116,10 @@ PTO_COMA     ";"
 {OP_MENI}       {printf("\nOP_MENOR IGUAL: %s\n", yytext);return OP_MENI;}
 {OP_IGUAL}      {printf("\nOP_IGUAL: %s\n", yytext);return OP_IGUAL;}
 {OP_NOT_IGUAL}  {printf("\nOP_NOT_IGUAL: %s\n", yytext);return OP_NOT_IGUAL;}
-{LEER}          {printf("\nLEER: %s\n", yytext);return LEER;}
-{ESCRIBIR}      {printf("\nESCRIBIR: %s\n", yytext);return ESCRIBIR;}
 {OP_AND}        {printf("\nAND: %s\n", yytext);return OP_AND;}
 {OP_OR}         {printf("\nOR: %s\n", yytext);return OP_OR;}
 {CA}            {printf("\nCORCHETE ABRE: %s\n", yytext);return CA;}
 {CC}            {printf("\nCORCHETE CIERRA: %s\n", yytext);return CC;}
-{SUM_ULT}       {printf("\nSUMAR ULTIMOS: %s\n", yytext);return SUM_ULT;}
-{TRIANG}        {printf("\nTRIANGULO: %s\n", yytext);return TRIANG;}
 {COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
 {PTO_COMA}      {printf("\nPTO_COMA: %s\n", yytext);return PTO_COMA;}
 {IGUAL}         {printf("\nIGUAL: %s\n", yytext);return IGUAL;}
@@ -140,21 +138,25 @@ PTO_COMA     ";"
 .			 { printf( "ERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
 %%
 
+/*
+    Funciones para validar los tipos de datos
+*/
+
 void validacion_string(char cadena[])
 {
     int largo = strlen(cadena);
     if(largo > MAX_STRING)
     {
-        printf("Error: Rango de string excedido en linea %d. Se permite un maximo de %d caracteres", yylineno, MAX_STRING);
+        printf("ERROR: Rango de string excedido en linea %d. Se permite un maximo de %d caracteres \n", yylineno, MAX_STRING);
         yyerror();
     }
 }
 
 void validacion_float(float numero)
 {   
-    if (numero > LIMIT_FLOAT_SUP || numero < LIMIT_FLOAT_INF)
+    if (numero > COTA_SUPERIOR_FLOAT || numero < COTA_INFERIOR_FLOAT)
     {
-        printf("Error: Rango de float excedido. Se permite float de 32 bits.\n");
+        printf("ERROR: Rango de float excedido. Se permite float de 32 bits.\n");
         yyerror();
     } 
 
@@ -162,9 +164,9 @@ void validacion_float(float numero)
 
 void validacion_integer(int numero)
 {
-    if(numero > 65535)
+    if(numero > MAX_INTEGER)
     {
-        printf("Error: Valor de int excedido, el mayor posible es 65535");
+        printf("\n ERROR: Valor de int excedido, el mayor posible es %d \n", MAX_INTEGER);
         yyerror();
     }
 }
