@@ -1,9 +1,66 @@
+init {
+    a1, b1 : Float
+    variable1 : Int
+    p1, p2, p3 : String
+}
 
-*- c:=d*(e-21)/4 -*
 
-c:=d*(e-21)/4
+mientras ( (a>b AND b>c) OR a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
 
-*- Declaración de variables -*
-a:=162136619726890010000312.001
-a:="hola"
-a:=2
+si (NOT a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si  (a > b OR b>g)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+a := 1
+b := 3
+
+mientras (a > b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si (a > b)
+{
+    escribir("a es mas grande que b")
+}
+sino
+{
+    escribir("a es mas chico o igual a b")
+}
+
+x := 27 - c
+x := r + 500
+x := 34 * 3
+x := z / f
+
+
+a := 99999.99
+a := 99.
+a := .9999
+
+b := "@sdADaSjfla%dfg"
+b := "asldk  fh sjf"
+
+leer(base) *- base es una variable -*
+
+escribir("ewr")  *- “ewr” es una cte string -*
+escribir(var1)  *- var1 es una variable numérica definida previamente -*
+
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+
+y = triangulo(x, 1+1, x)  
+y = triangulo(0, 1/x, 0) 
+y = triangulo((32+5+x)*z, 1/x, 100) 

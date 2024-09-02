@@ -1,0 +1,10 @@
+NOMBRE                        TIPODATO                      VALOR                         LONGITUD                      
+a1                            FLOAT                         --                            
+b1                            FLOAT                         --                            
+variable1                     INTEGER                       --                            
+p1                            STRING                        --                            
+p2                            STRING                        --                            
+p3                            STRING                        --                            
+_a                                                          1                             
+_b                                                          3                             
+_x                                                          27                            

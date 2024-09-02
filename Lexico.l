@@ -11,7 +11,7 @@
 #define LIMIT_FLOAT_SUP pow(3.40282,38)
 
 FILE  *yyin;
-int yylval;
+int yyval;
 char *yyltext;
 
 void validacion_string(char[]);
@@ -40,12 +40,11 @@ SUM_ULT     "sumaLosUltimos"
 TRIANG      "triangulo"
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
-CTE		        {DIGITO}+
 CTE_STRING  	\"[^\"]+[{DIGITO}|{LETRA}]*[^\"]+\"
 CTE_FLOAT 		{DIGITO}*"."{DIGITO}+|{DIGITO}+"."{DIGITO}*
 CTE_INT  		{DIGITO}+
 ID			{LETRA}({LETRA}|{DIGITO})*
-OP_AS   		":""="
+OP_AS   		":="
 OP_SUM		        "+"
 OP_MUL                  "*"
 OP_RES		        "-"
@@ -78,16 +77,19 @@ PTO_COMA     ";"
 {TIPO_S}        {printf("\nTIPO_S: %s\n", yytext);return TIPO_S;}
 {WHILE}         {printf("\nCICLO: %s\n", yytext);return WHILE;}
 {CTE_STRING}	{
+                    yylval.tipo_str = yytext;
                     validacion_string(yytext); 
                     printf("\nCTE STRING: %s\n", yytext); 
                     return CTE_STRING;
                 }
 {CTE_FLOAT}	    {
+                    yylval.tipo_double = atof(yytext);
                     validacion_float(atof(yytext));
                     printf("\nCTE FLOAT: %s\n", yytext);
                     return CTE_FLOAT;
                 }    	
 {CTE_INT}	    {
+                    yylval.tipo_int = atoi(yytext);
                     validacion_integer(atoi(yytext));
                     printf("\nCTE INT: %s\n", yytext);
                     return CTE_INT;
@@ -95,6 +97,7 @@ PTO_COMA     ";"
 {OP_NOT}        {printf("\nNOT: %s\n", yytext);return OP_NOT;}
 {OP_SUM}		{printf("\nSuma: %s\n", yytext);return OP_SUM;}
 {OP_AS}			{printf("\nAsignacion: %s\n", yytext);return OP_AS;}
+{DP}            {printf("\nDP: %s\n", yytext);return DP;}
 {OP_MUL}		{printf("\nMultiplicacion: %s\n", yytext);return OP_MUL;}
 {OP_RES}		{printf("\nResta: %s\n", yytext);return OP_RES;}
 {OP_DIV}		{printf("\nDivision: %s\n", yytext);return OP_DIV;}
@@ -111,7 +114,6 @@ PTO_COMA     ";"
 {OP_MENI}       {printf("\nOP_MENOR IGUAL: %s\n", yytext);return OP_MENI;}
 {OP_IGUAL}      {printf("\nOP_IGUAL: %s\n", yytext);return OP_IGUAL;}
 {OP_NOT_IGUAL}  {printf("\nOP_NOT_IGUAL: %s\n", yytext);return OP_NOT_IGUAL;}
-{DP}            {printf("\nDP: %s\n", yytext);return DP;}
 {LEER}          {printf("\nLEER: %s\n", yytext);return LEER;}
 {ESCRIBIR}      {printf("\nESCRIBIR: %s\n", yytext);return ESCRIBIR;}
 {OP_AND}        {printf("\nAND: %s\n", yytext);return OP_AND;}
@@ -123,8 +125,11 @@ PTO_COMA     ";"
 {COMA}          {printf("\nCOMA: %s\n", yytext);return COMA;}
 {PTO_COMA}      {printf("\nPTO_COMA: %s\n", yytext);return PTO_COMA;}
 {IGUAL}         {printf("\nIGUAL: %s\n", yytext);return IGUAL;}
-{CTE}			{printf("\nConstante: %s\n", yytext);return CTE;}
-{ID}			{printf("\nIdentificador: %s\n", yytext);return ID;}
+{ID}			{
+                    yylval.tipo_str = strdup(yytext);
+                    printf("\nIdentificador: %s\n", yytext);
+                    return ID;
+                }
 
 
 "\n"      		
