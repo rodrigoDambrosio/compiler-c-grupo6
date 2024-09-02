@@ -253,29 +253,17 @@ factor:
       | CTE_STRING {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
-        if(insertarTS(nombre_id, "CTE_STR", $1, 0, 0.0) != 0) //solo se guarda la primer ocurrencia
-				{
-					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
-					yyerror();
-				}
+        insertarTS(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-        if(insertarTS(nombre_id, "CTE_INT", "", $1, 0.0) != 0) //solo se guarda la primer ocurrencia
-				{
-					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
-					yyerror();
-				}
+        insertarTS(nombre_id, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
-        if(insertarTS(nombre_id, "CTE_FLOAT", "", 0, $1) != 0) //solo se guarda la primer ocurrencia
-				{
-					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
-					yyerror();
-				}
+        insertarTS(nombre_id, "CTE_FLOAT", "", 0, $1);
       }
 	    | PA expresion PC {printf("Expresion entre parentesis es Factor\n");}
      	;
@@ -335,17 +323,34 @@ int insertarTS(const char *nombre,const char *tipo, const char* valString, int v
     
     while(tabla)
     {
-	if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
-    {
-            return 1;
-    }
-        else if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
-        {
+	    if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
+      {
+           // Actualizamos los valores dependiendo del tipo
+            if (strcmp(tipo, "CTE_STR") == 0)
+            {
+                strcpy(tabla->data.valor.valor_str, valString);
+            }
+            else if (strcmp(tipo, "CTE_INT") == 0)
+            {
+                tabla->data.valor.valor_int = valInt;
+            }
+            else if (strcmp(tipo, "CTE_DOUBLE") == 0)
+            {
+                tabla->data.valor.valor_double = valDouble;
+            }
+
+            // Actualizar el tipo?
+            strcpy(tabla->data.tipo, tipo);
+
+            return 0;
+      }
+      else if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
+      {
             if(strcmp(tabla->data.valor.valor_str, valString) == 0)
             {
                 return 1;
             }
-        }
+      }
         
         if(tabla->next == NULL)
         {
