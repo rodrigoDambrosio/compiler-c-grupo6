@@ -171,12 +171,12 @@ lista_asignacion :
 ;
 
 lista_variables: lista_variables COMA ID {
-                    printf("ES UNA LISTA DE VARIABLES");
+                    printf("ES UNA LISTA DE VARIABLES\n");
                     strcpy(t_ids[cantid].cadena,$3);
                     cantid++;
                 }
                  | ID {
-                    printf("ES UNA VARIABLE");
+                    printf("ES UNA VARIABLE\n");
                     strcpy(t_ids[cantid].cadena,$1);
                     cantid++;
                  }
@@ -251,19 +251,31 @@ factor:
         printf("ID es Factor \n");
       }
       | CTE_STRING {
-        printf("ES CONSTANTE STRING");
+        printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
-        insertarTS(nombre_id, "CTE_STR", $1, 0, 0.0);
+        if(insertarTS(nombre_id, "CTE_STR", $1, 0, 0.0) != 0) //solo se guarda la primer ocurrencia
+				{
+					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
+					yyerror();
+				}
       }
       | CTE_INT {
-        printf("ES CONSTANTE INT");
+        printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-        insertarTS(nombre_id, "CTE_INT", "", $1, 0.0);
+        if(insertarTS(nombre_id, "CTE_INT", "", $1, 0.0) != 0) //solo se guarda la primer ocurrencia
+				{
+					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
+					yyerror();
+				}
       }
       | CTE_FLOAT {
-        printf("ES CONSTANTE FLOAT");
+        printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
-        insertarTS(nombre_id, "CTE_FLOAT", "", 0, $1);
+        if(insertarTS(nombre_id, "CTE_FLOAT", "", 0, $1) != 0) //solo se guarda la primer ocurrencia
+				{
+					sprintf(mensajes, "%s%s%s", "Error: la variable '", t_ids[i].cadena, "' ya fue declarada");
+					yyerror();
+				}
       }
 	    | PA expresion PC {printf("Expresion entre parentesis es Factor\n");}
      	;
@@ -285,7 +297,7 @@ lista_num: lista_num COMA num
 ;
 
 num: CTE_INT | CTE_FLOAT 
-  ;
+;
 
 triangulos:
 ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC  {printf("ES TRIANGULOS\n");}
@@ -389,16 +401,14 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
     data->tipo = (char*)malloc(sizeof(char) * (strlen(tipo) + 1));
     strcpy(data->tipo, tipo);
 
-    //Es una variable
     if(strcmp(tipo, "STRING")==0 || strcmp(tipo, "INTEGER")==0 || strcmp(tipo, "FLOAT")==0)
     {
-        //al nombre lo dejo aca porque no lleva _
         data->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
         strcpy(data->nombre, nombre);
         return data;
     }
     else
-    {      //Son constantes: tenemos que agregarlos a la tabla con "_" al comienzo del nombre, hay que agregarle el valor
+    {      
         if(strcmp(tipo, "CTE_STR") == 0)
         {
             data->valor.valor_str = (char*)malloc(sizeof(char) * strlen(valString) +1);
@@ -450,10 +460,8 @@ void guardarTS()
     {
         aux = tabla;
         tabla = tabla->next;
-        
 
-
-        if(strcmp(aux->data.tipo, "INTEGER") == 0) //variable integer
+        if(strcmp(aux->data.tipo, "INTEGER") == 0) 
         {
             sprintf(linea, "%-30s%-30s%-30s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
         }
