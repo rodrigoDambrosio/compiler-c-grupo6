@@ -308,7 +308,9 @@ int yyerror(void)
 	exit (1);
 }
 
-int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* valString, int valor_var_int, float valor_var_float)
+int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
+                            const char* valString, int valor_var_int, 
+                            float valor_var_float)
 {
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
@@ -360,7 +362,9 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo, const char* val
 }
 
 
-t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, int valor_var_int, float valor_var_float)
+t_data* crearDatos(const char *nombre, const char *tipo, 
+                  const char* valString, int valor_var_int, 
+                  float valor_var_float)
 {
     char full[50] = "_";
     char aux[20];
@@ -384,7 +388,7 @@ t_data* crearDatos(const char *nombre, const char *tipo, const char* valString, 
     {      
         if(strcmp(tipo, "CTE_STR") == 0)
         {
-            data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(valString) +1);
+            data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(valString) + 1);
             data->nombre = (char*)malloc(sizeof(char) * (strlen(valString) + 1));
             strcat(full, nombre);
             strcpy(data->nombre, full);    
