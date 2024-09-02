@@ -450,7 +450,7 @@ void guardarTS()
     else if(tablaTS.primero == NULL)
             return;
     
-    fprintf(arch, "%-30s%-30s%-30s%-30s\n", "NOMBRE", "TIPODATO", "VALOR", "LONGITUD");
+    fprintf(arch, "%-30s%-30s%-40s%-30s\n", "NOMBRE", "TIPODATO", "VALOR", "LONGITUD");
 
     t_simbolo *aux;
     t_simbolo *tabla = tablaTS.primero;
@@ -463,28 +463,28 @@ void guardarTS()
 
         if(strcmp(aux->data.tipo, "INTEGER") == 0) 
         {
-            sprintf(linea, "%-30s%-30s%-30s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
+            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
         }
         else if(strcmp(aux->data.tipo, "CTE_INT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-30d%s\n", aux->data.nombre, "", aux->data.valor.valor_int, "");
+            sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_int, "");
         }
         else if(strcmp(aux->data.tipo, "FLOAT") ==0)
         {
-            sprintf(linea, "%-30s%-30s%-30s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
+            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
         }
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-30f%s\n", aux->data.nombre, "", aux->data.valor.valor_double, "");
+            sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_double, "");
         }
         else if(strcmp(aux->data.tipo, "STRING") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-30s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
+            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, aux->data.tipo, "--", "");
         }
         else if(strcmp(aux->data.tipo, "CTE_STR") == 0)
         {
             strncpy(aux_string, aux->data.valor.valor_str + 1, strlen(aux->data.valor.valor_str)-2);
-            sprintf(linea, "%-30s%-30s%-30s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_str) -2);
+            sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_str) -2);
         }
         fprintf(arch, "%s", linea);
         free(aux);
