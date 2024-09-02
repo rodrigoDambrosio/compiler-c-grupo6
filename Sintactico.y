@@ -447,7 +447,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
 void guardar_tabla_simbolos()
 {
     FILE* arch;
-    if((arch = fopen("ts.txt", "wt")) == NULL)
+    if((arch = fopen("symbol-table.txt", "wt")) == NULL)
     {
             printf("\nNo se pudo crear la tabla de simbolos.\n\n");
             return;
