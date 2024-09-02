@@ -10,7 +10,8 @@ FILE  *yyin;
   int yyerror();
   int yylex();
 
-/* --- Tabla de simbolos --- */
+/* --- Estructura de la tabla de simbolos --- */
+
 typedef struct
 {
         char *nombre;
@@ -35,31 +36,28 @@ typedef struct
         t_simbolo *primero;
 }t_tabla;
 
+typedef struct{
+  char cadena[40];
+}t_nombresId;
 
+// Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
 t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
 t_tabla tabla_simbolos;
 
-int cantid = 0;
-char mensajes[100];
+// Declaracion variables
 
-typedef struct{
-  char cadena[40];
-}t_nombresId;
-
-t_nombresId t_ids[10];
 int i=0;
-
 char tipo_dato[10];
-
+int cant_id = 0;
 char nombre_id[20];
 int constante_aux_int;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
-
+t_nombresId t_ids[10];
 
 %}
 
@@ -145,59 +143,67 @@ INIT LA lista_asignacion LC {printf("BLOQUE ASIGNACION\n");}
 lista_asignacion : 
           lista_variables asig_tipo 
           {
-                  for(i=0;i<cantid;i++)
+                  for(i=0;i<cant_id;i++)
 									{
 									  insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
 									}
-									cantid=0;
+									cant_id=0;
           }
           | lista_asignacion lista_variables asig_tipo
             {
-              for(i=0;i<cantid;i++)
+              for(i=0;i<cant_id;i++)
               {
                 insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
               }
-              cantid=0;
-					 }
+              cant_id=0;
+					  }
 										
 ;
 
-lista_variables: lista_variables COMA ID {
+lista_variables: lista_variables COMA ID
+                {
                     printf("ES UNA LISTA DE VARIABLES\n");
-                    strcpy(t_ids[cantid].cadena,$3);
-                    cantid++;
+                    strcpy(t_ids[cant_id].cadena,$3);
+                    cant_id++;
                 }
-                 | ID {
+                | ID
+                {
                     printf("ES UNA VARIABLE\n");
-                    strcpy(t_ids[cantid].cadena,$1);
-                    cantid++;
-                 }
+                    strcpy(t_ids[cant_id].cadena,$1);
+                    cant_id++;
+                }
 
 asig_tipo: 
-      DP TIPO_S{
+    DP TIPO_S
+    {
         strcpy(tipo_dato,"STRING");
-      }
-    | DP TIPO_F{
+    }
+    | DP TIPO_F
+    {
         strcpy(tipo_dato,"FLOAT");
-      } 
-    | DP TIPO_I{
+    } 
+    | DP TIPO_I
+    {
         strcpy(tipo_dato,"INTEGER");
     }
 ;
 
 asignacion: 
-    id OP_AS expresion {
+    id OP_AS expresion 
+    {
         printf("    ID = Expresion es ASIGNACION\n");
-      }
+    }
 	  ;
 
+// TO-DO REVISAR
+
 id:
-  ID{
-        strcpy(nombre_id,$1);
+  ID
+  {
+    strcpy(nombre_id,$1);
   }
 ;
 
-// TO-DO REVISAR
 
 expresion:
    termino {printf("Termino es Expresion\n");}
@@ -206,7 +212,8 @@ expresion:
 	 ;
    
 mientras:
-  WHILE PA condicion PC LA instrucciones LC {
+  WHILE PA condicion PC LA instrucciones LC 
+  {
     printf("ES UN MIENTRAS\n");
   }
 ;
@@ -239,20 +246,24 @@ termino:
        ;
 
 factor: 
-      ID {
+      ID 
+      {
         printf("ID es Factor \n");
       }
-      | CTE_STRING {
+      | CTE_STRING 
+      {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
         insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
-      | CTE_INT {
+      | CTE_INT 
+      {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
         insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
-      | CTE_FLOAT {
+      | CTE_FLOAT 
+      {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
         insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
@@ -304,8 +315,8 @@ int main(int argc, char *argv[])
 
 int yyerror(void)
 {
-printf("\n ********* Error Sintactico ********* \n");
-	exit (1);
+  printf("\n ********* Error Sintactico ********* \n");
+  exit (1);
 }
 
 int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
