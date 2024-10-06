@@ -109,10 +109,15 @@ char *tipo_str;
 %token IGUAL
 %%
 
-programa: instrucciones{
-  guardar_tabla_simbolos();
-  printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
-}
+programa: 
+ bloque_asig instrucciones{
+                  guardar_tabla_simbolos();
+                  printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
+                }
+ | instrucciones{
+                  guardar_tabla_simbolos();
+                  printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
+                }             
 ;
 
 instrucciones: 
@@ -122,7 +127,6 @@ instrucciones:
 
 sentencia:  	   
 	asignacion    {printf("SENTENCIA ES ASIGNACION\n");}
-  | bloque_asig {printf("SENTENCIA ES BLOQUE ASIGNACIONES\n");} 
   | mientras    {printf("SENTENCIA ES MIENTRAS\n");} 
   | si          {printf("SENTENCIA ES SI\n");} 
   | leer        {printf("SENTENCIA ES LEER\n");}
@@ -326,38 +330,38 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    while(tabla)
-    { 
-      // Para evitar repetidos / actualizar asignaciones
-      if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
-      {
-          if (strcmp(tipo, "CTE_STR") == 0)
-            {
-                strcpy(tabla->data.valor.valor_var_str, valor_string);
-            }
-            else if (strcmp(tipo, "CTE_INT") == 0)
-            {
-                tabla->data.valor.valor_var_int = valor_var_int;
-            }
-            else if (strcmp(tipo, "CTE_FLOAT") == 0)
-            {
-                tabla->data.valor.valor_var_float = valor_var_float;
-            }
-            return 1;
-      }    
-      if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
-      {
-            if(strcmp(tabla->data.valor.valor_var_str, valor_string) == 0)
-            {
-                return 1;
-            }
-      }
-      if(tabla->next == NULL)
-        {
-            break;
-        }
-        tabla = tabla->next;
-    }
+    // while(tabla)
+    // { 
+    //   // Para evitar repetidos / actualizar asignaciones
+    //   if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
+    //   {
+    //       if (strcmp(tipo, "CTE_STR") == 0)
+    //         {
+    //             strcpy(tabla->data.valor.valor_var_str, "valor_string");
+    //         }
+    //         else if (strcmp(tipo, "CTE_INT") == 0)
+    //         {
+    //             tabla->data.valor.valor_var_int = valor_var_int;
+    //         }
+    //         else if (strcmp(tipo, "CTE_FLOAT") == 0)
+    //         {
+    //             tabla->data.valor.valor_var_float = valor_var_float;
+    //         }
+    //         return 1;
+    //   }    
+    //   if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
+    //   {
+    //         if(strcmp(tabla->data.valor.valor_var_str, valor_string) == 0)
+    //         {
+    //             return 1;
+    //         }
+    //   }
+    //   if(tabla->next == NULL)
+    //     {
+    //         break;
+    //     }
+    //     tabla = tabla->next;
+    // }
 
     t_data *data = (t_data*)malloc(sizeof(t_data));
     data = crearDatos(nombre, tipo, valor_string, valor_var_int, valor_var_float);
@@ -420,7 +424,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             data->nombre = (char*)malloc(sizeof(char) * (strlen(valString) + 1));
             strcat(full, nombre);
             strcpy(data->nombre, full);    
-            strcpy(data->valor.valor_var_str, valString);
+            //strcpy(data->valor.valor_var_str, valString);
         }
         if(strcmp(tipo, "CTE_FLOAT") == 0)
         {
@@ -429,7 +433,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
 
             strcpy(data->nombre, full);
-            data->valor.valor_var_float = valor_var_float;
+            //data->valor.valor_var_float = valor_var_float;
         }
         if(strcmp(tipo, "CTE_INT") == 0)
         {
@@ -437,7 +441,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             strcat(full, aux);
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);
-            data->valor.valor_var_int = valor_var_int;
+            //data->valor.valor_var_int = valor_var_int;
         }
         return data;
     }

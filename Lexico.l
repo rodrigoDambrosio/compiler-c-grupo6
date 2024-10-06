@@ -67,6 +67,7 @@ CA           "["
 CC           "]"
 COMA         ","
 PTO_COMA     ";"
+
 %%
 
 {INIT}          {printf("\nINIT: %s\n", yytext);return INIT;}
