@@ -330,38 +330,38 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    // while(tabla)
-    // { 
-    //   // Para evitar repetidos / actualizar asignaciones
-    //   if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
-    //   {
-    //       if (strcmp(tipo, "CTE_STR") == 0)
-    //         {
-    //             strcpy(tabla->data.valor.valor_var_str, "valor_string");
-    //         }
-    //         else if (strcmp(tipo, "CTE_INT") == 0)
-    //         {
-    //             tabla->data.valor.valor_var_int = valor_var_int;
-    //         }
-    //         else if (strcmp(tipo, "CTE_FLOAT") == 0)
-    //         {
-    //             tabla->data.valor.valor_var_float = valor_var_float;
-    //         }
-    //         return 1;
-    //   }    
-    //   if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
-    //   {
-    //         if(strcmp(tabla->data.valor.valor_var_str, valor_string) == 0)
-    //         {
-    //             return 1;
-    //         }
-    //   }
-    //   if(tabla->next == NULL)
-    //     {
-    //         break;
-    //     }
-    //     tabla = tabla->next;
-    // }
+    while(tabla)
+    { 
+      // Para evitar repetidos / actualizar asignaciones
+      if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
+      {
+          if (strcmp(tipo, "CTE_STR") == 0)
+            {
+                strcpy(tabla->data.valor.valor_var_str, valor_string);
+            }
+            else if (strcmp(tipo, "CTE_INT") == 0)
+            {
+                tabla->data.valor.valor_var_int = valor_var_int;
+            }
+            else if (strcmp(tipo, "CTE_FLOAT") == 0)
+            {
+                tabla->data.valor.valor_var_float = valor_var_float;
+            }
+            return 1;
+      }    
+      if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
+      {
+            if(strcmp(tabla->data.valor.valor_var_str, valor_string) == 0)
+            {
+                return 1;
+            }
+      }
+      if(tabla->next == NULL)
+        {
+            break;
+        }
+        tabla = tabla->next;
+    }
 
     t_data *data = (t_data*)malloc(sizeof(t_data));
     data = crearDatos(nombre, tipo, valor_string, valor_var_int, valor_var_float);
@@ -400,6 +400,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
 {
     char full[50] = "_";
     char aux[20];
+    char nombre_str[50];
 
     t_data *data = (t_data*)calloc(1, sizeof(t_data));
     if(data == NULL)
@@ -422,9 +423,9 @@ t_data* crearDatos(const char *nombre, const char *tipo,
         {
             data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(valString) + 1);
             data->nombre = (char*)malloc(sizeof(char) * (strlen(valString) + 1));
-            strcat(full, nombre);
+            strcat(full, valString);
             strcpy(data->nombre, full);    
-            //strcpy(data->valor.valor_var_str, valString);
+            strcpy(data->valor.valor_var_str, valString);
         }
         if(strcmp(tipo, "CTE_FLOAT") == 0)
         {
@@ -433,7 +434,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
 
             strcpy(data->nombre, full);
-            //data->valor.valor_var_float = valor_var_float;
+            data->valor.valor_var_float = valor_var_float;
         }
         if(strcmp(tipo, "CTE_INT") == 0)
         {
@@ -441,7 +442,7 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             strcat(full, aux);
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);
-            //data->valor.valor_var_int = valor_var_int;
+            data->valor.valor_var_int = valor_var_int;
         }
         return data;
     }
@@ -464,6 +465,7 @@ void guardar_tabla_simbolos()
     t_simbolo *aux;
     t_simbolo *tabla = tabla_simbolos.primero;
     char linea[100];
+    char full[30] = "_";
 
     while(tabla)
     {
@@ -476,7 +478,8 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_INT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_var_int, "");
+            // sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_var_int, "");
+            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, "", "", "");
         }
         else if(strcmp(aux->data.tipo, "FLOAT") ==0)
         {
@@ -484,7 +487,8 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_var_float, "");
+            // sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_var_float, "");
+            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, "", "", "");
         }
         else if(strcmp(aux->data.tipo, "STRING") == 0)
         {
@@ -492,8 +496,10 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_STR") == 0)
         {
-            strncpy(aux_string, aux->data.valor.valor_var_str + 1, strlen(aux->data.valor.valor_var_str)-2);
-            sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_var_str) -2);
+            strncpy(aux_string, aux->data.valor.valor_var_str +1, strlen(aux->data.valor.valor_var_str)-2);
+            strcat(full,aux_string);
+            // sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_var_str) -2);
+            sprintf(linea, "%-30s%-30s%-40s%-s\n", full, "", "", "");
         }
         fprintf(arch, "%s", linea);
         free(aux);

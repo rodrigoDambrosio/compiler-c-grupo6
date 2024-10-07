@@ -1,4 +1,12 @@
 
+init {
+    a1, b1 : Float
+    variable1 : Int
+    p1, p2, p3 : String
+    variable2 : Int
+    a2, b3 : Float
+}
+
 *- Prueba expresion -*
 
 c:=d*(e-21)/4
@@ -21,20 +29,13 @@ a5 := .9999
 *- a45645 := 965535 -*    *-  -> Caso error rango int -*
 *- a123456 := 34354444444454353454354354.53454354344444444444444444444444445444 -* *-  -> Caso error rango float -*
 
-b78 := "asldk  fh sjf"
-b76 := "@sdaaaaaaaaaaaafg"
+b78 := "asldk"
+b76 := "@sdaaaaafafg"
 
-init {
-    a1, b1 : Float
-    variable1 : Int
-    p1, p2, p3 : String
-    variable2 : Int
-    a2, b3 : Float
-}
 
-init {
-    a1, b1 : Float
-}
+*-init {-*
+*-    a1, b1 : Float-*
+*-}-*
 
 *- Ejemplo con un tipo de dato que no esta definido -*
 *-init { -*
