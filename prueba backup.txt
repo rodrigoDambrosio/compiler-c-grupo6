@@ -1,0 +1,92 @@
+
+init {
+    a1, b1 : Float
+    variable1 : Int
+    p1, p2, p3 : String
+    variable2 : Int
+    a2, b3 : Float
+}
+
+*- Prueba expresion -*
+
+c:=d*(e-21)/4
+
+*- c:=d*(e-21)/4; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
+
+
+*- Asignaciones -*
+
+x4 := 27 - c
+xy := r + 500
+xx := 34 * 3
+xz := z / f
+
+a3 := 99999.99
+a4 := 99.
+a5 := .9999
+
+*- b76 := "@sdADaSjfla%daaaaaaaaaaaaaaaaaaaaaaaaaaaaaafg"-* *- -> Caso error maxima cant de car string-*
+*- a45645 := 965535 -*    *-  -> Caso error rango int -*
+*- a123456 := 34354444444454353454354354.53454354344444444444444444444444445444 -* *-  -> Caso error rango float -*
+
+b78 := "asldk"
+b76 := "@sdaaaaafafg"
+
+
+*-init {-*
+*-    a1, b1 : Float-*
+*-}-*
+
+*- Ejemplo con un tipo de dato que no esta definido -*
+*-init { -*
+*-    a1, b1 : FLOTANTE -*
+*- } -*
+
+mientras ( (a>b AND b>c) OR a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si (NOT a == b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si  (a > b OR b>g)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+
+a := 1
+b := 3
+
+mientras (a > b)
+{
+    escribir("a es mas grande que b")
+    a := a + 1
+}
+
+si (a > b)
+{
+    escribir("a es mas grande que b")
+}
+sino
+{
+    escribir("a es mas chico o igual a b")
+}
+
+
+leer(base) *- base es una variable -*
+
+escribir("ewr")  *- “ewr” es una cte string -*
+escribir(var1)  *- var1 es una variable numerica definida previamente -*
+
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+
+y = triangulo(x, 1+1, x)  
+y = triangulo(0, 1/x, 0) 
+y = triangulo((32+5+x)*z, 1/x, 100) 

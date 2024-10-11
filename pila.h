@@ -1,5 +1,6 @@
 #ifndef PILA_H
 #define PILA_H
+#include <stddef.h>
 
 typedef struct Nodo{
     void* dato;

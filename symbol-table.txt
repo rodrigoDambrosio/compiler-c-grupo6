@@ -8,14 +8,4 @@ p3                            STRING                        --
 variable2                     INTEGER                       --                                      
 a2                            FLOAT                         --                                      
 b3                            FLOAT                         --                                      
-_c                                                                                                  
-_x4                                                                                                 
-_xy                                                                                                 
-_xx                                                                                                 
-_a3                                                                                                 
-_a4                                                                                                 
-_a5                                                                                                 
-_asldk                                                                                              
-_asldk@sdaaaaafafg                                                                                  
 _a                                                                                                  
-_b                                                                                                  

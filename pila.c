@@ -23,7 +23,7 @@ void apilar(Pila* pila, void* dato, size_t tamano)
 // Desapilar un dato de la pila
 void* desapilar(Pila* pila) 
 {
-    if (esta_vacia(pila)) 
+    if (check_esta_vacia(pila)) 
     {
         return NULL; // Pila vacía
     }
@@ -40,7 +40,7 @@ int check_esta_vacia(Pila* pila) {
 
 void destruir_pila(Pila* pila) 
 {
-    while (!esta_vacia(pila)) 
+    while (!check_esta_vacia(pila)) 
     {
         void* dato = desapilar(pila);
         free(dato);

@@ -4,6 +4,9 @@
 #include "y.tab.h"
 #include <string.h>
 #include <math.h>
+#include "pila.c"
+#include "pila.h"
+
 int yystopparser=0;
 FILE  *yyin;
 
@@ -49,6 +52,7 @@ t_tabla tabla_simbolos;
 
 // Declaracion variables
 
+Pila* pila;
 int i=0;
 char tipo_dato[10];
 int cant_id = 0;
@@ -310,6 +314,7 @@ int main(int argc, char *argv[])
     else
     { 
         crear_tabla_simbolos();
+        pila = crear_pila();
         yyparse();
         
     }
