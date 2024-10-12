@@ -43,6 +43,15 @@ typedef struct{
   char cadena[40];
 }t_nombresId;
 
+typedef struct
+{
+  int nroTerceto;
+  char posicionUno[20];
+  char posicionDos[20];
+  char posicionTres[20];
+}t_Terceto;
+
+
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -62,7 +71,7 @@ float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
 t_nombresId t_ids[10];
-
+t_Terceto terceto_test;
 %}
 
 %union {
@@ -200,6 +209,8 @@ asignacion:
     id OP_AS expresion 
     {
         printf("    ID = Expresion es ASIGNACION\n");
+        printf("\n \n \n ------------------------------------ %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
+
     }
 	  ;
 
@@ -248,8 +259,16 @@ operador_comparacion:
 ;
 
 termino: 
-       factor {printf("Factor es Termino\n");}
-       |termino OP_MUL factor {printf("Termino*Factor es Termino\n");}
+       factor 
+       {
+        printf("Factor es Termino\n");
+        // Puntero Termino = Puntero factor
+       }
+       |termino OP_MUL factor 
+       {
+        printf("Termino*Factor es Termino\n");
+        // punteroTerceto = crearTerceto("*", puntero termino, puntero factor);
+       }
        |termino OP_DIV factor {printf("Termino/Factor es Termino\n");}
        ;
 
@@ -257,23 +276,35 @@ factor:
       ID 
       {
         printf("ID es Factor \n");
+        // crearTerceto($1, null, null);
+        terceto_test.nroTerceto = 1;
+        strcpy(terceto_test.posicionUno,"TEST");
+
+        // printf("\n \n \n ------------------------------------ %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
       }
       | CTE_STRING 
       {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
+        // crearTerceto($1);
         insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT 
       {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
+        // crearTerceto($1);
+           terceto_test.nroTerceto = 1;
+        strcpy(terceto_test.posicionUno,"TEST");
+
+        printf("\n \n \n **************************************** INSERTO %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
         insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT 
       {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
+        // crearTerceto($1);
         insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
       }
 	    | PA expresion PC {printf("Expresion entre parentesis es Factor\n");}
