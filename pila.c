@@ -2,6 +2,7 @@
 #include <string.h>
 #include "pila.h"
 
+#define SUCCESS 1
 // Crear una nueva pila vacía
 Pila* crear_pila() 
 {
@@ -11,13 +12,15 @@ Pila* crear_pila()
 }
 
 // Apilar un dato en la pila (genérico)
-void apilar(Pila* pila, void* dato, size_t tamano) 
+int apilar(Pila* pila, void* dato, size_t tamano) 
 {
     Nodo* nuevo_nodo = (Nodo*)malloc(sizeof(Nodo));
     nuevo_nodo->dato = malloc(tamano);
     memcpy(nuevo_nodo->dato, dato, tamano); // Copia los datos en la pila
     nuevo_nodo->sig = pila->tope;
     pila->tope = nuevo_nodo;
+
+    return SUCCESS;
 }
 
 // Desapilar un dato de la pila

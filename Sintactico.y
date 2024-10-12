@@ -6,13 +6,16 @@
 #include <math.h>
 #include "pila.c"
 #include "pila.h"
+#include "tercetos.h"
 
 int yystopparser=0;
 FILE  *yyin;
 
   int yyerror();
   int yylex();
+  extern char* yytext;
 
+tCola  colaTercetos;
 /* --- Estructura de la tabla de simbolos --- */
 
 typedef struct
@@ -43,14 +46,18 @@ typedef struct{
   char cadena[40];
 }t_nombresId;
 
-typedef struct
-{
-  int nroTerceto;
-  char posicionUno[20];
-  char posicionDos[20];
-  char posicionTres[20];
-}t_Terceto;
 
+
+//Para la intermedia 
+///indices
+int     sentInd=0,
+        prgInd=0,
+        asignacionInd=0,
+        expInd=0,
+        termInd=0,
+        
+        factInd=0;
+       
 
 // Declaracion funciones
 void crear_tabla_simbolos();
@@ -61,7 +68,9 @@ t_tabla tabla_simbolos;
 
 // Declaracion variables
 
-Pila* pila;
+Pila* pilaExpresion;
+Pila* pilaTermino;
+Pila* pilaFactor;
 int i=0;
 char tipo_dato[10];
 int cant_id = 0;
@@ -130,6 +139,7 @@ programa:
  | instrucciones{
                   guardar_tabla_simbolos();
                   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
+                  sentInd=prgInd;
                 }             
 ;
 
@@ -139,8 +149,8 @@ instrucciones:
 ;
 
 sentencia:  	   
-	asignacion    {printf("SENTENCIA ES ASIGNACION\n");}
-  | mientras    {printf("SENTENCIA ES MIENTRAS\n");} 
+	asignacion    {printf("SENTENCIA ES ASIGNACION\n"); sentInd=asignacionInd;}
+  | mientras    {printf("SENTENCIA ES MIENTRAS\n"); } 
   | si          {printf("SENTENCIA ES SI\n");} 
   | leer        {printf("SENTENCIA ES LEER\n");}
   | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
@@ -209,8 +219,11 @@ asignacion:
     id OP_AS expresion 
     {
         printf("    ID = Expresion es ASIGNACION\n");
-        printf("\n \n \n ------------------------------------ %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
-
+          char auxAsig[LONG_TERCETO];
+          char auxInd[LONG_TERCETO];
+          sprintf(auxInd,"[%d]",expInd );
+          sprintf(auxAsig,"[%d]",asignacionInd);
+          asignacionInd = crearTerceto("OP_ASIG",auxAsig,auxInd,tercetosCreados);
     }
 	  ;
 
@@ -220,14 +233,42 @@ id:
   ID
   {
     strcpy(nombre_id,$1);
+    asignacionInd = crearTerceto(nombre_id,"_","_",tercetosCreados);
   }
 ;
 
 
 expresion:
-   termino {printf("Termino es Expresion\n");}
-	 | expresion OP_SUM termino {printf("    Expresion+Termino es Expresion\n");}
-	 | expresion OP_RES termino {printf("    Expresion-Termino es Expresion\n");}
+   termino {
+            printf("Termino es Expresion\n");
+            expInd = termInd;
+            char expIndString [10];
+            itoa(expInd,expIndString,10);
+            apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+    }
+	 | expresion OP_SUM termino {
+        printf("    Expresion+Termino es Expresion\n");
+        char auxTer[LONG_TERCETO];
+        char auxExp[LONG_TERCETO];
+        sprintf(auxTer,"[%d]",termInd);
+        sprintf(auxExp,"[%d]",expInd);
+        expInd = crearTerceto("OP_SUM",auxExp,auxTer,tercetosCreados);
+        char expIndString [10];
+        itoa(expInd,expIndString,10);
+        apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+    }
+
+	 | expresion OP_RES termino {
+        printf("    Expresion-Termino es Expresion\n");
+        char auxTer[LONG_TERCETO];
+        char auxExp[LONG_TERCETO];
+        sprintf(auxTer,"[%d]",termInd);
+        sprintf(auxExp,"[%d]",expInd);
+        expInd = crearTerceto("OP_RES",auxExp,auxTer,tercetosCreados);
+        char expIndString [10];
+        itoa(expInd,expIndString,10);
+        apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+    }
 	 ;
    
 mientras:
@@ -262,52 +303,90 @@ termino:
        factor 
        {
         printf("Factor es Termino\n");
-        // Puntero Termino = Puntero factor
+        termInd = factInd;
+        char termIndString [10];
+        itoa(expInd,termIndString,10);
+        apilar(pilaTermino,termIndString, sizeof(termIndString));
        }
        |termino OP_MUL factor 
        {
         printf("Termino*Factor es Termino\n");
-        // punteroTerceto = crearTerceto("*", puntero termino, puntero factor);
+        char auxTer[LONG_TERCETO];
+        char auxFac[LONG_TERCETO];
+        sprintf(auxTer,"[%d]",termInd);
+        sprintf(auxFac,"[%d]",factInd);
+        termInd = crearTerceto("OP_MUL",auxTer,auxFac,tercetosCreados);
+        char termIndString [10];
+        itoa(termInd,termIndString,10);
+        apilar(pilaTermino,termIndString, sizeof(termIndString));
        }
-       |termino OP_DIV factor {printf("Termino/Factor es Termino\n");}
+       |termino OP_DIV factor 
+       {
+        printf("Termino/Factor es Termino\n");
+        char auxTer[LONG_TERCETO];
+        char auxFac[LONG_TERCETO];
+        sprintf(auxTer,"[%d]",termInd);
+        sprintf(auxFac,"[%d]",factInd);
+        termInd = crearTerceto("OP_DIV",auxTer,auxFac,tercetosCreados);
+        char termIndString [10];
+        itoa(termInd,termIndString,10);
+        apilar(pilaTermino,termIndString, sizeof(termIndString));
+       }
        ;
 
 factor: 
       ID 
       {
         printf("ID es Factor \n");
-        // crearTerceto($1, null, null);
-        terceto_test.nroTerceto = 1;
-        strcpy(terceto_test.posicionUno,"TEST");
-
-        // printf("\n \n \n ------------------------------------ %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
+        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
+        char factIndString [10];
+        itoa(termInd,factIndString,10);
+        apilar(pilaFactor,factIndString,sizeof(factIndString));
       }
       | CTE_STRING 
       {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
-        // crearTerceto($1);
+        
+        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
+        char factIndString [10];
+        itoa(termInd,factIndString,10);
+        apilar(pilaFactor,factIndString,sizeof(factIndString));
+
         insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT 
       {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-        // crearTerceto($1);
-           terceto_test.nroTerceto = 1;
-        strcpy(terceto_test.posicionUno,"TEST");
 
-        printf("\n \n \n **************************************** INSERTO %d %s", terceto_test.nroTerceto, terceto_test.posicionUno  );
+        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
+        char factIndString [10];
+        itoa(termInd,factIndString,10);
+        apilar(pilaFactor,factIndString,sizeof(factIndString));
+       
         insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT 
       {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
-        // crearTerceto($1);
+        
+        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
+        char factIndString [10];
+        itoa(termInd,factIndString,10);
+        apilar(pilaFactor,factIndString,sizeof(factIndString));
+
         insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
       }
-	    | PA expresion PC {printf("Expresion entre parentesis es Factor\n");}
+	    | PA expresion PC 
+      {
+        printf("Expresion entre parentesis es Factor\n");
+        factInd = expInd;
+        char factIndString [10];
+        itoa(termInd,factIndString,10);
+        apilar(pilaFactor,factIndString,sizeof(factIndString));
+      }
      	;
 
 leer : 
@@ -345,8 +424,20 @@ int main(int argc, char *argv[])
     else
     { 
         crear_tabla_simbolos();
-        pila = crear_pila();
+        pilaExpresion = crear_pila();
+        pilaTermino = crear_pila();
+        pilaFactor = crear_pila();
+       
+        crearCola(&colaTercetos);
+
+        abrirIntermedia();
         yyparse();
+      
+        //Generacion de intermedia
+        escribirTercetosEnIntermedia();
+
+        fclose(fpIntermedia);
+
         
     }
   fclose(yyin);

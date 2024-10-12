@@ -13,7 +13,7 @@ typedef struct pila
 }Pila;
 
 Pila* crear_pila();
-void apilar(Pila* pila, void* dato, size_t tamano);
+int apilar(Pila* pila, void* dato, size_t tamano);
 void* desapilar(Pila* pila);
 int check_esta_vacia(Pila* pila);
 void destruir_pila(Pila* pila);
