@@ -55,9 +55,13 @@ int     sentInd=0,
         asignacionInd=0,
         expInd=0,
         termInd=0,
-        
+        bloqueInd = 0,
+        comparacionInd = 0,
+        condicionInd = 0,
         factInd=0;
        
+
+char comparador[4];
 
 // Declaracion funciones
 void crear_tabla_simbolos();
@@ -71,6 +75,10 @@ t_tabla tabla_simbolos;
 Pila* pilaExpresion;
 Pila* pilaTermino;
 Pila* pilaFactor;
+Pila * pilaVariables;
+Pila * pilaComparacion;
+
+
 int i=0;
 char tipo_dato[10];
 int cant_id = 0;
@@ -159,12 +167,26 @@ sentencia:
 	;
 
 si: 
-  IF PA condicion PC LA instrucciones LC {printf("ES CONDICION SI\n");}
-  | IF PA condicion PC LA instrucciones LC ELSE LA instrucciones LC {printf("ES CONDICION SINO \n");}
+  IF PA condicion PC LA instrucciones LC 
+  {
+    printf("ES CONDICION SI\n");
+    while(!check_esta_vacia(pilaComparacion)){
+        char* t = (char *) desapilar(pilaComparacion);
+        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
+  }
+  }
+  | IF PA condicion PC LA instrucciones LC ELSE LA instrucciones LC 
+  {
+    printf("ES CONDICION SINO \n");
+     while(!check_esta_vacia(pilaComparacion)){
+        char* t = (char *) desapilar(pilaComparacion);
+        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
+    }
+  }
 ;
 
 bloque_asig:
-INIT LA lista_asignacion LC {printf("BLOQUE ASIGNACION\n");}
+INIT LA lista_asignacion LC {printf("BLOQUE ASIGNACION\n"); }
 ;
 
 lista_asignacion : 
@@ -192,12 +214,18 @@ lista_variables: lista_variables COMA ID
                     printf("ES UNA LISTA DE VARIABLES\n");
                     strcpy(t_ids[cant_id].cadena,$3);
                     cant_id++;
+
+                    crearTerceto(yytext,"_","_",tercetosCreados);
+                    apilar(pilaVariables, $3, sizeof($3));
                 }
                 | ID
                 {
                     printf("ES UNA VARIABLE\n");
                     strcpy(t_ids[cant_id].cadena,$1);
                     cant_id++;
+
+                    crearTerceto(yytext,"_","_",tercetosCreados);
+                    apilar(pilaVariables, $1, sizeof($1));
                 }
 
 asig_tipo: 
@@ -280,23 +308,59 @@ mientras:
 
 condicion:
   OP_NOT comparacion
+  {
+    char comparacionAux [LONG_TERCETO];
+    // sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_NOT", comparacionAux,"_",tercetosCreados );
+  }
   | condicion OP_OR comparacion 
+  {
+    char condicionAux [LONG_TERCETO];
+    char comparacionAux [LONG_TERCETO];
+    // sprintf(condicionAux,"[%d]",condicionInd);
+    // sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
+  }
   | condicion OP_AND comparacion 
-  | comparacion
+  {
+    char condicionAux [LONG_TERCETO];
+    char comparacionAux [LONG_TERCETO];
+    // sprintf(condicionAux,"[%d]",condicionInd );
+    // sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
+  }
+  | comparacion {condicionInd = comparacionInd;}
 ;
 
 comparacion: 
     expresion operador_comparacion expresion 
+      {
+               
+                // popStack(&pilaExp,exp1);
+                char* exp1 = (char*) desapilar(pilaExpresion);
+                // popStack(&pilaExp,exp2);
+                char* exp2 = (char*) desapilar(pilaExpresion);
+                // printf ("A ver la comparacion %s %s \n",exp1, exp2);
+                comparacionInd=crearTerceto("CMP",exp1,exp2,tercetosCreados);
+              
+                int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
+                apilarNroTerceto(t);
+                char tString [10];
+                itoa(t,tString,10);
+                apilar(pilaComparacion,tString,sizeof(tString));
+        
+    }
     | PA condicion PC
     ;
 
 operador_comparacion:
-  OP_MAYOR 
-  | OP_MAYORI 
-  | OP_MEN 
-  | OP_MENI 
-  | OP_IGUAL 
-  | OP_NOT_IGUAL
+  OP_MAYOR {strcpy(comparador, "BLE");}
+  | OP_MAYORI {strcpy(comparador, "BLT");};
+  | OP_MEN {strcpy(comparador, "BGE");}
+  | OP_MENI {strcpy(comparador,"BGT");}
+  | OP_IGUAL {strcpy(comparador, "BNE");}
+  // | OP_NOT_IGUAL {strcpy(comparador, "BNE");}
+
 ;
 
 termino: 
@@ -427,7 +491,10 @@ int main(int argc, char *argv[])
         pilaExpresion = crear_pila();
         pilaTermino = crear_pila();
         pilaFactor = crear_pila();
-       
+        pilaVariables = crear_pila();
+        pilaComparacion = crear_pila();
+        pilaNroTerceto = crear_pila();
+
         crearCola(&colaTercetos);
 
         abrirIntermedia();

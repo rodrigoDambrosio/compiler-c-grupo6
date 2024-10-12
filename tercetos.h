@@ -13,7 +13,7 @@
 FILE * fpIntermedia;
 tCola  colaTercetos;
 
-// tStack pilaNroTerceto;
+Pila* pilaNroTerceto;
 int tercetosCreados=1;
 
 typedef struct
@@ -72,27 +72,24 @@ int crearTerceto(char *c1, char*c2 ,char *c3,int nroT){
 }
 
 
-// int apilarNroTerceto(int  nroTerceto)
-// {
-//     char nroTercetoString [50];
-//     sprintf(nroTercetoString,"[%d]",nroTerceto);
-//     printf("A ver que apila %d %s \n",nroTerceto,nroTercetoString);
-//     return apilar(&pilaNroTerceto, nroTercetoString, sizeof(nroTercetoString))
-//     //return pushStack(&pilaNroTerceto,nroTercetoString);
-    
-// }
+int apilarNroTerceto(int  nroTerceto)
+{
+    char nroTercetoString [50];
+    sprintf(nroTercetoString,"[%d]",nroTerceto);
+    printf("A ver que apila %d %s \n",nroTerceto,nroTercetoString);
+    return apilar(pilaNroTerceto, nroTercetoString, sizeof(nroTercetoString));
+    //return pushStack(&pilaNroTerceto,nroTercetoString);
 
-// int desapilarNroTerceto()
-// {   
-//     char * nroTerceto;
-//     popStack(&pilaNroTerceto, nroTerceto);
-//     desapilar()
-//     printf("A ver que desapilar %s\n",nroTerceto);
-//     char  subtext [strlen(nroTerceto-2)];
-//     strncpy(subtext,&nroTerceto[1],strlen(nroTerceto)-1);
-//     printf("A ver que tiene subtext %s\n",subtext);
-//     return atoi(subtext);
-// }
+}
+
+int desapilarNroTerceto()
+{   
+    char * nroTerceto = (char *) desapilar(pilaNroTerceto);
+    char  subtext [strlen(nroTerceto-2)];
+    strncpy(subtext,&nroTerceto[1],strlen(nroTerceto)-1);
+    printf("A ver que tiene subtext %s\n",subtext);
+    return atoi(subtext);
+}
 
 
 void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado) // 42 26 -- 22
