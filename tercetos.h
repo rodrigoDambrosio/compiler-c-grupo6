@@ -4,7 +4,7 @@
 #include "pila.h"
 #include "cola.h"
 
-#define INTERMEDIA_TXT "intermedia.txt"
+#define RUTA_ARCHIVO_INTERMEDIA "intermediate-code.txt"
 #define ELEMENTOS_TERCETO 20
 
 #define LONG_TERCETO 30 
@@ -25,17 +25,15 @@ typedef struct
 }t_Terceto;
 
 
-int abrirIntermedia();
+int abrirArchivoIntermedia();
 void escribirTercetosEnIntermedia();
 int crearTerceto(char *c1, char*c2 ,char *c3,int nroT);
 int apilarNroTerceto(int  nroTerceto);
 int desapilarNroTerceto();
 void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado);
 
-
-
-int abrirIntermedia(){
-    fpIntermedia = fopen(INTERMEDIA_TXT,"wt");
+int abrirArchivoIntermedia(){
+    fpIntermedia = fopen(RUTA_ARCHIVO_INTERMEDIA,"wt");
     if(!fpIntermedia)
     {
         printf("Error de apertura del archivo de la tabla de simbolos");
@@ -50,6 +48,7 @@ void escribirTercetosEnIntermedia()
       
         t_Terceto t;
         sacarDeCola(&colaTercetos,&t,sizeof(t_Terceto));
+        
         printf("Valores de la intermedia[%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
    
         fprintf(fpIntermedia,"[%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
@@ -57,8 +56,8 @@ void escribirTercetosEnIntermedia()
 }
 
 
-int crearTerceto(char *c1, char*c2 ,char *c3,int nroT){
-    
+int crearTerceto(char *c1, char*c2 ,char *c3,int nroT)
+{
     t_Terceto tercetos;
     tercetosCreados++;
     tercetos.numTerceto = nroT;
@@ -87,12 +86,12 @@ int desapilarNroTerceto()
     char * nroTerceto = (char *) desapilar(pilaNroTerceto);
     char  subtext [strlen(nroTerceto-2)];
     strncpy(subtext,&nroTerceto[1],strlen(nroTerceto)-1);
-    printf("A ver que tiene subtext %s\n",subtext);
+    // printf("A ver que tiene subtext %s\n",subtext);
     return atoi(subtext);
 }
 
 
-void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado) // 42 26 -- 22
+void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado)
 {
     tCola  aux;
     crearCola(&aux);
@@ -101,7 +100,6 @@ void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado) //
     while(!colaVacia(&colaTercetos))
     {
         sacarDeCola(&colaTercetos,&terceto,sizeof(terceto));
-       
 
         if(terceto.numTerceto == tercetoBuscado){
                 char nueComponente [LONG_TERCETO];
@@ -110,7 +108,5 @@ void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado) //
         }
         ponerEnCola(&aux,&terceto,sizeof(terceto));
     }
-    
      colaTercetos=aux;
-
 }

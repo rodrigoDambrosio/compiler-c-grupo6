@@ -1,19 +1,9 @@
 
 init {
-    a1, b1 : Float
-    variable1 : Int
-    p1, p2, p3 : String
-    variable2 : Int
-    a2, b3 : Float
+    a1 : Float
 }
 
-si (a == b)
+mientras (a > b)
 {
-    a := a + 1
-} 
-sino
-{
-    p := 9
+    a :=  1
 }
-
-t := 8

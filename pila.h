@@ -15,8 +15,8 @@ typedef struct pila
 Pila* crear_pila();
 int apilar(Pila* pila, void* dato, size_t tamano);
 void* desapilar(Pila* pila);
-int check_esta_vacia(Pila* pila);
+int es_pila_vacia(Pila* pila);
 void destruir_pila(Pila* pila);
-
+int ver_tope_pila(Pila* pila); // Se usa para debug
 #endif
 

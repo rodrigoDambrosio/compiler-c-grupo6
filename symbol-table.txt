@@ -1,13 +1,3 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
 a1                            FLOAT                         --                                      
-b1                            FLOAT                         --                                      
-variable1                     INTEGER                       --                                      
-p1                            STRING                        --                                      
-p2                            STRING                        --                                      
-p3                            STRING                        --                                      
-variable2                     INTEGER                       --                                      
-a2                            FLOAT                         --                                      
-b3                            FLOAT                         --                                      
 _a                                                                                                  
-_p                                                                                                  
-_t                                                                                                  

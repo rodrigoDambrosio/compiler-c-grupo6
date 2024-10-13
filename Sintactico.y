@@ -47,7 +47,6 @@ typedef struct{
 }t_nombresId;
 
 
-
 //Para la intermedia 
 ///indices
 int     sentInd=0,
@@ -58,16 +57,21 @@ int     sentInd=0,
         bloqueInd = 0,
         comparacionInd = 0,
         condicionInd = 0,
+        siInd=0,
+        mientrasInd=0,
         factInd=0;
        
-
 char comparador[4];
+
+// SACAR O RENOMBRAR ESTO
+int test_int=0;
 
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
 t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
+char* agregarCorchetes(const char* cadena);
 t_tabla tabla_simbolos;
 
 // Declaracion variables
@@ -80,6 +84,8 @@ Pila * pilaComparacion;
 
 
 int i=0;
+int test_if_else=0;
+char* dato_tope;
 char tipo_dato[10];
 int cant_id = 0;
 char nombre_id[20];
@@ -158,8 +164,8 @@ instrucciones:
 
 sentencia:  	   
 	asignacion    {printf("SENTENCIA ES ASIGNACION\n"); sentInd=asignacionInd;}
-  | mientras    {printf("SENTENCIA ES MIENTRAS\n"); } 
-  | si          {printf("SENTENCIA ES SI\n");} 
+  | mientras    {printf("SENTENCIA ES MIENTRAS\n"); sentInd=mientrasInd;} 
+  | si          {printf("SENTENCIA ES SI/SI SINO\n"); sentInd=siInd;} 
   | leer        {printf("SENTENCIA ES LEER\n");}
   | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
   | triangulos  {printf("SENTENCIA ES TRIANGULOS\n");}
@@ -170,18 +176,33 @@ si:
   IF PA condicion PC LA instrucciones LC 
   {
     printf("ES CONDICION SI\n");
-    while(!check_esta_vacia(pilaComparacion)){
+    while(!es_pila_vacia(pilaComparacion)){
         char* t = (char *) desapilar(pilaComparacion);
         escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
   }
   }
-  | IF PA condicion PC LA instrucciones LC ELSE LA instrucciones LC 
+  | IF PA condicion PC LA instrucciones LC 
+  {
+    // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
+    printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
+    // TODO: Poner un nombre descriptivo
+    test_if_else = tercetosCreados;
+    printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
+
+  }
+  ELSE LA instrucciones LC 
   {
     printf("ES CONDICION SINO \n");
-     while(!check_esta_vacia(pilaComparacion)){
-        char* t = (char *) desapilar(pilaComparacion);
-        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
-    }
+     while(!es_pila_vacia(pilaComparacion))
+     {
+        dato_tope = (char *) desapilar(pilaComparacion);
+        printf("--------- que hay en tope pila %s\n", dato_tope);
+        escribirTercetoActualEnAnterior(test_if_else,atoi(dato_tope));
+        test_int =atoi(dato_tope);
+     }
+          printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
+          printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
+          printf("\n \n \n ESTO ES EL TERCETO ACTUAL? %d \n \n \n",tercetosCreados);
   }
 ;
 
@@ -300,8 +321,20 @@ expresion:
 	 ;
    
 mientras:
-  WHILE PA condicion PC LA instrucciones LC 
+  WHILE PA 
   {
+    // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
+    mientrasInd = crearTerceto("InicioMientras","_","_",tercetosCreados); 
+    apilarNroTerceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
+  } condicion PC LA instrucciones LC 
+  {
+    // Aca ya se cuantos tercetos tengo que dejar
+    int t = desapilarNroTerceto(); // Aca debería tener el nro del terceto inicial del while
+    char auxT [LONG_TERCETO]; 
+    escribirTercetoActualEnAnterior(tercetosCreados+1,t);
+    t = desapilarNroTerceto(); 
+    sprintf(auxT,"[%d]",t);
+    crearTerceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
     printf("ES UN MIENTRAS\n");
   }
 ;
@@ -335,20 +368,18 @@ condicion:
 comparacion: 
     expresion operador_comparacion expresion 
       {
-               
                 // popStack(&pilaExp,exp1);
                 char* exp1 = (char*) desapilar(pilaExpresion);
                 // popStack(&pilaExp,exp2);
                 char* exp2 = (char*) desapilar(pilaExpresion);
                 // printf ("A ver la comparacion %s %s \n",exp1, exp2);
-                comparacionInd=crearTerceto("CMP",exp1,exp2,tercetosCreados);
+                comparacionInd=crearTerceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
               
                 int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
                 apilarNroTerceto(t);
                 char tString [10];
                 itoa(t,tString,10);
                 apilar(pilaComparacion,tString,sizeof(tString));
-        
     }
     | PA condicion PC
     ;
@@ -497,7 +528,7 @@ int main(int argc, char *argv[])
 
         crearCola(&colaTercetos);
 
-        abrirIntermedia();
+        abrirArchivoIntermedia();
         yyparse();
       
         //Generacion de intermedia
@@ -513,7 +544,7 @@ int main(int argc, char *argv[])
 
 int yyerror(void)
 {
-  printf("\n ********* Error Sintactico ********* \n");
+  printf("\n ********* Error Sintáctico ********* \n");
   exit (1);
 }
 
@@ -704,4 +735,23 @@ void guardar_tabla_simbolos()
 void crear_tabla_simbolos()
 {
     tabla_simbolos.primero = NULL;
+}
+
+char* agregarCorchetes(const char* cadena) 
+{
+    int longitud = strlen(cadena);
+    char* resultado = (char*)malloc(longitud + 3);
+    
+    if (resultado == NULL) 
+    {
+        printf("Error al asignar memoria\n");
+        exit(1);
+    }
+
+    resultado[0] = '[';                   
+    strcpy(resultado + 1, cadena);         
+    resultado[longitud + 1] = ']';         
+    resultado[longitud + 2] = '\0'; 
+    
+    return resultado;
 }
