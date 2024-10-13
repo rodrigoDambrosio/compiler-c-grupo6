@@ -540,6 +540,39 @@ ultimos:
       // Aca me voy a fijar si el tamaño del pivot es valido
       printf("ES SUMAR ULTIMOS\n");
       printf("\n\n ****** EL CONTADOR DIO: %d *******\n\n", contador_elementos_sumar_ult);
+
+      //consultar a rodri de poner o no aux en la tabla de simbolos
+
+      int tercetoAux = crearTerceto("aux", "_", "_", tercetosCreados);
+      int ceroAux = crearTerceto("0", "_", "_", tercetosCreados);
+
+      char auxUltId[LONG_TERCETO];
+      char auxCero[LONG_TERCETO];
+
+      sprintf(auxUltId,"[%d]",tercetoAux);
+      sprintf(auxCero,"[%d]",ceroAux);
+
+      ultInd = crearTerceto("OP_ASIG", auxUltId, auxCero, tercetosCreados);
+
+      int iUltimos = contador_elementos_sumar_ult - ultimos_pivote_aux;
+   
+      int jUltimos;
+      char* auxTerceto;
+      char auxDesapilado[LONG_TERCETO];
+      for(jUltimos = 0; jUltimos<iUltimos ; jUltimos++)
+      {
+        auxTerceto = (char*) desapilar(pilaSumarUltimos);
+        printf("\n %s ------------------------------------ \n", auxTerceto);
+        ultInd = crearTerceto(auxTerceto, "_", "_", tercetosCreados);
+
+        char ultIndChar [10];
+        sprintf(ultIndChar,"[%d]",ultInd);
+        ultInd = crearTerceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
+        char factIndString [10];
+        sprintf(factIndString,"[%d]",ultInd);
+        ultInd = crearTerceto("OP_ASIG", auxUltId, factIndString, tercetosCreados);
+       
+      }    
     }
 ;
 
@@ -548,24 +581,27 @@ lista_num: lista_num COMA num
 ;
 
 num: 
-CTE_INT 
-{
-// Voy a apilar el nro y voy a sumar a un contador
-// Pila* pila, void* dato, size_t tamano
-printf("\n\n\n NUM ->>>>>>>  %d",$1);
-int auxiliar_numero= $1;
-apilar(pilaSumarUltimos,&auxiliar_numero,sizeof(int));
-contador_elementos_sumar_ult++;
-} 
-| CTE_FLOAT 
-{
-// Voy a apilar el nro y voy a sumar a un contador
-// Pila* pila, void* dato, size_t tamano
-printf("\n\n\n NUM ->>>>>>>  %f",$1);
-float auxiliar_numero= $1;
-apilar(pilaSumarUltimos,&auxiliar_numero,sizeof(float));
-contador_elementos_sumar_ult++;
-}
+  CTE_INT 
+    {
+    // Voy a apilar el nro y voy a sumar a un contador
+    // Pila* pila, void* dato, size_t tamano
+    printf("\n\n\n NUM ->>>>>>>  %d",$1);
+    int auxiliar_numero= $1;
+    char factIndString [10];
+    apilar(pilaSumarUltimos,itoa(auxiliar_numero,factIndString,10),sizeof(factIndString));
+    contador_elementos_sumar_ult++;
+    } 
+  | CTE_FLOAT 
+    {
+    // Voy a apilar el nro y voy a sumar a un contador
+    // Pila* pila, void* dato, size_t tamano
+    printf("\n\n\n NUM ->>>>>>>  %f",$1);
+    float auxiliar_numero= $1;
+    char str[10]; 
+    sprintf(str, "%.2f", auxiliar_numero); 
+    apilar(pilaSumarUltimos,str,sizeof(str));
+    contador_elementos_sumar_ult++;
+    }
 ;
 
 triangulos:
