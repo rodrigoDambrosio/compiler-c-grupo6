@@ -59,13 +59,15 @@ int     sentInd=0,
         condicionInd = 0,
         siInd=0,
         mientrasInd=0,
+        ultInd=0,
         factInd=0;
        
 char comparador[4];
 
 // SACAR O RENOMBRAR ESTO
 int test_int=0;
-
+int ultimos_pivote_aux=0;
+int contador_elementos_sumar_ult = 0;
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -81,6 +83,7 @@ Pila* pilaTermino;
 Pila* pilaFactor;
 Pila * pilaVariables;
 Pila * pilaComparacion;
+Pila* pilaSumarUltimos;
 
 
 int i=0;
@@ -170,7 +173,7 @@ sentencia:
   | leer        {printf("SENTENCIA ES LEER\n");}
   | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
   | triangulos  {printf("SENTENCIA ES TRIANGULOS\n");}
-  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n");}
+  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); ultInd = asignacionInd;}
 	;
 
 bloque_asig:
@@ -510,14 +513,59 @@ escribir:
     | ESCRIBIR PA ID PC         {printf("ES ESCRIBIR ID\n");}
 
 ultimos: 
-    ID IGUAL SUM_ULT PA CTE_INT PTO_COMA CA lista_num CC PC  {printf("ES SUMAR ULTIMOS\n");}
+    ID 
+    
+    IGUAL SUM_ULT 
+    {
+       ultInd = crearTerceto($1,"_","_",tercetosCreados);
+    } 
+    PA CTE_INT 
+    {
+      // validar si pivot > 0
+       ultimos_pivote_aux = atoi(yytext);
+       printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
+       if(ultimos_pivote_aux < 1)
+       {
+        int tercetoIdAux= ultInd;
+        char auxUltId[LONG_TERCETO];
+        char auxCero[LONG_TERCETO];
+        ultInd = crearTerceto("0","_","_",tercetosCreados);
+        sprintf(auxUltId,"[%d]",tercetoIdAux);
+        sprintf(auxCero,"[%d]",ultInd);
+        ultInd = crearTerceto("OP_ASIG", auxUltId,auxCero,tercetosCreados);
+       }
+    } 
+    PTO_COMA CA lista_num CC PC  
+    {
+      // Aca me voy a fijar si el tamaño del pivot es valido
+      printf("ES SUMAR ULTIMOS\n");
+      printf("\n\n ****** EL CONTADOR DIO: %d *******\n\n", contador_elementos_sumar_ult);
+    }
 ;
 
 lista_num: lista_num COMA num 
            | num
 ;
 
-num: CTE_INT | CTE_FLOAT 
+num: 
+CTE_INT 
+{
+// Voy a apilar el nro y voy a sumar a un contador
+// Pila* pila, void* dato, size_t tamano
+printf("\n\n\n NUM ->>>>>>>  %d",$1);
+int auxiliar_numero= $1;
+apilar(pilaSumarUltimos,&auxiliar_numero,sizeof(int));
+contador_elementos_sumar_ult++;
+} 
+| CTE_FLOAT 
+{
+// Voy a apilar el nro y voy a sumar a un contador
+// Pila* pila, void* dato, size_t tamano
+printf("\n\n\n NUM ->>>>>>>  %f",$1);
+float auxiliar_numero= $1;
+apilar(pilaSumarUltimos,&auxiliar_numero,sizeof(float));
+contador_elementos_sumar_ult++;
+}
 ;
 
 triangulos:
@@ -542,6 +590,7 @@ int main(int argc, char *argv[])
         pilaVariables = crear_pila();
         pilaComparacion = crear_pila();
         pilaNroTerceto = crear_pila();
+        pilaSumarUltimos = crear_pila();
 
         crearCola(&colaTercetos);
 

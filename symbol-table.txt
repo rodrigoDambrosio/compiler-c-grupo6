@@ -1,3 +1,2 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
 a1                            FLOAT                         --                                      
-_4.20                                                                                               

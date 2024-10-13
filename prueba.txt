@@ -3,10 +3,4 @@ init {
     a1 : Float
 }
 
-si (a1 > b AND a==4.2)
-{
-    mientras(a>b)
-    {
-        a:=b
-    }
-}
+x = sumaLosUltimos(0; [28, 13, 4, 55.3, 17, 52])
