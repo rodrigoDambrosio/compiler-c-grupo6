@@ -1,2 +1,6 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
 a1                            FLOAT                         --                                      
+_32                                                                                                 
+_5                                                                                                  
+_1                                                                                                  
+_100                                                                                                

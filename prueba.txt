@@ -3,4 +3,4 @@ init {
     a1 : Float
 }
 
-x = sumaLosUltimos(3; [28, 13, 4, 55.3, 17, 52])
+y = triangulo((32+5+x)*z, 1/x, 100) 

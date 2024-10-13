@@ -57,11 +57,14 @@ int     sentInd=0,
         bloqueInd = 0,
         comparacionInd = 0,
         condicionInd = 0,
-        siInd=0,
-        mientrasInd=0,
-        ultInd=0,
-        factInd=0;
+        siInd = 0,
+        mientrasInd = 0,
+        ultInd = 0,
+        triangInd = 0,
+        factInd = 0;
        
+
+int auxPrimerLado = 0, auxSegundoLado = 0, auxTercerLado = 0;
 char comparador[4];
 
 // SACAR O RENOMBRAR ESTO
@@ -605,7 +608,40 @@ num:
 ;
 
 triangulos:
-           ID IGUAL TRIANG PA expresion COMA expresion COMA expresion PC  {printf("ES TRIANGULOS\n");}
+           ID IGUAL TRIANG PA expresion {
+
+              auxPrimerLado = crearTerceto("auxPrimerLado", "_", "_", tercetosCreados);
+               char auxPrimerLadoString[10];
+              sprintf(auxPrimerLadoString,"[%d]", auxPrimerLado);
+              char factIndString [10];
+              sprintf(factIndString,"[%d]", expInd);
+              triangInd = crearTerceto("OP_ASIG", auxPrimerLadoString, factIndString, tercetosCreados);
+              
+           } 
+           COMA expresion {
+
+              auxSegundoLado = crearTerceto("auxSegundoLado", "_", "_", tercetosCreados);
+              char auxSegundoLadoString[10];
+              sprintf(auxSegundoLadoString,"[%d]", auxSegundoLado);
+              char factIndString [10];
+              sprintf(factIndString,"[%d]", expInd);
+              triangInd = crearTerceto("OP_ASIG", auxSegundoLadoString, factIndString, tercetosCreados);
+              
+           } COMA expresion {
+
+              auxTercerLado = crearTerceto("auxTercerLado", "_", "_", tercetosCreados);
+              char auxTercerLadoString[10];
+              sprintf(auxTercerLadoString,"[%d]", auxTercerLado);
+              char factIndString [10];
+              sprintf(factIndString,"[%d]", expInd);
+              triangInd = crearTerceto("OP_ASIG", auxTercerLadoString, factIndString, tercetosCreados);
+              
+           }  PC  {
+              
+              printf("\n--------LADO 1: %d, LADO 2: %d, LADO 3: %d --------------- \n", auxPrimerLado, auxSegundoLado, auxTercerLado);
+              printf("ES TRIANGULOS\n");
+            
+            }
 ;
 
 %%
