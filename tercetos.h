@@ -77,8 +77,6 @@ int apilarNroTerceto(int  nroTerceto)
     sprintf(nroTercetoString,"[%d]",nroTerceto);
     printf("A ver que apila %d %s \n",nroTerceto,nroTercetoString);
     return apilar(pilaNroTerceto, nroTercetoString, sizeof(nroTercetoString));
-    //return pushStack(&pilaNroTerceto,nroTercetoString);
-
 }
 
 int desapilarNroTerceto()
@@ -86,10 +84,13 @@ int desapilarNroTerceto()
     char * nroTerceto = (char *) desapilar(pilaNroTerceto);
     char  subtext [strlen(nroTerceto-2)];
     strncpy(subtext,&nroTerceto[1],strlen(nroTerceto)-1);
-    // printf("A ver que tiene subtext %s\n",subtext);
-    return atoi(subtext);
+    int nroDesapilado = atoi(subtext);
+    // if(nroDesapilado < 0)
+    // {
+    //     return -1;
+    // }
+    return nroDesapilado;
 }
-
 
 void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado)
 {

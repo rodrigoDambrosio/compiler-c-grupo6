@@ -85,6 +85,7 @@ Pila * pilaComparacion;
 
 int i=0;
 int test_if_else=0;
+int aux_comp=0;
 char* dato_tope;
 char tipo_dato[10];
 int cant_id = 0;
@@ -172,40 +173,6 @@ sentencia:
   | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n");}
 	;
 
-si: 
-  IF PA condicion PC LA instrucciones LC 
-  {
-    printf("ES CONDICION SI\n");
-    while(!es_pila_vacia(pilaComparacion)){
-        char* t = (char *) desapilar(pilaComparacion);
-        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
-  }
-  }
-  | IF PA condicion PC LA instrucciones LC 
-  {
-    // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
-    printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
-    // TODO: Poner un nombre descriptivo
-    test_if_else = tercetosCreados;
-    printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
-
-  }
-  ELSE LA instrucciones LC 
-  {
-    printf("ES CONDICION SINO \n");
-     while(!es_pila_vacia(pilaComparacion))
-     {
-        dato_tope = (char *) desapilar(pilaComparacion);
-        printf("--------- que hay en tope pila %s\n", dato_tope);
-        escribirTercetoActualEnAnterior(test_if_else,atoi(dato_tope));
-        test_int =atoi(dato_tope);
-     }
-          printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
-          printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
-          printf("\n \n \n ESTO ES EL TERCETO ACTUAL? %d \n \n \n",tercetosCreados);
-  }
-;
-
 bloque_asig:
 INIT LA lista_asignacion LC {printf("BLOQUE ASIGNACION\n"); }
 ;
@@ -264,6 +231,129 @@ asig_tipo:
     }
 ;
 
+si: 
+  IF PA condicion PC LA instrucciones LC 
+  {
+    printf("ES CONDICION SI\n");
+    while(!es_pila_vacia(pilaComparacion))
+    {
+        char* t = (char *) desapilar(pilaComparacion);
+        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
+    }
+  }
+  | IF PA condicion PC LA instrucciones LC 
+  {
+    // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
+    printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
+    // TODO: Poner un nombre descriptivo
+    test_if_else = tercetosCreados;
+    printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
+
+  }
+  ELSE LA instrucciones LC 
+  {
+    printf("ES CONDICION SINO \n");
+     while(!es_pila_vacia(pilaComparacion))
+     {
+        dato_tope = (char *) desapilar(pilaComparacion);
+        printf("--------- que hay en tope pila %s\n", dato_tope);
+        escribirTercetoActualEnAnterior(test_if_else,atoi(dato_tope));
+        test_int =atoi(dato_tope);
+     }
+          printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
+          printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
+          printf("\n \n \n ESTO ES EL TERCETO ACTUAL? %d \n \n \n",tercetosCreados);
+  }
+;
+
+mientras:
+  WHILE PA 
+  {
+    // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
+    mientrasInd = crearTerceto("InicioMientras","_","_",tercetosCreados); 
+    apilarNroTerceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
+  } condicion PC 
+  {
+      // Aca cuando es un OR o AND me esta faltando escribir el nro de terceto del salto de la primera condicion?
+  }
+  LA instrucciones LC 
+  {
+    // Aca ya se cuantos tercetos tengo que dejar
+    int t = desapilarNroTerceto(); // Aca debería tener el nro del terceto inicial del while
+    char auxT [LONG_TERCETO]; 
+    escribirTercetoActualEnAnterior(tercetosCreados+1,t);
+    t = desapilarNroTerceto(); 
+    sprintf(auxT,"[%d]",mientrasInd);
+    crearTerceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
+    printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
+    escribirTercetoActualEnAnterior(tercetosCreados,aux_comp);
+    printf("ES UN MIENTRAS\n");
+  }
+;
+
+condicion:
+  
+  comparacion 
+  {
+    condicionInd = comparacionInd;
+  }
+  | 
+  OP_NOT comparacion
+  {
+    char comparacionAux [LONG_TERCETO];
+    sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_NOT", comparacionAux,"_",tercetosCreados );
+  }
+  | 
+  condicion OP_OR comparacion 
+  {
+    char condicionAux [LONG_TERCETO];
+    char comparacionAux [LONG_TERCETO];
+    sprintf(condicionAux,"[%d]",condicionInd);
+    sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
+  }
+  | 
+  condicion OP_AND comparacion 
+  {
+    char condicionAux [LONG_TERCETO];
+    char comparacionAux [LONG_TERCETO];
+    sprintf(condicionAux,"[%d]",condicionInd );
+    sprintf(comparacionAux, "[%d]", comparacionInd);
+    condicionInd = crearTerceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
+  }
+;
+
+comparacion: 
+    expresion operador_comparacion expresion 
+      {
+                char* exp1 = (char*) desapilar(pilaExpresion);
+                char* exp2 = (char*) desapilar(pilaExpresion);
+                // printf ("A ver la comparacion %s %s \n",exp1, exp2);
+                comparacionInd=crearTerceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
+                printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
+                aux_comp = condicionInd+1;
+                // Guardo este nro de terceto para despues actualizarlo mas adelante con el nro del salto al final de toda la condicion
+                int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
+                printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
+                apilarNroTerceto(t);
+                char tString [10];
+                itoa(t,tString,10);
+                apilar(pilaComparacion,tString,sizeof(tString));
+    }
+    // | PA condicion PC
+;
+
+operador_comparacion:
+  OP_MAYOR {strcpy(comparador, "BLE");}
+  | OP_MAYORI {strcpy(comparador, "BLT");};
+  | OP_MEN {strcpy(comparador, "BGE");}
+  | OP_MENI {strcpy(comparador,"BGT");}
+  | OP_IGUAL {strcpy(comparador, "BNE");}
+  // | OP_NOT_IGUAL {strcpy(comparador, "BNE");}
+
+;
+
 asignacion: 
     id OP_AS expresion 
     {
@@ -288,7 +378,8 @@ id:
 
 
 expresion:
-   termino {
+   termino 
+   {
             printf("Termino es Expresion\n");
             expInd = termInd;
             char expIndString [10];
@@ -320,80 +411,6 @@ expresion:
     }
 	 ;
    
-mientras:
-  WHILE PA 
-  {
-    // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
-    mientrasInd = crearTerceto("InicioMientras","_","_",tercetosCreados); 
-    apilarNroTerceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
-  } condicion PC LA instrucciones LC 
-  {
-    // Aca ya se cuantos tercetos tengo que dejar
-    int t = desapilarNroTerceto(); // Aca debería tener el nro del terceto inicial del while
-    char auxT [LONG_TERCETO]; 
-    escribirTercetoActualEnAnterior(tercetosCreados+1,t);
-    t = desapilarNroTerceto(); 
-    sprintf(auxT,"[%d]",t);
-    crearTerceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
-    printf("ES UN MIENTRAS\n");
-  }
-;
-
-condicion:
-  OP_NOT comparacion
-  {
-    char comparacionAux [LONG_TERCETO];
-    // sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_NOT", comparacionAux,"_",tercetosCreados );
-  }
-  | condicion OP_OR comparacion 
-  {
-    char condicionAux [LONG_TERCETO];
-    char comparacionAux [LONG_TERCETO];
-    // sprintf(condicionAux,"[%d]",condicionInd);
-    // sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
-  }
-  | condicion OP_AND comparacion 
-  {
-    char condicionAux [LONG_TERCETO];
-    char comparacionAux [LONG_TERCETO];
-    // sprintf(condicionAux,"[%d]",condicionInd );
-    // sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
-  }
-  | comparacion {condicionInd = comparacionInd;}
-;
-
-comparacion: 
-    expresion operador_comparacion expresion 
-      {
-                // popStack(&pilaExp,exp1);
-                char* exp1 = (char*) desapilar(pilaExpresion);
-                // popStack(&pilaExp,exp2);
-                char* exp2 = (char*) desapilar(pilaExpresion);
-                // printf ("A ver la comparacion %s %s \n",exp1, exp2);
-                comparacionInd=crearTerceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
-              
-                int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
-                apilarNroTerceto(t);
-                char tString [10];
-                itoa(t,tString,10);
-                apilar(pilaComparacion,tString,sizeof(tString));
-    }
-    | PA condicion PC
-    ;
-
-operador_comparacion:
-  OP_MAYOR {strcpy(comparador, "BLE");}
-  | OP_MAYORI {strcpy(comparador, "BLT");};
-  | OP_MEN {strcpy(comparador, "BGE");}
-  | OP_MENI {strcpy(comparador,"BGT");}
-  | OP_IGUAL {strcpy(comparador, "BNE");}
-  // | OP_NOT_IGUAL {strcpy(comparador, "BNE");}
-
-;
-
 termino: 
        factor 
        {
@@ -654,16 +671,15 @@ t_data* crearDatos(const char *nombre, const char *tipo,
         }
         if(strcmp(tipo, "CTE_FLOAT") == 0)
         {
-            sprintf(aux, "%s", nombre);
+            sprintf(aux, "%.2f", valor_var_float);
             strcat(full, aux);
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
-
             strcpy(data->nombre, full);
             data->valor.valor_var_float = valor_var_float;
         }
         if(strcmp(tipo, "CTE_INT") == 0)
         {
-            sprintf(aux, "%s", nombre);
+            sprintf(aux, "%d", valor_var_int);
             strcat(full, aux);
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);

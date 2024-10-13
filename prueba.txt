@@ -3,7 +3,10 @@ init {
     a1 : Float
 }
 
-mientras (a > b)
+si (a1 > b AND a==4.2)
 {
-    a :=  1
+    mientras(a>b)
+    {
+        a:=b
+    }
 }
