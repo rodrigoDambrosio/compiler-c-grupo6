@@ -61,7 +61,8 @@ int     sentInd=0,
         siInd = 0,
         mientrasInd = 0,
         ultInd = 0,
-        triangInd = 0,
+        // triangInd = 0,
+        instrInd= 0,
         factInd = 0;
        
 int triangulos_id_aux =0;
@@ -90,7 +91,7 @@ t_tabla tabla_simbolos;
 Pila* pilaExpresion;
 Pila* pilaTermino;
 Pila* pilaFactor;
-Pila * pilaVariables;
+// Pila * pilaVariables;
 Pila * pilaComparacion;
 Pila* pilaSumarUltimos;
 
@@ -161,18 +162,19 @@ char *tipo_str;
 programa: 
  bloque_asig instrucciones{
                   guardar_tabla_simbolos();
+                  prgInd=sentInd;
                   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
                 }
  | instrucciones{
                   guardar_tabla_simbolos();
                   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
-                  sentInd=prgInd;
+                  prgInd=sentInd;
                 }             
 ;
 
 instrucciones: 
-            sentencia {printf(" INSTRUCCIONES ES SENTENCIA\n");}
-          | instrucciones sentencia {printf(" INSTRUCCIONES Y SENTENCIA ES PROGRAMA\n");}
+            sentencia {printf(" INSTRUCCIONES ES SENTENCIA\n"); instrInd = sentInd;}
+          | instrucciones sentencia {printf(" INSTRUCCIONES Y SENTENCIA ES PROGRAMA\n"); instrInd = sentInd;}
 ;
 
 sentencia:  	   
@@ -181,8 +183,8 @@ sentencia:
   | si          {printf("SENTENCIA ES SI/SI SINO\n"); sentInd=siInd;} 
   | leer        {printf("SENTENCIA ES LEER\n");}
   | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
-  | triangulos  {printf("SENTENCIA ES TRIANGULOS\n");}
-  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); ultInd = asignacionInd;}
+  | triangulos  {printf("SENTENCIA ES TRIANGULOS\n"); sentInd = indTriang;}
+  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); sentInd = ultInd;}
 	;
 
 bloque_asig:
@@ -211,21 +213,19 @@ lista_asignacion :
 
 lista_variables: lista_variables COMA ID
                 {
-                    printf("ES UNA LISTA DE VARIABLES\n");
                     strcpy(t_ids[cant_id].cadena,$3);
                     cant_id++;
-
                     crearTerceto(yytext,"_","_",tercetosCreados);
-                    apilar(pilaVariables, $3, sizeof($3));
+                    // apilar(pilaVariables, $3, sizeof($3));
+                    printf("ES UNA LISTA DE VARIABLES\n");
                 }
                 | ID
                 {
                     printf("ES UNA VARIABLE\n");
                     strcpy(t_ids[cant_id].cadena,$1);
                     cant_id++;
-
                     crearTerceto(yytext,"_","_",tercetosCreados);
-                    apilar(pilaVariables, $1, sizeof($1));
+                    // apilar(pilaVariables, $1, sizeof($1));
                 }
 
 asig_tipo: 
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
         pilaExpresion = crear_pila();
         pilaTermino = crear_pila();
         pilaFactor = crear_pila();
-        pilaVariables = crear_pila();
+        // pilaVariables = crear_pila();
         pilaComparacion = crear_pila();
         pilaNroTerceto = crear_pila();
         pilaSumarUltimos = crear_pila();

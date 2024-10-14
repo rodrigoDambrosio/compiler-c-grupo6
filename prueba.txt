@@ -1,6 +1,7 @@
 
 init {
-    a1 : Float
+    a1, b1 : Float
+    variable1 : Int
 }
 
 y = triangulo((32+5+x)*z, 1/x, 100+b) 

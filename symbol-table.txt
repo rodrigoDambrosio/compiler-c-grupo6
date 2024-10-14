@@ -1,5 +1,7 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
 a1                            FLOAT                         --                                      
+b1                            FLOAT                         --                                      
+variable1                     INTEGER                       --                                      
 _32                                                                                                 
 _5                                                                                                  
 _1                                                                                                  
