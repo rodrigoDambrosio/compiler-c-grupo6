@@ -16,6 +16,7 @@ FILE  *yyin;
   extern char* yytext;
 
 tCola  colaTercetos;
+
 /* --- Estructura de la tabla de simbolos --- */
 
 typedef struct
@@ -298,7 +299,7 @@ mientras:
     t = desapilarNroTerceto(); 
     sprintf(auxT,"[%d]",mientrasInd);
     crearTerceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
-    printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
+    // printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
     escribirTercetoActualEnAnterior(tercetosCreados,aux_comp);
     printf("ES UN MIENTRAS\n");
   }
@@ -344,11 +345,11 @@ comparacion:
                 char* exp2 = (char*) desapilar(pilaExpresion);
                 // printf ("A ver la comparacion %s %s \n",exp1, exp2);
                 comparacionInd=crearTerceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
-                printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
+                // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
                 aux_comp = condicionInd+1;
                 // Guardo este nro de terceto para despues actualizarlo mas adelante con el nro del salto al final de toda la condicion
                 int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
-                printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
+                // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
                 apilarNroTerceto(t);
                 char tString [10];
                 itoa(t,tString,10);
@@ -531,7 +532,7 @@ ultimos:
     {
       // validar si pivot > 0 para retornar 0
        ultimos_pivote_aux = atoi(yytext);
-       printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
+      // printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
        if(ultimos_pivote_aux < 1)
        {
         int tercetoIdAux= ultInd;
@@ -592,7 +593,7 @@ num:
   CTE_INT 
     {
     // Voy a apilar el nro y voy a sumar a un contador
-    printf("\n\n\n NUM ->>>>>>>  %d",$1);
+    // printf("\n\n\n NUM ->>>>>>>  %d",$1);
     int auxiliar_numero= $1;
     char factIndString [10];
     apilar(pilaSumarUltimos,itoa(auxiliar_numero,factIndString,10),sizeof(factIndString));
@@ -601,7 +602,7 @@ num:
   | CTE_FLOAT 
     {
     // Voy a apilar el nro y voy a sumar a un contador
-    printf("\n\n\n NUM ->>>>>>>  %f",$1);
+    // printf("\n\n\n NUM ->>>>>>>  %f",$1);
     float auxiliar_numero= $1;
     char str[10]; 
     sprintf(str, "%.2f", auxiliar_numero); 
@@ -750,7 +751,7 @@ int main(int argc, char *argv[])
 
 int yyerror(void)
 {
-  printf("\n ********* Error Sintáctico ********* \n");
+  printf("\n ********* Error Sintactico ********* \n");
   exit (1);
 }
 
