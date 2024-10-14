@@ -711,8 +711,8 @@ triangulos:
             // Salto el caso escaleno
             // Comparo a y c
             indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
-            sprintf(auxBi,"[%d]",tercetosCreados+2);
-            a= crearTerceto("BNE","_",auxBi ,tercetosCreados);
+            sprintf(auxBi,"[%d]",tercetosCreados-3);
+            a= crearTerceto("BE","_",auxBi ,tercetosCreados);
             crearTerceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados);
             printf("ES TRIANGULOS\n");
            }
