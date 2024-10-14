@@ -3,4 +3,4 @@ init {
     a1 : Float
 }
 
-y = triangulo((32+5+x)*z, 1/x, 100) 
+y = triangulo((32+5+x)*z, 1/x, 100+b) 

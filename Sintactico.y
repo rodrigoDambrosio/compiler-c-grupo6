@@ -63,7 +63,12 @@ int     sentInd=0,
         triangInd = 0,
         factInd = 0;
        
-
+int triangulos_id_aux =0;
+int indTriangExp1=0;
+int indTriangExp2=0;
+int indTriangExp3=0;
+int indTriang=0;
+int saltoFinElse = 0;
 int auxPrimerLado = 0, auxSegundoLado = 0, auxTercerLado = 0;
 char comparador[4];
 
@@ -254,7 +259,7 @@ si:
     // TODO: Poner un nombre descriptivo
     test_if_else = tercetosCreados;
     printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
-
+    saltoFinElse = crearTerceto("BI","_","_",tercetosCreados);
   }
   ELSE LA instrucciones LC 
   {
@@ -269,6 +274,8 @@ si:
           printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
           printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
           printf("\n \n \n ESTO ES EL TERCETO ACTUAL? %d \n \n \n",tercetosCreados);
+
+      escribirTercetoActualEnAnterior(tercetosCreados,saltoFinElse);
   }
 ;
 
@@ -607,43 +614,109 @@ num:
     }
 ;
 
-triangulos:
-           ID IGUAL TRIANG PA expresion {
+// triangulos:
+//            ID IGUAL TRIANG PA expresion {
 
-              auxPrimerLado = crearTerceto("auxPrimerLado", "_", "_", tercetosCreados);
-               char auxPrimerLadoString[10];
-              sprintf(auxPrimerLadoString,"[%d]", auxPrimerLado);
-              char factIndString [10];
-              sprintf(factIndString,"[%d]", expInd);
-              triangInd = crearTerceto("OP_ASIG", auxPrimerLadoString, factIndString, tercetosCreados);
+//               auxPrimerLado = crearTerceto("auxPrimerLado", "_", "_", tercetosCreados);
+//                char auxPrimerLadoString[10];
+//               sprintf(auxPrimerLadoString,"[%d]", auxPrimerLado);
+//               char factIndString [10];
+//               sprintf(factIndString,"[%d]", expInd);
+//               triangInd = crearTerceto("OP_ASIG", auxPrimerLadoString, factIndString, tercetosCreados);
               
-           } 
-           COMA expresion {
+//            } 
+//            COMA expresion {
 
-              auxSegundoLado = crearTerceto("auxSegundoLado", "_", "_", tercetosCreados);
-              char auxSegundoLadoString[10];
-              sprintf(auxSegundoLadoString,"[%d]", auxSegundoLado);
-              char factIndString [10];
-              sprintf(factIndString,"[%d]", expInd);
-              triangInd = crearTerceto("OP_ASIG", auxSegundoLadoString, factIndString, tercetosCreados);
+//               auxSegundoLado = crearTerceto("auxSegundoLado", "_", "_", tercetosCreados);
+//               char auxSegundoLadoString[10];
+//               sprintf(auxSegundoLadoString,"[%d]", auxSegundoLado);
+//               char factIndString [10];
+//               sprintf(factIndString,"[%d]", expInd);
+//               triangInd = crearTerceto("OP_ASIG", auxSegundoLadoString, factIndString, tercetosCreados);
               
-           } COMA expresion {
+//            } COMA expresion {
 
-              auxTercerLado = crearTerceto("auxTercerLado", "_", "_", tercetosCreados);
-              char auxTercerLadoString[10];
-              sprintf(auxTercerLadoString,"[%d]", auxTercerLado);
-              char factIndString [10];
-              sprintf(factIndString,"[%d]", expInd);
-              triangInd = crearTerceto("OP_ASIG", auxTercerLadoString, factIndString, tercetosCreados);
+//               auxTercerLado = crearTerceto("auxTercerLado", "_", "_", tercetosCreados);
+//               char auxTercerLadoString[10];
+//               sprintf(auxTercerLadoString,"[%d]", auxTercerLado);
+//               char factIndString [10];
+//               sprintf(factIndString,"[%d]", expInd);
+//               triangInd = crearTerceto("OP_ASIG", auxTercerLadoString, factIndString, tercetosCreados);
               
-           }  PC  {
+//            }  PC  {
               
-              printf("\n--------LADO 1: %d, LADO 2: %d, LADO 3: %d --------------- \n", auxPrimerLado, auxSegundoLado, auxTercerLado);
-              printf("ES TRIANGULOS\n");
+//               printf("\n--------LADO 1: %d, LADO 2: %d, LADO 3: %d --------------- \n", auxPrimerLado, auxSegundoLado, auxTercerLado);
+//               printf("ES TRIANGULOS\n");
             
-            }
-;
+//             }
+// ;
+triangulos:
+           ID IGUAL TRIANG PA 
+           {
+              triangulos_id_aux = crearTerceto($1,"_","_",tercetosCreados);
+           }  
+           expresion 
+           {
+            indTriangExp1= expInd;
+           }
+           COMA expresion
+           {
+            indTriangExp2= expInd;
+           } 
+           COMA expresion
+           {
+            indTriangExp3= expInd;
+           } 
+           PC  
+           {
+            printf("\n\n\n 1: %d \n 2: %d \n 3: %d",indTriangExp1,indTriangExp2,indTriangExp3);
+            int saltoFin=0;
+            char auxUno[LONG_TERCETO];
+            char auxDos[LONG_TERCETO];
+            char auxTres[LONG_TERCETO];
+            char auxIdTriang[LONG_TERCETO];
 
+            sprintf(auxUno,"[%d]",indTriangExp1);
+            sprintf(auxDos,"[%d]",indTriangExp2);
+            sprintf(auxTres,"[%d]",indTriangExp3);
+
+            indTriang = crearTerceto("CMP",auxUno,auxDos,tercetosCreados);
+            int a = crearTerceto("BNE","_","_" ,tercetosCreados);
+            escribirTercetoActualEnAnterior(a+7, a);
+
+            printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
+            // char factIndString [10];
+            // apilar(pilaFactor,itoa(a,factIndString,10),sizeof(factIndString));
+
+            indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
+            a= crearTerceto("BNE","_","_" ,tercetosCreados);
+            escribirTercetoActualEnAnterior(a+3, a); // Escribo a donde salta si a=b pero a!=c (isosceles)
+
+            
+            sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
+
+            crearTerceto("OP_ASIG",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
+
+            char auxBi[LONG_TERCETO];
+
+            sprintf(auxBi,"[%d]",tercetosCreados+6);
+
+            crearTerceto("BI","_",auxBi,tercetosCreados);
+
+            // Salto todo el resto este
+            crearTerceto("OP_ASIG",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
+            sprintf(auxBi,"[%d]",tercetosCreados+4);
+
+            crearTerceto("BI","_",auxBi,tercetosCreados);
+            // Salto el caso escaleno
+            // Comparo a y c
+            indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
+            sprintf(auxBi,"[%d]",tercetosCreados+2);
+            a= crearTerceto("BNE","_",auxBi ,tercetosCreados);
+            crearTerceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados);
+            printf("ES TRIANGULOS\n");
+           }
+;
 %%
 
 int main(int argc, char *argv[])
