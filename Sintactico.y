@@ -255,10 +255,10 @@ si:
   | IF PA condicion PC LA instrucciones LC 
   {
     // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
-    printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
+    // printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
     // TODO: Poner un nombre descriptivo
     test_if_else = tercetosCreados;
-    printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
+    // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
     saltoFinElse = crearTerceto("BI","_","_",tercetosCreados);
   }
   ELSE LA instrucciones LC 
@@ -267,13 +267,13 @@ si:
      while(!es_pila_vacia(pilaComparacion))
      {
         dato_tope = (char *) desapilar(pilaComparacion);
-        printf("--------- que hay en tope pila %s\n", dato_tope);
+        // printf("tope pila ------> %s\n", dato_tope);
         escribirTercetoActualEnAnterior(test_if_else,atoi(dato_tope));
         test_int =atoi(dato_tope);
      }
-          printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
-          printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
-          printf("\n \n \n ESTO ES EL TERCETO ACTUAL? %d \n \n \n",tercetosCreados);
+          // printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
+          // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
+          // printf("\n \n \n ESTO ES EL TERCETO ACTUAL %d \n \n \n",tercetosCreados);
 
       escribirTercetoActualEnAnterior(tercetosCreados,saltoFinElse);
   }
@@ -523,15 +523,13 @@ escribir:
     | ESCRIBIR PA ID PC         {printf("ES ESCRIBIR ID\n");}
 
 ultimos: 
-    ID 
-    
-    IGUAL SUM_ULT 
+    ID IGUAL SUM_ULT 
     {
        ultInd = crearTerceto($1,"_","_",tercetosCreados);
     } 
     PA CTE_INT 
     {
-      // validar si pivot > 0
+      // validar si pivot > 0 para retornar 0
        ultimos_pivote_aux = atoi(yytext);
        printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
        if(ultimos_pivote_aux < 1)
@@ -548,8 +546,7 @@ ultimos:
     PTO_COMA CA lista_num CC PC  
     {
       // Aca me voy a fijar si el tamaño del pivot es valido
-      printf("ES SUMAR ULTIMOS\n");
-      printf("\n\n ****** EL CONTADOR DIO: %d *******\n\n", contador_elementos_sumar_ult);
+      // printf("\n\n ****** EL CONTADOR DE ELEMENTOS DIO: %d *******\n\n", contador_elementos_sumar_ult);
 
       //consultar a rodri de poner o no aux en la tabla de simbolos
 
@@ -583,6 +580,7 @@ ultimos:
         ultInd = crearTerceto("OP_ASIG", auxUltId, factIndString, tercetosCreados);
        
       }    
+      printf("ES SUMAR ULTIMOS\n");
     }
 ;
 
@@ -594,7 +592,6 @@ num:
   CTE_INT 
     {
     // Voy a apilar el nro y voy a sumar a un contador
-    // Pila* pila, void* dato, size_t tamano
     printf("\n\n\n NUM ->>>>>>>  %d",$1);
     int auxiliar_numero= $1;
     char factIndString [10];
@@ -604,7 +601,6 @@ num:
   | CTE_FLOAT 
     {
     // Voy a apilar el nro y voy a sumar a un contador
-    // Pila* pila, void* dato, size_t tamano
     printf("\n\n\n NUM ->>>>>>>  %f",$1);
     float auxiliar_numero= $1;
     char str[10]; 
@@ -669,8 +665,8 @@ triangulos:
            } 
            PC  
            {
-            printf("\n\n\n 1: %d \n 2: %d \n 3: %d",indTriangExp1,indTriangExp2,indTriangExp3);
-            int saltoFin=0;
+            // printf("\n\n\n 1: %d \n 2: %d \n 3: %d",indTriangExp1,indTriangExp2,indTriangExp3);
+            // int saltoFin=0;
             char auxUno[LONG_TERCETO];
             char auxDos[LONG_TERCETO];
             char auxTres[LONG_TERCETO];
@@ -684,15 +680,12 @@ triangulos:
             int a = crearTerceto("BNE","_","_" ,tercetosCreados);
             escribirTercetoActualEnAnterior(a+7, a);
 
-            printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
-            // char factIndString [10];
-            // apilar(pilaFactor,itoa(a,factIndString,10),sizeof(factIndString));
+            // printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
 
             indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
             a= crearTerceto("BNE","_","_" ,tercetosCreados);
             escribirTercetoActualEnAnterior(a+3, a); // Escribo a donde salta si a=b pero a!=c (isosceles)
 
-            
             sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
 
             crearTerceto("OP_ASIG",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
@@ -703,17 +696,19 @@ triangulos:
 
             crearTerceto("BI","_",auxBi,tercetosCreados);
 
-            // Salto todo el resto este
+            // Salto al final que ya se cuanto es
             crearTerceto("OP_ASIG",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados+4);
 
             crearTerceto("BI","_",auxBi,tercetosCreados);
             // Salto el caso escaleno
             // Comparo a y c
+            // Si son iguales tengo que volver al tecerto de isosceles, caso contrario es escaleno a!=b!=c
             indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
-            a= crearTerceto("BE","_",auxBi ,tercetosCreados);
+            a = crearTerceto("BE","_",auxBi ,tercetosCreados);
             crearTerceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados);
+            
             printf("ES TRIANGULOS\n");
            }
 ;

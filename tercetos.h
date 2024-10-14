@@ -36,7 +36,7 @@ int abrirArchivoIntermedia(){
     fpIntermedia = fopen(RUTA_ARCHIVO_INTERMEDIA,"wt");
     if(!fpIntermedia)
     {
-        printf("Error de apertura del archivo de la tabla de simbolos");
+        printf("Error de apertura del archivo de intermedia");
         return 0;
     }
     return 1;
@@ -65,7 +65,7 @@ int crearTerceto(char *c1, char*c2 ,char *c3,int nroT)
     strcpy(tercetos.posDos,c2);
     strcpy(tercetos.posTres,c3);
   
-    printf("%d Se pone en cola %s,%s,%s \n",nroT,tercetos.posUno,tercetos.posDos,tercetos.posTres);
+    // printf("%d Se guarda en la cola %s,%s,%s \n",nroT,tercetos.posUno,tercetos.posDos,tercetos.posTres);
     ponerEnCola(&colaTercetos,&tercetos,sizeof(tercetos));
     return nroT;
 }
@@ -75,7 +75,7 @@ int apilarNroTerceto(int  nroTerceto)
 {
     char nroTercetoString [50];
     sprintf(nroTercetoString,"[%d]",nroTerceto);
-    printf("A ver que apila %d %s \n",nroTerceto,nroTercetoString);
+    // printf("Apile %d %s \n",nroTerceto,nroTercetoString);
     return apilar(pilaNroTerceto, nroTercetoString, sizeof(nroTercetoString));
 }
 
