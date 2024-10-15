@@ -18,24 +18,23 @@ typedef struct
 } tCola;
 
 
-void crearCola(tCola *c);
-int colaLlena(const tCola *c,unsigned cantBytes);
-int ponerEnCola(tCola *c, const void *d, unsigned cantBytes);
-void vaciaCola(tCola *c);
-int verPrimeroCola(const tCola *c, void *d, unsigned cantBytes);
-int colaVacia (const tCola *c);
-int sacarDeCola(tCola *c, void *d, unsigned cantBytes);
+void crear_cola(tCola *c);
+int cola_llena(const tCola *c,unsigned cantBytes);
+int poner_en_cola(tCola *c, const void *d, unsigned cantBytes);
+void vaciar_cola(tCola *c);
+int ver_primer_cola(const tCola *c, void *d, unsigned cantBytes);
+int cola_vacia (const tCola *c);
+int sacar_de_cola(tCola *c, void *d, unsigned cantBytes);
 
 ///////////COLA/////////////
 
-void crearCola(tCola *c)
+void crear_cola(tCola *c)
 {
     c->priC = NULL;
     c->ultC = NULL;
-
 }
 
-int colaLlena(const tCola *c,unsigned cantBytes)
+int cola_llena(const tCola *c,unsigned cantBytes)
 {
     tNodo_c *aux = (tNodo_c *)malloc(sizeof(tNodo_c));
     void *infoC = malloc(cantBytes);
@@ -44,7 +43,7 @@ int colaLlena(const tCola *c,unsigned cantBytes)
     return aux == NULL|| infoC == NULL;
 }
 
-int ponerEnCola(tCola *c, const void *d, unsigned cantBytes)
+int poner_en_cola(tCola *c, const void *d, unsigned cantBytes)
 {
     tNodo_c *nue = (tNodo_c *) malloc(sizeof(tNodo_c));
 
@@ -54,7 +53,6 @@ int ponerEnCola(tCola *c, const void *d, unsigned cantBytes)
         return 0;
     }
 
-    
     memcpy(nue->infoC,d, cantBytes);
     
     nue->tamInfoC = cantBytes;
@@ -67,7 +65,7 @@ int ponerEnCola(tCola *c, const void *d, unsigned cantBytes)
     return 1;
 }
 
-void vaciaCola(tCola *c)
+void vaciar_cola(tCola *c)
 {
     tNodo_c *aux;
     while(c->priC)
@@ -80,7 +78,7 @@ void vaciaCola(tCola *c)
     c->ultC = NULL;
 }
 
-int verPrimeroCola(const tCola *c, void *d, unsigned cantBytes)
+int ver_primer_cola(const tCola *c, void *d, unsigned cantBytes)
 {
     if(c->priC == NULL)
         return 0;
@@ -89,12 +87,12 @@ int verPrimeroCola(const tCola *c, void *d, unsigned cantBytes)
 
 }
 
-int colaVacia (const tCola *c)
+int cola_vacia (const tCola *c)
 {
     return c->priC ==NULL;
 }
 
-int sacarDeCola(tCola *c, void *d, unsigned cantBytes)
+int sacar_de_cola(tCola *c, void *d, unsigned cantBytes)
 {
     tNodo_c *elim = c->priC;
     if(elim == NULL)
@@ -102,7 +100,6 @@ int sacarDeCola(tCola *c, void *d, unsigned cantBytes)
     c->priC = elim->sigC;
 
     memcpy(d,elim->infoC,minimo( elim->tamInfoC, cantBytes));
-
 
     free(elim->infoC);
     free(elim);

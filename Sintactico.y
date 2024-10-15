@@ -50,11 +50,11 @@ typedef struct{
 
 //Para la intermedia 
 ///indices
-int     sentInd=0,
-        prgInd=0,
+int     sentenciaIndice=0,
+        programaIndice=0,
         asignacionInd=0,
-        expInd=0,
-        termInd=0,
+        expresionInd=0,
+        terminoInd=0,
         bloqueInd = 0,
         comparacionInd = 0,
         condicionInd = 0,
@@ -62,8 +62,8 @@ int     sentInd=0,
         mientrasInd = 0,
         ultInd = 0,
         // triangInd = 0,
-        instrInd= 0,
-        factInd = 0;
+        instruccionInd= 0,
+        factorIndice = 0;
        
 int triangulos_id_aux =0;
 int indTriangExp1=0;
@@ -97,7 +97,7 @@ Pila* pilaSumarUltimos;
 
 
 int i=0;
-int test_if_else=0;
+int aux_terceto_if_else=0;
 int aux_comp=0;
 char* dato_tope;
 char tipo_dato[10];
@@ -162,29 +162,29 @@ char *tipo_str;
 programa: 
  bloque_asig instrucciones{
                   guardar_tabla_simbolos();
-                  prgInd=sentInd;
+                  programaIndice=sentenciaIndice;
                   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
                 }
  | instrucciones{
                   guardar_tabla_simbolos();
                   printf("LAS INSTRUCCIONES SON UN PROGRAMA\n");
-                  prgInd=sentInd;
+                  programaIndice=sentenciaIndice;
                 }             
 ;
 
 instrucciones: 
-            sentencia {printf(" INSTRUCCIONES ES SENTENCIA\n"); instrInd = sentInd;}
-          | instrucciones sentencia {printf(" INSTRUCCIONES Y SENTENCIA ES PROGRAMA\n"); instrInd = sentInd;}
+            sentencia {printf(" INSTRUCCIONES ES SENTENCIA\n"); instruccionInd = sentenciaIndice;}
+          | instrucciones sentencia {printf(" INSTRUCCIONES Y SENTENCIA ES PROGRAMA\n"); instruccionInd = sentenciaIndice;}
 ;
 
 sentencia:  	   
-	asignacion    {printf("SENTENCIA ES ASIGNACION\n"); sentInd=asignacionInd;}
-  | mientras    {printf("SENTENCIA ES MIENTRAS\n"); sentInd=mientrasInd;} 
-  | si          {printf("SENTENCIA ES SI/SI SINO\n"); sentInd=siInd;} 
+	asignacion    {printf("SENTENCIA ES ASIGNACION\n"); sentenciaIndice=asignacionInd;}
+  | mientras    {printf("SENTENCIA ES MIENTRAS\n"); sentenciaIndice=mientrasInd;} 
+  | si          {printf("SENTENCIA ES SI/SI SINO\n"); sentenciaIndice=siInd;} 
   | leer        {printf("SENTENCIA ES LEER\n");}
   | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
-  | triangulos  {printf("SENTENCIA ES TRIANGULOS\n"); sentInd = indTriang;}
-  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); sentInd = ultInd;}
+  | triangulos  {printf("SENTENCIA ES TRIANGULOS\n"); sentenciaIndice = indTriang;}
+  | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); sentenciaIndice = ultInd;}
 	;
 
 bloque_asig:
@@ -215,7 +215,7 @@ lista_variables: lista_variables COMA ID
                 {
                     strcpy(t_ids[cant_id].cadena,$3);
                     cant_id++;
-                    crearTerceto(yytext,"_","_",tercetosCreados);
+                    crear_terceto(yytext,"_","_",tercetosCreados);
                     // apilar(pilaVariables, $3, sizeof($3));
                     printf("ES UNA LISTA DE VARIABLES\n");
                 }
@@ -224,7 +224,7 @@ lista_variables: lista_variables COMA ID
                     printf("ES UNA VARIABLE\n");
                     strcpy(t_ids[cant_id].cadena,$1);
                     cant_id++;
-                    crearTerceto(yytext,"_","_",tercetosCreados);
+                    crear_terceto(yytext,"_","_",tercetosCreados);
                     // apilar(pilaVariables, $1, sizeof($1));
                 }
 
@@ -250,17 +250,16 @@ si:
     while(!es_pila_vacia(pilaComparacion))
     {
         char* t = (char *) desapilar(pilaComparacion);
-        escribirTercetoActualEnAnterior(tercetosCreados,atoi(t));
+        escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
     }
   }
   | IF PA condicion PC LA instrucciones LC 
   {
     // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
     // printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
-    // TODO: Poner un nombre descriptivo
-    test_if_else = tercetosCreados;
-    // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",test_if_else);
-    saltoFinElse = crearTerceto("BI","_","_",tercetosCreados);
+    aux_terceto_if_else = tercetosCreados;
+    // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",aux_terceto_if_else);
+    saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
   }
   ELSE LA instrucciones LC 
   {
@@ -269,14 +268,14 @@ si:
      {
         dato_tope = (char *) desapilar(pilaComparacion);
         // printf("tope pila ------> %s\n", dato_tope);
-        escribirTercetoActualEnAnterior(test_if_else,atoi(dato_tope));
+        escribir_terceto_actual_en_anterior(aux_terceto_if_else,atoi(dato_tope));
         test_int =atoi(dato_tope);
      }
           // printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
           // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
           // printf("\n \n \n ESTO ES EL TERCETO ACTUAL %d \n \n \n",tercetosCreados);
 
-      escribirTercetoActualEnAnterior(tercetosCreados,saltoFinElse);
+      escribir_terceto_actual_en_anterior(tercetosCreados,saltoFinElse);
   }
 ;
 
@@ -284,8 +283,8 @@ mientras:
   WHILE PA 
   {
     // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
-    mientrasInd = crearTerceto("InicioMientras","_","_",tercetosCreados); 
-    apilarNroTerceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
+    mientrasInd = crear_terceto("InicioMientras","_","_",tercetosCreados); 
+    apilar_nro_terceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
   } condicion PC 
   {
       // Aca cuando es un OR o AND me esta faltando escribir el nro de terceto del salto de la primera condicion?
@@ -293,14 +292,14 @@ mientras:
   LA instrucciones LC 
   {
     // Aca ya se cuantos tercetos tengo que dejar
-    int t = desapilarNroTerceto(); // Aca debería tener el nro del terceto inicial del while
+    int t = desapilar_nro_terceto(); // Aca debería tener el nro del terceto inicial del while
     char auxT [LONG_TERCETO]; 
-    escribirTercetoActualEnAnterior(tercetosCreados+1,t);
-    t = desapilarNroTerceto(); 
+    escribir_terceto_actual_en_anterior(tercetosCreados+1,t);
+    t = desapilar_nro_terceto(); 
     sprintf(auxT,"[%d]",mientrasInd);
-    crearTerceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
+    crear_terceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
     // printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
-    escribirTercetoActualEnAnterior(tercetosCreados,aux_comp);
+    escribir_terceto_actual_en_anterior(tercetosCreados,aux_comp);
     printf("ES UN MIENTRAS\n");
   }
 ;
@@ -316,7 +315,7 @@ condicion:
   {
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_NOT", comparacionAux,"_",tercetosCreados );
+    condicionInd = crear_terceto("OP_NOT", comparacionAux,"_",tercetosCreados );
   }
   | 
   condicion OP_OR comparacion 
@@ -325,7 +324,7 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(condicionAux,"[%d]",condicionInd);
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
+    condicionInd = crear_terceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
   }
   | 
   condicion OP_AND comparacion 
@@ -334,7 +333,7 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(condicionAux,"[%d]",condicionInd );
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crearTerceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
+    condicionInd = crear_terceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
   }
 ;
 
@@ -344,13 +343,13 @@ comparacion:
                 char* exp1 = (char*) desapilar(pilaExpresion);
                 char* exp2 = (char*) desapilar(pilaExpresion);
                 // printf ("A ver la comparacion %s %s \n",exp1, exp2);
-                comparacionInd=crearTerceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
+                comparacionInd=crear_terceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
                 // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
                 aux_comp = condicionInd+1;
                 // Guardo este nro de terceto para despues actualizarlo mas adelante con el nro del salto al final de toda la condicion
-                int t = crearTerceto(comparador,"_","_" ,tercetosCreados);
+                int t = crear_terceto(comparador,"_","_" ,tercetosCreados);
                 // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
-                apilarNroTerceto(t);
+                apilar_nro_terceto(t);
                 char tString [10];
                 itoa(t,tString,10);
                 apilar(pilaComparacion,tString,sizeof(tString));
@@ -374,9 +373,9 @@ asignacion:
         printf("    ID = Expresion es ASIGNACION\n");
           char auxAsig[LONG_TERCETO];
           char auxInd[LONG_TERCETO];
-          sprintf(auxInd,"[%d]",expInd );
+          sprintf(auxInd,"[%d]",expresionInd );
           sprintf(auxAsig,"[%d]",asignacionInd);
-          asignacionInd = crearTerceto("OP_ASIG",auxAsig,auxInd,tercetosCreados);
+          asignacionInd = crear_terceto("OP_ASIG",auxAsig,auxInd,tercetosCreados);
     }
 	  ;
 
@@ -386,7 +385,7 @@ id:
   ID
   {
     strcpy(nombre_id,$1);
-    asignacionInd = crearTerceto(nombre_id,"_","_",tercetosCreados);
+    asignacionInd = crear_terceto(nombre_id,"_","_",tercetosCreados);
   }
 ;
 
@@ -395,33 +394,33 @@ expresion:
    termino 
    {
             printf("Termino es Expresion\n");
-            expInd = termInd;
-            char expIndString [10];
-            itoa(expInd,expIndString,10);
-            apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+            expresionInd = terminoInd;
+            char expresionIndString [10];
+            itoa(expresionInd,expresionIndString,10);
+            apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
     }
 	 | expresion OP_SUM termino {
         printf("    Expresion+Termino es Expresion\n");
         char auxTer[LONG_TERCETO];
         char auxExp[LONG_TERCETO];
-        sprintf(auxTer,"[%d]",termInd);
-        sprintf(auxExp,"[%d]",expInd);
-        expInd = crearTerceto("OP_SUM",auxExp,auxTer,tercetosCreados);
-        char expIndString [10];
-        itoa(expInd,expIndString,10);
-        apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+        sprintf(auxTer,"[%d]",terminoInd);
+        sprintf(auxExp,"[%d]",expresionInd);
+        expresionInd = crear_terceto("OP_SUM",auxExp,auxTer,tercetosCreados);
+        char expresionIndString [10];
+        itoa(expresionInd,expresionIndString,10);
+        apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
     }
 
 	 | expresion OP_RES termino {
         printf("    Expresion-Termino es Expresion\n");
         char auxTer[LONG_TERCETO];
         char auxExp[LONG_TERCETO];
-        sprintf(auxTer,"[%d]",termInd);
-        sprintf(auxExp,"[%d]",expInd);
-        expInd = crearTerceto("OP_RES",auxExp,auxTer,tercetosCreados);
-        char expIndString [10];
-        itoa(expInd,expIndString,10);
-        apilar(pilaExpresion,expIndString,sizeof(expIndString)); 
+        sprintf(auxTer,"[%d]",terminoInd);
+        sprintf(auxExp,"[%d]",expresionInd);
+        expresionInd = crear_terceto("OP_RES",auxExp,auxTer,tercetosCreados);
+        char expresionIndString [10];
+        itoa(expresionInd,expresionIndString,10);
+        apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
     }
 	 ;
    
@@ -429,34 +428,34 @@ termino:
        factor 
        {
         printf("Factor es Termino\n");
-        termInd = factInd;
-        char termIndString [10];
-        itoa(expInd,termIndString,10);
-        apilar(pilaTermino,termIndString, sizeof(termIndString));
+        terminoInd = factorIndice;
+        char terminoIndString [10];
+        itoa(expresionInd,terminoIndString,10);
+        apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
        }
        |termino OP_MUL factor 
        {
         printf("Termino*Factor es Termino\n");
         char auxTer[LONG_TERCETO];
         char auxFac[LONG_TERCETO];
-        sprintf(auxTer,"[%d]",termInd);
-        sprintf(auxFac,"[%d]",factInd);
-        termInd = crearTerceto("OP_MUL",auxTer,auxFac,tercetosCreados);
-        char termIndString [10];
-        itoa(termInd,termIndString,10);
-        apilar(pilaTermino,termIndString, sizeof(termIndString));
+        sprintf(auxTer,"[%d]",terminoInd);
+        sprintf(auxFac,"[%d]",factorIndice);
+        terminoInd = crear_terceto("OP_MUL",auxTer,auxFac,tercetosCreados);
+        char terminoIndString [10];
+        itoa(terminoInd,terminoIndString,10);
+        apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
        }
        |termino OP_DIV factor 
        {
         printf("Termino/Factor es Termino\n");
         char auxTer[LONG_TERCETO];
         char auxFac[LONG_TERCETO];
-        sprintf(auxTer,"[%d]",termInd);
-        sprintf(auxFac,"[%d]",factInd);
-        termInd = crearTerceto("OP_DIV",auxTer,auxFac,tercetosCreados);
-        char termIndString [10];
-        itoa(termInd,termIndString,10);
-        apilar(pilaTermino,termIndString, sizeof(termIndString));
+        sprintf(auxTer,"[%d]",terminoInd);
+        sprintf(auxFac,"[%d]",factorIndice);
+        terminoInd = crear_terceto("OP_DIV",auxTer,auxFac,tercetosCreados);
+        char terminoIndString [10];
+        itoa(terminoInd,terminoIndString,10);
+        apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
        }
        ;
 
@@ -464,20 +463,20 @@ factor:
       ID 
       {
         printf("ID es Factor \n");
-        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
-        char factIndString [10];
-        itoa(termInd,factIndString,10);
-        apilar(pilaFactor,factIndString,sizeof(factIndString));
+        factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
+        char factorIndiceString [10];
+        itoa(terminoInd,factorIndiceString,10);
+        apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
       }
       | CTE_STRING 
       {
         printf("ES CONSTANTE STRING\n");
         strcpy(constante_aux_string,$1);
         
-        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
-        char factIndString [10];
-        itoa(termInd,factIndString,10);
-        apilar(pilaFactor,factIndString,sizeof(factIndString));
+        factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
+        char factorIndiceString [10];
+        itoa(terminoInd,factorIndiceString,10);
+        apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
 
         insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
       }
@@ -486,10 +485,10 @@ factor:
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
 
-        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
-        char factIndString [10];
-        itoa(termInd,factIndString,10);
-        apilar(pilaFactor,factIndString,sizeof(factIndString));
+        factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
+        char factorIndiceString [10];
+        itoa(terminoInd,factorIndiceString,10);
+        apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
        
         insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
@@ -498,20 +497,20 @@ factor:
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
         
-        factInd = crearTerceto(yytext,"_","_",tercetosCreados);
-        char factIndString [10];
-        itoa(termInd,factIndString,10);
-        apilar(pilaFactor,factIndString,sizeof(factIndString));
+        factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
+        char factorIndiceString [10];
+        itoa(terminoInd,factorIndiceString,10);
+        apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
 
         insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
       }
 	    | PA expresion PC 
       {
         printf("Expresion entre parentesis es Factor\n");
-        factInd = expInd;
-        char factIndString [10];
-        itoa(termInd,factIndString,10);
-        apilar(pilaFactor,factIndString,sizeof(factIndString));
+        factorIndice = expresionInd;
+        char factorIndiceString [10];
+        itoa(terminoInd,factorIndiceString,10);
+        apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
       }
      	;
 
@@ -526,7 +525,7 @@ escribir:
 ultimos: 
     ID IGUAL SUM_ULT 
     {
-       ultInd = crearTerceto($1,"_","_",tercetosCreados);
+       ultInd = crear_terceto($1,"_","_",tercetosCreados);
     } 
     PA CTE_INT 
     {
@@ -538,10 +537,10 @@ ultimos:
         int tercetoIdAux= ultInd;
         char auxUltId[LONG_TERCETO];
         char auxCero[LONG_TERCETO];
-        ultInd = crearTerceto("0","_","_",tercetosCreados);
+        ultInd = crear_terceto("0","_","_",tercetosCreados);
         sprintf(auxUltId,"[%d]",tercetoIdAux);
         sprintf(auxCero,"[%d]",ultInd);
-        ultInd = crearTerceto("OP_ASIG", auxUltId,auxCero,tercetosCreados);
+        ultInd = crear_terceto("OP_ASIG", auxUltId,auxCero,tercetosCreados);
        }
     } 
     PTO_COMA CA lista_num CC PC  
@@ -549,10 +548,9 @@ ultimos:
       // Aca me voy a fijar si el tamaño del pivot es valido
       // printf("\n\n ****** EL CONTADOR DE ELEMENTOS DIO: %d *******\n\n", contador_elementos_sumar_ult);
 
-      //consultar a rodri de poner o no aux en la tabla de simbolos
-
-      int tercetoAux = crearTerceto("aux", "_", "_", tercetosCreados);
-      int ceroAux = crearTerceto("0", "_", "_", tercetosCreados);
+      int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
+      insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
+      int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
 
       char auxUltId[LONG_TERCETO];
       char auxCero[LONG_TERCETO];
@@ -560,7 +558,7 @@ ultimos:
       sprintf(auxUltId,"[%d]",tercetoAux);
       sprintf(auxCero,"[%d]",ceroAux);
 
-      ultInd = crearTerceto("OP_ASIG", auxUltId, auxCero, tercetosCreados);
+      ultInd = crear_terceto("OP_ASIG", auxUltId, auxCero, tercetosCreados);
 
       int iUltimos = contador_elementos_sumar_ult - ultimos_pivote_aux;
    
@@ -571,14 +569,15 @@ ultimos:
       {
         auxTerceto = (char*) desapilar(pilaSumarUltimos);
         printf("\n %s ------------------------------------ \n", auxTerceto);
-        ultInd = crearTerceto(auxTerceto, "_", "_", tercetosCreados);
+        ultInd = crear_terceto(auxTerceto, "_", "_", tercetosCreados);
 
         char ultIndChar [10];
         sprintf(ultIndChar,"[%d]",ultInd);
-        ultInd = crearTerceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
-        char factIndString [10];
-        sprintf(factIndString,"[%d]",ultInd);
-        ultInd = crearTerceto("OP_ASIG", auxUltId, factIndString, tercetosCreados);
+        ultInd = crear_terceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
+
+        char aux_ult_asig [10];
+        sprintf(aux_ult_asig,"[%d]",ultInd);
+        ultInd = crear_terceto("OP_ASIG", auxUltId, aux_ult_asig, tercetosCreados);
        
       }    
       printf("ES SUMAR ULTIMOS\n");
@@ -595,8 +594,8 @@ num:
     // Voy a apilar el nro y voy a sumar a un contador
     // printf("\n\n\n NUM ->>>>>>>  %d",$1);
     int auxiliar_numero= $1;
-    char factIndString [10];
-    apilar(pilaSumarUltimos,itoa(auxiliar_numero,factIndString,10),sizeof(factIndString));
+    char factorIndiceString [10];
+    apilar(pilaSumarUltimos,itoa(auxiliar_numero,factorIndiceString,10),sizeof(factorIndiceString));
     contador_elementos_sumar_ult++;
     } 
   | CTE_FLOAT 
@@ -611,63 +610,26 @@ num:
     }
 ;
 
-// triangulos:
-//            ID IGUAL TRIANG PA expresion {
-
-//               auxPrimerLado = crearTerceto("auxPrimerLado", "_", "_", tercetosCreados);
-//                char auxPrimerLadoString[10];
-//               sprintf(auxPrimerLadoString,"[%d]", auxPrimerLado);
-//               char factIndString [10];
-//               sprintf(factIndString,"[%d]", expInd);
-//               triangInd = crearTerceto("OP_ASIG", auxPrimerLadoString, factIndString, tercetosCreados);
-              
-//            } 
-//            COMA expresion {
-
-//               auxSegundoLado = crearTerceto("auxSegundoLado", "_", "_", tercetosCreados);
-//               char auxSegundoLadoString[10];
-//               sprintf(auxSegundoLadoString,"[%d]", auxSegundoLado);
-//               char factIndString [10];
-//               sprintf(factIndString,"[%d]", expInd);
-//               triangInd = crearTerceto("OP_ASIG", auxSegundoLadoString, factIndString, tercetosCreados);
-              
-//            } COMA expresion {
-
-//               auxTercerLado = crearTerceto("auxTercerLado", "_", "_", tercetosCreados);
-//               char auxTercerLadoString[10];
-//               sprintf(auxTercerLadoString,"[%d]", auxTercerLado);
-//               char factIndString [10];
-//               sprintf(factIndString,"[%d]", expInd);
-//               triangInd = crearTerceto("OP_ASIG", auxTercerLadoString, factIndString, tercetosCreados);
-              
-//            }  PC  {
-              
-//               printf("\n--------LADO 1: %d, LADO 2: %d, LADO 3: %d --------------- \n", auxPrimerLado, auxSegundoLado, auxTercerLado);
-//               printf("ES TRIANGULOS\n");
-            
-//             }
-// ;
 triangulos:
            ID IGUAL TRIANG PA 
            {
-              triangulos_id_aux = crearTerceto($1,"_","_",tercetosCreados);
+              triangulos_id_aux = crear_terceto($1,"_","_",tercetosCreados);
            }  
            expresion 
            {
-            indTriangExp1= expInd;
+            indTriangExp1= expresionInd;
            }
            COMA expresion
            {
-            indTriangExp2= expInd;
+            indTriangExp2= expresionInd;
            } 
            COMA expresion
            {
-            indTriangExp3= expInd;
+            indTriangExp3= expresionInd;
            } 
            PC  
            {
             // printf("\n\n\n 1: %d \n 2: %d \n 3: %d",indTriangExp1,indTriangExp2,indTriangExp3);
-            // int saltoFin=0;
             char auxUno[LONG_TERCETO];
             char auxDos[LONG_TERCETO];
             char auxTres[LONG_TERCETO];
@@ -677,38 +639,38 @@ triangulos:
             sprintf(auxDos,"[%d]",indTriangExp2);
             sprintf(auxTres,"[%d]",indTriangExp3);
 
-            indTriang = crearTerceto("CMP",auxUno,auxDos,tercetosCreados);
-            int a = crearTerceto("BNE","_","_" ,tercetosCreados);
-            escribirTercetoActualEnAnterior(a+7, a);
+            indTriang = crear_terceto("CMP",auxUno,auxDos,tercetosCreados);
+            int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
+            escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
 
             // printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
 
-            indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
-            a= crearTerceto("BNE","_","_" ,tercetosCreados);
-            escribirTercetoActualEnAnterior(a+3, a); // Escribo a donde salta si a=b pero a!=c (isosceles)
+            indTriang = crear_terceto("CMP",auxUno,auxTres,tercetosCreados);
+            int segundoSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
+            escribir_terceto_actual_en_anterior(segundoSaltoBNE+3, segundoSaltoBNE); // Escribo a donde salta si a=b pero a!=c (isosceles)
 
             sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
 
-            crearTerceto("OP_ASIG",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
+            crear_terceto("OP_ASIG",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
 
             char auxBi[LONG_TERCETO];
 
             sprintf(auxBi,"[%d]",tercetosCreados+6);
 
-            crearTerceto("BI","_",auxBi,tercetosCreados);
+            crear_terceto("BI","_",auxBi,tercetosCreados);
 
             // Salto al final que ya se cuanto es
-            crearTerceto("OP_ASIG",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
+            crear_terceto("OP_ASIG",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados+4);
 
-            crearTerceto("BI","_",auxBi,tercetosCreados);
+            crear_terceto("BI","_",auxBi,tercetosCreados);
             // Salto el caso escaleno
             // Comparo a y c
             // Si son iguales tengo que volver al tecerto de isosceles, caso contrario es escaleno a!=b!=c
-            indTriang = crearTerceto("CMP",auxUno,auxTres,tercetosCreados);
+            indTriang = crear_terceto("CMP",auxUno,auxTres,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
-            a = crearTerceto("BE","_",auxBi ,tercetosCreados);
-            crearTerceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados);
+            crear_terceto("BE","_",auxBi ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
+            crear_terceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
             
             printf("ES TRIANGULOS\n");
            }
@@ -733,13 +695,13 @@ int main(int argc, char *argv[])
         pilaNroTerceto = crear_pila();
         pilaSumarUltimos = crear_pila();
 
-        crearCola(&colaTercetos);
+        crear_cola(&colaTercetos);
 
-        abrirArchivoIntermedia();
+        escribir_tercetos_intermedia();
         yyparse();
       
         //Generacion de intermedia
-        escribirTercetosEnIntermedia();
+        escribir_tercetos_intermedia();
 
         fclose(fpIntermedia);
 

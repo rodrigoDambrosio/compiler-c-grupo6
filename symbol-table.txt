@@ -2,6 +2,32 @@ NOMBRE                        TIPODATO                      VALOR               
 a1                            FLOAT                         --                                      
 b1                            FLOAT                         --                                      
 variable1                     INTEGER                       --                                      
+p1                            STRING                        --                                      
+p2                            STRING                        --                                      
+p3                            STRING                        --                                      
+variable2                     INTEGER                       --                                      
+a2                            FLOAT                         --                                      
+b3                            FLOAT                         --                                      
+_21                                                                                                 
+_4                                                                                                  
+_27                                                                                                 
+_500                                                                                                
+_34                                                                                                 
+_3                                                                                                  
+_99999.99                                                                                           
+_99.00                                                                                              
+_1.00                                                                                               
+_asldk                                                                                              
+_asldk@sdaaaaafafg                                                                                  
+_1                                                                                                  
+_1                                                                                                  
+_1                                                                                                  
+aux                           FLOAT                         --                                      
+_1                                                                                                  
+_1                                                                                                  
+_0                                                                                                  
+_1                                                                                                  
+_0                                                                                                  
 _32                                                                                                 
 _5                                                                                                  
 _1                                                                                                  

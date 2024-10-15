@@ -25,14 +25,14 @@ typedef struct
 }t_Terceto;
 
 
-int abrirArchivoIntermedia();
-void escribirTercetosEnIntermedia();
-int crearTerceto(char *c1, char*c2 ,char *c3,int nroT);
-int apilarNroTerceto(int  nroTerceto);
-int desapilarNroTerceto();
-void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado);
+int abrir_archivo_intermedia();
+void escribir_tercetos_intermedia();
+int crear_terceto(char *c1, char*c2 ,char *c3,int nroT);
+int apilar_nro_terceto(int  nroTerceto);
+int desapilar_nro_terceto();
+void escribir_terceto_actual_en_anterior(int tercetoAEscribir,int tercetoBuscado);
 
-int abrirArchivoIntermedia(){
+int abrir_archivo_intermedia(){
     fpIntermedia = fopen(RUTA_ARCHIVO_INTERMEDIA,"wt");
     if(!fpIntermedia)
     {
@@ -42,12 +42,12 @@ int abrirArchivoIntermedia(){
     return 1;
 }
 
-void escribirTercetosEnIntermedia()
+void escribir_tercetos_intermedia()
 {
-    while(!colaVacia(&colaTercetos)){
+    while(!cola_vacia(&colaTercetos)){
       
         t_Terceto t;
-        sacarDeCola(&colaTercetos,&t,sizeof(t_Terceto));
+        sacar_de_cola(&colaTercetos,&t,sizeof(t_Terceto));
         
         printf("Valores de la intermedia[%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
    
@@ -56,7 +56,7 @@ void escribirTercetosEnIntermedia()
 }
 
 
-int crearTerceto(char *c1, char*c2 ,char *c3,int nroT)
+int crear_terceto(char *c1, char*c2 ,char *c3,int nroT) // Devuelve el nro del actual
 {
     t_Terceto tercetos;
     tercetosCreados++;
@@ -66,12 +66,12 @@ int crearTerceto(char *c1, char*c2 ,char *c3,int nroT)
     strcpy(tercetos.posTres,c3);
   
     // printf("%d Se guarda en la cola %s,%s,%s \n",nroT,tercetos.posUno,tercetos.posDos,tercetos.posTres);
-    ponerEnCola(&colaTercetos,&tercetos,sizeof(tercetos));
+    poner_en_cola(&colaTercetos,&tercetos,sizeof(tercetos));
     return nroT;
 }
 
 
-int apilarNroTerceto(int  nroTerceto)
+int apilar_nro_terceto(int  nroTerceto)
 {
     char nroTercetoString [50];
     sprintf(nroTercetoString,"[%d]",nroTerceto);
@@ -79,7 +79,7 @@ int apilarNroTerceto(int  nroTerceto)
     return apilar(pilaNroTerceto, nroTercetoString, sizeof(nroTercetoString));
 }
 
-int desapilarNroTerceto()
+int desapilar_nro_terceto()
 {   
     char * nroTerceto = (char *) desapilar(pilaNroTerceto);
     char  subtext [strlen(nroTerceto-2)];
@@ -92,22 +92,22 @@ int desapilarNroTerceto()
     return nroDesapilado;
 }
 
-void escribirTercetoActualEnAnterior(int tercetoAEscribir,int tercetoBuscado)
+void escribir_terceto_actual_en_anterior(int tercetoAEscribir,int tercetoBuscado)
 {
     tCola  aux;
-    crearCola(&aux);
+    crear_cola(&aux);
     t_Terceto terceto;
 
-    while(!colaVacia(&colaTercetos))
+    while(!cola_vacia(&colaTercetos))
     {
-        sacarDeCola(&colaTercetos,&terceto,sizeof(terceto));
+        sacar_de_cola(&colaTercetos,&terceto,sizeof(terceto));
 
         if(terceto.numTerceto == tercetoBuscado){
                 char nueComponente [LONG_TERCETO];
                 sprintf( nueComponente, "[%d]",tercetoAEscribir);
                 strcpy(terceto.posTres, nueComponente);
         }
-        ponerEnCola(&aux,&terceto,sizeof(terceto));
+        poner_en_cola(&aux,&terceto,sizeof(terceto));
     }
      colaTercetos=aux;
 }
