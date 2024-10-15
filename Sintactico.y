@@ -15,7 +15,6 @@ FILE  *yyin;
   int yylex();
   extern char* yytext;
 
-tCola  colaTercetos;
 
 /* --- Estructura de la tabla de simbolos --- */
 
@@ -48,36 +47,6 @@ typedef struct{
 }t_nombresId;
 
 
-//Para la intermedia 
-///indices
-int     sentenciaIndice=0,
-        programaIndice=0,
-        asignacionInd=0,
-        expresionInd=0,
-        terminoInd=0,
-        bloqueInd = 0,
-        comparacionInd = 0,
-        condicionInd = 0,
-        siInd = 0,
-        mientrasInd = 0,
-        ultInd = 0,
-        // triangInd = 0,
-        instruccionInd= 0,
-        factorIndice = 0;
-       
-int triangulos_id_aux =0;
-int indTriangExp1=0;
-int indTriangExp2=0;
-int indTriangExp3=0;
-int indTriang=0;
-int saltoFinElse = 0;
-int auxPrimerLado = 0, auxSegundoLado = 0, auxTercerLado = 0;
-char comparador[4];
-
-// SACAR O RENOMBRAR ESTO
-int test_int=0;
-int ultimos_pivote_aux=0;
-int contador_elementos_sumar_ult = 0;
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -95,7 +64,6 @@ Pila* pilaFactor;
 Pila * pilaComparacion;
 Pila* pilaSumarUltimos;
 
-
 int i=0;
 int aux_terceto_if_else=0;
 int aux_comp=0;
@@ -107,8 +75,41 @@ int constante_aux_int;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
+
+//Para la intermedia 
+///indices
+int     sentenciaIndice=0,
+        programaIndice=0,
+        asignacionInd=0,
+        expresionInd=0,
+        terminoInd=0,
+        bloqueInd = 0,
+        comparacionInd = 0,
+        condicionInd = 0,
+        siInd = 0,
+        mientrasInd = 0,
+        ultInd = 0,
+        instruccionInd= 0,
+        factorIndice = 0;
+
+int triangulos_id_aux =0;
+int indTriangExp1=0;
+int indTriangExp2=0;
+int indTriangExp3=0;
+int indTriang=0;
+int saltoFinElse = 0;
+int auxPrimerLado = 0, 
+auxSegundoLado = 0, 
+auxTercerLado = 0;
+char comparador[4];
+
+// int test_int=0;
+int ultimos_pivote_aux=0;
+int contador_elementos_sumar_ult = 0;
 t_nombresId t_ids[10];
 t_Terceto terceto_test;
+t_cola  colaTercetos;
+
 %}
 
 %union {
@@ -269,7 +270,7 @@ si:
         dato_tope = (char *) desapilar(pilaComparacion);
         // printf("tope pila ------> %s\n", dato_tope);
         escribir_terceto_actual_en_anterior(aux_terceto_if_else,atoi(dato_tope));
-        test_int =atoi(dato_tope);
+        // test_int =atoi(dato_tope);
      }
           // printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
           // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
@@ -393,11 +394,11 @@ id:
 expresion:
    termino 
    {
-            printf("Termino es Expresion\n");
-            expresionInd = terminoInd;
-            char expresionIndString [10];
-            itoa(expresionInd,expresionIndString,10);
-            apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
+      printf("Termino es Expresion\n");
+      expresionInd = terminoInd;
+      char expresionIndString [10];
+      itoa(expresionInd,expresionIndString,10);
+      apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
     }
 	 | expresion OP_SUM termino {
         printf("    Expresion+Termino es Expresion\n");
@@ -529,10 +530,16 @@ ultimos:
     } 
     PA CTE_INT 
     {
-      // validar si pivot > 0 para retornar 0
+      // para validar si pivot > 0 para retornar 0
        ultimos_pivote_aux = atoi(yytext);
-      // printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
-       if(ultimos_pivote_aux < 1)
+    } 
+    PTO_COMA CA lista_num CC PC  
+    {
+      // Aca me voy a fijar si el tamaño del pivot es valido
+      // printf("\n\n ****** EL CONTADOR DE ELEMENTOS DIO: %d *******\n\n", contador_elementos_sumar_ult);
+       int cantidad_elementos_restantes = contador_elementos_sumar_ult - ultimos_pivote_aux;
+       printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
+       if(ultimos_pivote_aux < 0 || cantidad_elementos_restantes <= 0)
        {
         int tercetoIdAux= ultInd;
         char auxUltId[LONG_TERCETO];
@@ -542,12 +549,8 @@ ultimos:
         sprintf(auxCero,"[%d]",ultInd);
         ultInd = crear_terceto("OP_ASIG", auxUltId,auxCero,tercetosCreados);
        }
-    } 
-    PTO_COMA CA lista_num CC PC  
-    {
-      // Aca me voy a fijar si el tamaño del pivot es valido
-      // printf("\n\n ****** EL CONTADOR DE ELEMENTOS DIO: %d *******\n\n", contador_elementos_sumar_ult);
-
+       else
+       {
       int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
       insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
       int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
@@ -559,27 +562,26 @@ ultimos:
       sprintf(auxCero,"[%d]",ceroAux);
 
       ultInd = crear_terceto("OP_ASIG", auxUltId, auxCero, tercetosCreados);
-
-      int iUltimos = contador_elementos_sumar_ult - ultimos_pivote_aux;
    
       int jUltimos;
       char* auxTerceto;
       char auxDesapilado[LONG_TERCETO];
-      for(jUltimos = 0; jUltimos<iUltimos ; jUltimos++)
-      {
-        auxTerceto = (char*) desapilar(pilaSumarUltimos);
-        printf("\n %s ------------------------------------ \n", auxTerceto);
-        ultInd = crear_terceto(auxTerceto, "_", "_", tercetosCreados);
+        for(jUltimos = 0; jUltimos< ultimos_pivote_aux  ; jUltimos++)
+        {
+          auxTerceto = (char*) desapilar(pilaSumarUltimos);
+          // printf("\n %s ------------------------------------ \n", auxTerceto);
+          ultInd = crear_terceto(auxTerceto, "_", "_", tercetosCreados);
 
-        char ultIndChar [10];
-        sprintf(ultIndChar,"[%d]",ultInd);
-        ultInd = crear_terceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
+          char ultIndChar [10];
+          sprintf(ultIndChar,"[%d]",ultInd);
+          ultInd = crear_terceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
 
-        char aux_ult_asig [10];
-        sprintf(aux_ult_asig,"[%d]",ultInd);
-        ultInd = crear_terceto("OP_ASIG", auxUltId, aux_ult_asig, tercetosCreados);
-       
-      }    
+          char aux_ult_asig [10];
+          sprintf(aux_ult_asig,"[%d]",ultInd);
+          ultInd = crear_terceto("OP_ASIG", auxUltId, aux_ult_asig, tercetosCreados);
+        }    
+      }
+      
       printf("ES SUMAR ULTIMOS\n");
     }
 ;
@@ -696,16 +698,13 @@ int main(int argc, char *argv[])
         pilaSumarUltimos = crear_pila();
 
         crear_cola(&colaTercetos);
-
-        escribir_tercetos_intermedia();
-        yyparse();
-      
-        //Generacion de intermedia
-        escribir_tercetos_intermedia();
-
-        fclose(fpIntermedia);
-
         
+        yyparse();
+             
+        //Generacion de intermedia
+        abrir_archivo_intermedia();
+        escribir_tercetos_intermedia();
+        fclose(fpIntermedia);
     }
   fclose(yyin);
   return 0;

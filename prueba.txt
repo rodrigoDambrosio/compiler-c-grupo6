@@ -59,14 +59,17 @@ si  (a > b AND b>g)
     a := a + 1
 }
 
-
 leer(base) *- base es una variable -*
 
 escribir("ewr")  *- “ewr” es una cte string -*
 escribir(var1)  *- var1 es una variable numerica definida previamente -*
 
 x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
+x = sumaLosUltimos(4; [28, 52])
 
 y = triangulo(x, 1+1, x)  
 y = triangulo(0, 1/x, 0) 
 y = triangulo((32+5+x)*z, 1/x, 100) 
+
+a:= 1

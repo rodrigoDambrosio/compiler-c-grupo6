@@ -5,13 +5,13 @@
 #include "cola.h"
 
 #define RUTA_ARCHIVO_INTERMEDIA "intermediate-code.txt"
-#define ELEMENTOS_TERCETO 20
+#define LONG_ELEMENTOS_TERCETO 20
 
-#define LONG_TERCETO 30 
-#define LONG_ID 30
+#define LONG_TERCETO 40 
+#define LONG_ID 40
 
 FILE * fpIntermedia;
-tCola  colaTercetos;
+t_cola  colaTercetos;
 
 Pila* pilaNroTerceto;
 int tercetosCreados=1;
@@ -19,11 +19,12 @@ int tercetosCreados=1;
 typedef struct
 {
     int numTerceto;
-    char posUno[ELEMENTOS_TERCETO];
-    char posDos[ELEMENTOS_TERCETO];
-    char posTres[ELEMENTOS_TERCETO];
+    char posUno[LONG_ELEMENTOS_TERCETO];
+    char posDos[LONG_ELEMENTOS_TERCETO];
+    char posTres[LONG_ELEMENTOS_TERCETO];
 }t_Terceto;
 
+// TODO: Separarlo con el .c
 
 int abrir_archivo_intermedia();
 void escribir_tercetos_intermedia();
@@ -49,7 +50,7 @@ void escribir_tercetos_intermedia()
         t_Terceto t;
         sacar_de_cola(&colaTercetos,&t,sizeof(t_Terceto));
         
-        printf("Valores de la intermedia[%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
+        printf("Terceto nro : [%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
    
         fprintf(fpIntermedia,"[%d] ( %s ; %s ; %s ) \n",t.numTerceto,t.posUno,t.posDos,t.posTres);
     }
@@ -94,7 +95,7 @@ int desapilar_nro_terceto()
 
 void escribir_terceto_actual_en_anterior(int tercetoAEscribir,int tercetoBuscado)
 {
-    tCola  aux;
+    t_cola  aux;
     crear_cola(&aux);
     t_Terceto terceto;
 
