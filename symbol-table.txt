@@ -9,7 +9,9 @@ variable2                     INTEGER                       --
 a2                            FLOAT                         --                                      
 b3                            FLOAT                         --                                      
 _21                                                                                                 
+_10                                                                                                 
 _4                                                                                                  
+_67                                                                                                 
 _27                                                                                                 
 _500                                                                                                
 _34                                                                                                 

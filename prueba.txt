@@ -8,9 +8,9 @@ init {
 
 *- Prueba expresion -*
 
-c:=d*(e-21)/4
+c:= ((e-21*10)/4) * 67
 
-*- c:=d*(e-21)/4; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
+*- c:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
 
 
 *- Asignaciones -*

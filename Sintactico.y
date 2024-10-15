@@ -641,13 +641,13 @@ triangulos:
             sprintf(auxDos,"[%d]",indTriangExp2);
             sprintf(auxTres,"[%d]",indTriangExp3);
 
-            indTriang = crear_terceto("CMP",auxUno,auxDos,tercetosCreados);
+            indTriang = crear_terceto("CMP",auxDos,auxUno,tercetosCreados);
             int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
             escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
 
             // printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
 
-            indTriang = crear_terceto("CMP",auxUno,auxTres,tercetosCreados);
+            indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             int segundoSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
             escribir_terceto_actual_en_anterior(segundoSaltoBNE+3, segundoSaltoBNE); // Escribo a donde salta si a=b pero a!=c (isosceles)
 
@@ -669,7 +669,7 @@ triangulos:
             // Salto el caso escaleno
             // Comparo a y c
             // Si son iguales tengo que volver al tecerto de isosceles, caso contrario es escaleno a!=b!=c
-            indTriang = crear_terceto("CMP",auxUno,auxTres,tercetosCreados);
+            indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
             crear_terceto("BE","_",auxBi ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
             crear_terceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
