@@ -58,6 +58,10 @@ si  (a > b AND b>g)
     escribir("a es mas grande que b")
     a := a + 1
 }
+sino
+{
+    a:= 6
+}
 
 leer(base) *- base es una variable -*
 
