@@ -75,9 +75,10 @@ int constante_aux_int;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
-
-//Para la intermedia 
-///indices
+int aux_exp1=0,
+ aux_exp2=0,
+ aux_exp3=0;
+// Indices usados para los tercetos
 int     sentenciaIndice=0,
         programaIndice=0,
         asignacionInd=0,
@@ -619,15 +620,36 @@ triangulos:
            }  
            expresion 
            {
-            indTriangExp1= expresionInd;
+            aux_exp1 = crear_terceto("aux_exp1","","",tercetosCreados);
+            insertar_tabla_simbolos("aux_exp1", "FLOAT", "", 0, 0);
+            // printf("\n\n\n ************************** EXP %d ", expresionInd);
+            char aux_exp_c[LONG_TERCETO];
+            char aux_ind_exp[LONG_TERCETO];
+            sprintf(aux_exp_c,"[%d]",aux_exp1);
+            sprintf(aux_ind_exp,"[%d]",expresionInd);
+            indTriangExp1= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
            }
            COMA expresion
            {
-            indTriangExp2= expresionInd;
+            aux_exp2 = crear_terceto("aux_exp2","","",tercetosCreados);
+            insertar_tabla_simbolos("aux_exp2", "FLOAT", "", 0, 0);
+            // printf("\n\n\n ************************** EXP %d ", expresionInd);
+            char aux_exp_c[LONG_TERCETO];
+            char aux_ind_exp[LONG_TERCETO];
+            sprintf(aux_exp_c,"[%d]",aux_exp2);
+            sprintf(aux_ind_exp,"[%d]",expresionInd);
+            indTriangExp2= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
            } 
            COMA expresion
            {
-            indTriangExp3= expresionInd;
+            aux_exp3 = crear_terceto("aux_exp3","","",tercetosCreados);
+            insertar_tabla_simbolos("aux_exp3", "FLOAT", "", 0, 0);
+            // printf("\n\n\n ************************** EXP %d ", expresionInd);
+            char aux_exp_c[LONG_TERCETO];
+            char aux_ind_exp[LONG_TERCETO];
+            sprintf(aux_exp_c,"[%d]",aux_exp3);
+            sprintf(aux_ind_exp,"[%d]",expresionInd);
+            indTriangExp3= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
            } 
            PC  
            {

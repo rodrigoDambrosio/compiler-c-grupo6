@@ -26,8 +26,11 @@ _1
 _1                                                                                                  
 _6                                                                                                  
 aux                           FLOAT                         --                                      
+aux_exp1                      FLOAT                         --                                      
 _1                                                                                                  
 _1                                                                                                  
+aux_exp2                      FLOAT                         --                                      
+aux_exp3                      FLOAT                         --                                      
 _0                                                                                                  
 _1                                                                                                  
 _0                                                                                                  
