@@ -8,14 +8,33 @@ p3                            STRING                        --
 variable2                     INTEGER                       --                                      
 a2                            FLOAT                         --                                      
 b3                            FLOAT                         --                                      
-_c                                                                                                  
-_x4                                                                                                 
-_xy                                                                                                 
-_xx                                                                                                 
-_a3                                                                                                 
-_a4                                                                                                 
-_a5                                                                                                 
+_21                                                                                                 
+_10                                                                                                 
+_4                                                                                                  
+_67                                                                                                 
+_27                                                                                                 
+_500                                                                                                
+_34                                                                                                 
+_3                                                                                                  
+_99999.99                                                                                           
+_99.00                                                                                              
+_1.00                                                                                               
 _asldk                                                                                              
 _asldk@sdaaaaafafg                                                                                  
-_a                                                                                                  
-_b                                                                                                  
+_1                                                                                                  
+_1                                                                                                  
+_1                                                                                                  
+aux                           FLOAT                         --                                      
+aux_exp1                      FLOAT                         --                                      
+_1                                                                                                  
+_1                                                                                                  
+aux_exp2                      FLOAT                         --                                      
+aux_exp3                      FLOAT                         --                                      
+_0                                                                                                  
+_1                                                                                                  
+_0                                                                                                  
+_32                                                                                                 
+_5                                                                                                  
+_1                                                                                                  
+_100                                                                                                
+_1                                                                                                  
