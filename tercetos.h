@@ -5,7 +5,7 @@
 #include "cola.h"
 
 #define RUTA_ARCHIVO_INTERMEDIA "intermediate-code.txt"
-#define LONG_ELEMENTOS_TERCETO 20
+#define LONG_ELEMENTOS_TERCETO 40
 
 #define LONG_TERCETO 40 
 #define LONG_ID 40

@@ -24,7 +24,6 @@ _asldk@sdaaaaafafg
 _1                                                                                                  
 _1                                                                                                  
 _1                                                                                                  
-_6                                                                                                  
 aux                           FLOAT                         --                                      
 aux_exp1                      FLOAT                         --                                      
 _1                                                                                                  

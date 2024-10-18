@@ -91,6 +91,8 @@ int     sentenciaIndice=0,
         mientrasInd = 0,
         ultInd = 0,
         instruccionInd= 0,
+        leerIndice = 0,
+        escribirIndice = 0,
         factorIndice = 0;
 
 int triangulos_id_aux =0;
@@ -183,8 +185,8 @@ sentencia:
 	asignacion    {printf("SENTENCIA ES ASIGNACION\n"); sentenciaIndice=asignacionInd;}
   | mientras    {printf("SENTENCIA ES MIENTRAS\n"); sentenciaIndice=mientrasInd;} 
   | si          {printf("SENTENCIA ES SI/SI SINO\n"); sentenciaIndice=siInd;} 
-  | leer        {printf("SENTENCIA ES LEER\n");}
-  | escribir    {printf("SENTENCIA ES ESCRIBIR\n");}
+  | leer        {printf("SENTENCIA ES LEER\n"); sentenciaIndice = leerIndice;}
+  | escribir    {printf("SENTENCIA ES ESCRIBIR\n"); sentenciaIndice = escribirIndice;}
   | triangulos  {printf("SENTENCIA ES TRIANGULOS\n"); sentenciaIndice = indTriang;}
   | ultimos     {printf("SENTENCIA ES SUMAR ULTIMOS\n"); sentenciaIndice = ultInd;}
 	;
@@ -491,7 +493,6 @@ factor:
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
         apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
-       
         insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT 
@@ -517,12 +518,30 @@ factor:
      	;
 
 leer : 
-     LEER PA ID PC {printf("ES LEER\n");}
+     LEER PA ID PC 
+     {
+        leerIndice = crear_terceto("LEER", $3, "_", tercetosCreados);
+        printf("\n\n\n *** Se ejecuta LEER con la variable: %s\n", $3);
+        // insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
+        printf("ES LEER\n");
+     }
+     
 ;
 
 escribir:
-    ESCRIBIR PA CTE_STRING PC   {printf("ES ESCRIBIR CONSTANTE\n");}
-    | ESCRIBIR PA ID PC         {printf("ES ESCRIBIR ID\n");}
+    ESCRIBIR PA CTE_STRING {
+      escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
+      printf("\n\n\n *** Se ejecuta LEER con la variable: %s \n", $3);
+      // insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
+    }PC 
+    
+    | ESCRIBIR PA ID PC
+    {
+      escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
+      printf("\n\n\n *** Se ejecuta LEER con la variable: %s \n", $3);
+      // insertar_tabla_simbolos($3, "CTE_STR", $3, 2, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
+    }
+;
 
 ultimos: 
     ID IGUAL SUM_ULT 
@@ -745,6 +764,8 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
+    // printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
+
     while(tabla)
     { 
       // Para evitar repetidos / actualizar asignaciones
@@ -775,7 +796,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
         {
             break;
         }
-        tabla = tabla->next;
+      tabla = tabla->next;
     }
 
     t_data *data = (t_data*)malloc(sizeof(t_data));
@@ -816,7 +837,6 @@ t_data* crearDatos(const char *nombre, const char *tipo,
     char full[50] = "_";
     char aux[20];
     char nombre_str[50];
-
     t_data *data = (t_data*)calloc(1, sizeof(t_data));
     if(data == NULL)
     {
