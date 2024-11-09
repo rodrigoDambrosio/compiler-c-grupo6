@@ -321,7 +321,7 @@ condicion:
   {
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crear_terceto("OP_NOT", comparacionAux,"_",tercetosCreados );
+    condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
   }
   | 
   condicion OP_OR comparacion 
@@ -330,7 +330,7 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(condicionAux,"[%d]",condicionInd);
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crear_terceto("OP_OR", condicionAux , comparacionAux,tercetosCreados );
+    condicionInd = crear_terceto("OR", condicionAux , comparacionAux,tercetosCreados );
   }
   | 
   condicion OP_AND comparacion 
@@ -339,7 +339,7 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(condicionAux,"[%d]",condicionInd );
     sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crear_terceto("OP_AND", condicionAux , comparacionAux,tercetosCreados );
+    condicionInd = crear_terceto("AND", condicionAux , comparacionAux,tercetosCreados );
   }
 ;
 
@@ -381,7 +381,7 @@ asignacion:
           char auxInd[LONG_TERCETO];
           sprintf(auxInd,"[%d]",expresionInd );
           sprintf(auxAsig,"[%d]",asignacionInd);
-          asignacionInd = crear_terceto("OP_ASIG",auxAsig,auxInd,tercetosCreados);
+          asignacionInd = crear_terceto(":=",auxAsig,auxInd,tercetosCreados);
     }
 	  ;
 
@@ -411,7 +411,7 @@ expresion:
         char auxExp[LONG_TERCETO];
         sprintf(auxTer,"[%d]",terminoInd);
         sprintf(auxExp,"[%d]",expresionInd);
-        expresionInd = crear_terceto("OP_SUM",auxExp,auxTer,tercetosCreados);
+        expresionInd = crear_terceto("+",auxExp,auxTer,tercetosCreados);
         char expresionIndString [10];
         itoa(expresionInd,expresionIndString,10);
         apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
@@ -423,7 +423,7 @@ expresion:
         char auxExp[LONG_TERCETO];
         sprintf(auxTer,"[%d]",terminoInd);
         sprintf(auxExp,"[%d]",expresionInd);
-        expresionInd = crear_terceto("OP_RES",auxExp,auxTer,tercetosCreados);
+        expresionInd = crear_terceto("-",auxExp,auxTer,tercetosCreados);
         char expresionIndString [10];
         itoa(expresionInd,expresionIndString,10);
         apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
@@ -446,7 +446,7 @@ termino:
         char auxFac[LONG_TERCETO];
         sprintf(auxTer,"[%d]",terminoInd);
         sprintf(auxFac,"[%d]",factorIndice);
-        terminoInd = crear_terceto("OP_MUL",auxTer,auxFac,tercetosCreados);
+        terminoInd = crear_terceto("*",auxTer,auxFac,tercetosCreados);
         char terminoIndString [10];
         itoa(terminoInd,terminoIndString,10);
         apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
@@ -458,7 +458,7 @@ termino:
         char auxFac[LONG_TERCETO];
         sprintf(auxTer,"[%d]",terminoInd);
         sprintf(auxFac,"[%d]",factorIndice);
-        terminoInd = crear_terceto("OP_DIV",auxTer,auxFac,tercetosCreados);
+        terminoInd = crear_terceto("/",auxTer,auxFac,tercetosCreados);
         char terminoIndString [10];
         itoa(terminoInd,terminoIndString,10);
         apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
@@ -570,7 +570,7 @@ ultimos:
         ultInd = crear_terceto("0","_","_",tercetosCreados);
         sprintf(auxUltId,"[%d]",tercetoIdAux);
         sprintf(auxCero,"[%d]",ultInd);
-        ultInd = crear_terceto("OP_ASIG", auxUltId,auxCero,tercetosCreados);
+        ultInd = crear_terceto(":=", auxUltId,auxCero,tercetosCreados);
        }
        else
        {
@@ -584,7 +584,7 @@ ultimos:
       sprintf(auxUltId,"[%d]",tercetoAux);
       sprintf(auxCero,"[%d]",ceroAux);
 
-      ultInd = crear_terceto("OP_ASIG", auxUltId, auxCero, tercetosCreados);
+      ultInd = crear_terceto(":=", auxUltId, auxCero, tercetosCreados);
    
       int jUltimos;
       char* auxTerceto;
@@ -597,11 +597,11 @@ ultimos:
 
           char ultIndChar [10];
           sprintf(ultIndChar,"[%d]",ultInd);
-          ultInd = crear_terceto("OP_SUM", auxUltId, ultIndChar, tercetosCreados);
+          ultInd = crear_terceto("+", auxUltId, ultIndChar, tercetosCreados);
 
           char aux_ult_asig [10];
           sprintf(aux_ult_asig,"[%d]",ultInd);
-          ultInd = crear_terceto("OP_ASIG", auxUltId, aux_ult_asig, tercetosCreados);
+          ultInd = crear_terceto(":=", auxUltId, aux_ult_asig, tercetosCreados);
         }    
       }
       // Asignacion final del aux al ID inicial de la sentencia
@@ -611,7 +611,7 @@ ultimos:
       char aux_ultima_asig_string [10];
       sprintf(aux_ultima_asig_string,"[%d]",nro_terceto_aux_ultimos);
 
-      ultInd = crear_terceto("OP_ASIG", id_string_aux, aux_ultima_asig_string, tercetosCreados);
+      ultInd = crear_terceto(":=", id_string_aux, aux_ultima_asig_string, tercetosCreados);
       printf("ES SUMAR ULTIMOS\n");
     }
 ;
@@ -656,7 +656,7 @@ triangulos:
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp1);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp1= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp1= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
            }
            COMA expresion
            {
@@ -667,7 +667,7 @@ triangulos:
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp2);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp2= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp2= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
            } 
            COMA expresion
            {
@@ -678,7 +678,7 @@ triangulos:
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp3);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp3= crear_terceto("OP_ASIG",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp3= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
            } 
            PC  
            {
@@ -704,7 +704,7 @@ triangulos:
 
             sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
 
-            crear_terceto("OP_ASIG",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
+            crear_terceto(":=",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
 
             char auxBi[LONG_TERCETO];
 
@@ -713,7 +713,7 @@ triangulos:
             crear_terceto("BI","_",auxBi,tercetosCreados);
 
             // Salto al final que ya se cuanto es
-            crear_terceto("OP_ASIG",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
+            crear_terceto(":=",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados+4);
 
             crear_terceto("BI","_",auxBi,tercetosCreados);
@@ -723,7 +723,7 @@ triangulos:
             indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
             crear_terceto("BE","_",auxBi ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
-            crear_terceto("OP_ASIG",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
+            crear_terceto(":=",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
             
             printf("ES TRIANGULOS\n");
            }
