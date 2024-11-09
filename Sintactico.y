@@ -13,8 +13,8 @@ FILE  *yyin;
 
   int yyerror();
   int yylex();
+  int yyerror_message(char* mensaje_error);
   extern char* yytext;
-
 
 /* --- Estructura de la tabla de simbolos --- */
 
@@ -54,6 +54,13 @@ t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
 char* agregarCorchetes(const char* cadena);
 t_tabla tabla_simbolos;
+char* validar_ts(const char *nombre,const char *tipo, 
+                            const char* valor_string, int valor_var_int, 
+                            float valor_var_float);
+int verificar_si_ya_existe_en_ts(const char *nombre);
+const char * check_tipo_variable_ts(const char *nombre,const char *tipo, 
+const char* valor_string, int valor_var_int, 
+float valor_var_float);
 
 // Declaracion variables
 
@@ -75,6 +82,9 @@ int constante_aux_int;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
+char aux_tipo_validacion_ts[15];
+char aux_tipo_validacion_termino_ts[15];
+char aux_tipo_validacion_expresion_ts[15];
 int aux_id_ultimos=0;
 int nro_terceto_aux_ultimos=0;
 int aux_exp1=0,
@@ -202,6 +212,8 @@ lista_asignacion :
           {
                   for(i=0;i<cant_id;i++)
 									{
+                    printf("VARIABLE :::::: %s \n\n\n\n",t_ids[i].cadena);
+                    verificar_si_ya_existe_en_ts(t_ids[i].cadena);    
 									  insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
 									}
 									cant_id=0;
@@ -210,6 +222,7 @@ lista_asignacion :
             {
               for(i=0;i<cant_id;i++)
               {
+                verificar_si_ya_existe_en_ts(t_ids[i].cadena);    
                 insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
               }
               cant_id=0;
@@ -344,7 +357,11 @@ condicion:
 ;
 
 comparacion: 
-    expresion operador_comparacion expresion 
+    expresion 
+    {
+
+    } 
+    operador_comparacion expresion 
       {
                 char* exp1 = (char*) desapilar(pilaExpresion);
                 char* exp2 = (char*) desapilar(pilaExpresion);
@@ -382,6 +399,8 @@ asignacion:
           sprintf(auxInd,"[%d]",expresionInd );
           sprintf(auxAsig,"[%d]",asignacionInd);
           asignacionInd = crear_terceto(":=",auxAsig,auxInd,tercetosCreados);
+          // TODO tengo que averiguar de que tipo es la expresion esta, por ahora lo voy a usar para ver si la variable existe
+          // aux_tipo_validacion_ts = validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
     }
 	  ;
 
@@ -391,6 +410,7 @@ id:
   ID
   {
     strcpy(nombre_id,$1);
+    strcpy(aux_tipo_validacion_ts, check_tipo_variable_ts($1, "_", "", 0, 0)); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
     asignacionInd = crear_terceto(nombre_id,"_","_",tercetosCreados);
   }
 ;
@@ -469,6 +489,16 @@ factor:
       ID 
       {
         printf("ID es Factor \n");
+        // validar_ts(yytext, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
+        char tipo_id_aux_factor[15];
+        strcpy(tipo_id_aux_factor, check_tipo_variable_ts($1, "_", "", 0, 0));
+        
+        if( strcmp(tipo_id_aux_factor, aux_tipo_validacion_ts) != 0)
+        {
+           printf("\nLa variable %s es de un tipo no compatible con la asignacion\n", $1);
+           yyerror();
+        }
+
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
@@ -477,37 +507,64 @@ factor:
       | CTE_STRING 
       {
         printf("ES CONSTANTE STRING\n");
+        if(strcmp(aux_tipo_validacion_ts,"STRING") != 0) // significaria que estoy queriendo guardar una cte string en algo que no es String
+        {
+          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
+          yyerror_message("Se esta queriendo asignar un string a una variable que no es string");
+        }
         strcpy(constante_aux_string,$1);
+        
+        char nuevaCadena[31];       
+        nuevaCadena[0] = '_';
+        nuevaCadena[1] = '\0'; 
+        strncat(nuevaCadena, $1, sizeof(nuevaCadena) - 2);
+        // printf("********  Cadena final: %s\n", nuevaCadena);
         
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
         apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
-
-        insertar_tabla_simbolos(nombre_id, "CTE_STR", $1, 0, 0.0);
+        // Checkear si la variable a donde se asigna es tambien string
+        printf("\n\n\n ++++ nombre_id %s ----- valor %s \n\n",nuevaCadena, $1);
+        insertar_tabla_simbolos(nuevaCadena, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT 
       {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-
+        if(strcmp(aux_tipo_validacion_ts,"INTEGER") != 0) // significaria que estoy queriendo guardar un int en algo que no es int
+        {
+          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
+          yyerror_message("Se esta queriendo asignar un entero a una variable que no es entera");
+        }
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
         apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
-        insertar_tabla_simbolos(nombre_id, "CTE_INT", "", $1, 0.0);
+        
+        char cte_int_nombre_aux [60];
+        sprintf(cte_int_nombre_aux,"_%d",$1);
+
+        insertar_tabla_simbolos(cte_int_nombre_aux, "CTE_INT", "", $1, 0.0);
       }
       | CTE_FLOAT 
       {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
-        
+
+        if(strcmp(aux_tipo_validacion_ts,"FLOAT") != 0) // significaria que estoy queriendo guardar un int en algo que no es int
+        {
+          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
+          yyerror_message("Se esta queriendo asignar un real a una variable que no es real");
+        }
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
         apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
 
-        insertar_tabla_simbolos(nombre_id, "CTE_FLOAT", "", 0, $1);
+        char cte_float_nombre_aux [60];
+        sprintf(cte_float_nombre_aux,"_%.2f",$1);
+        insertar_tabla_simbolos(cte_float_nombre_aux, "CTE_FLOAT", "", 0, $1);
       }
 	    | PA expresion PC 
       {
@@ -549,6 +606,7 @@ ultimos:
     ID IGUAL SUM_ULT 
     {
        ultInd = crear_terceto($1,"_","_",tercetosCreados);
+       validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
        aux_id_ultimos = ultInd;
     } 
     PA CTE_INT 
@@ -646,6 +704,7 @@ triangulos:
            ID IGUAL TRIANG PA 
            {
               triangulos_id_aux = crear_terceto($1,"_","_",tercetosCreados);
+              validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
            }  
            expresion 
            {
@@ -767,6 +826,12 @@ int yyerror(void)
   exit (1);
 }
 
+int yyerror_message(char* mensaje_error)
+{
+  printf("\n ********* %s ********* \n",mensaje_error);
+  exit (1);
+}
+
 int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
                             const char* valor_string, int valor_var_int, 
                             float valor_var_float)
@@ -774,7 +839,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    // printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
+    printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
 
     while(tabla)
     { 
@@ -839,6 +904,84 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     return 0;
 }
 
+int verificar_si_ya_existe_en_ts(const char *nombre)
+{
+  t_simbolo *tabla = tabla_simbolos.primero;
+  while(tabla)
+    { 
+        // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+        if(strcmp(tabla->data.nombre, nombre) == 0)
+        {
+          // Esto significa que ya fue declara previamente
+          printf("La variable %s ya fue previamente declarada \n", nombre);
+          yyerror_message("VARIABLE PREVIAMENTE DECLARADA");
+        }
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+    }
+  return 0;
+}
+
+char* validar_ts(const char *nombre,const char *tipo, 
+                            const char* valor_string, int valor_var_int, 
+                            float valor_var_float)
+{    
+
+  t_simbolo *tabla = tabla_simbolos.primero;
+
+  while(tabla)
+  { 
+      // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+          // printf("\n\n\n\n\n VARIABLE DECLARADA \n\n\n\n\n\n\n\n");
+          // Ahora hay que ver si el tipo es el correcto
+          if(strcmp(tabla->data.tipo,tipo) != 0) 
+          {
+            printf("El tipo de dato %s de la variable - %s - no coincide con el tipo %s esperado", nombre , tabla->data.tipo,tipo);
+            yyerror_message("ERROR DE TIPOS");
+          }
+          return NULL;
+      }    
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+  }
+  printf("\nLa variable %s no fue declarada previamente \n", nombre);
+  yyerror_message("ERROR VARIABLE NO DECLARADA");
+  return NULL;
+}
+
+const char * check_tipo_variable_ts(const char *nombre,const char *tipo, 
+                            const char* valor_string, int valor_var_int, 
+                            float valor_var_float)
+{    
+
+  t_simbolo *tabla = tabla_simbolos.primero;
+
+  while(tabla)
+  { 
+      // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+          // printf("\n\n\n\n\n VARIABLE DECLARADA \n\n\n\n\n\n\n\n");
+          return tabla->data.tipo;
+      }    
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+  }
+  printf("\nLa variable %s no fue declarada previamente \n", nombre);
+  yyerror_message("Variable no declarada");
+  return "";
+}
 
 t_data* crearDatos(const char *nombre, const char *tipo, 
                   const char* valString, int valor_var_int, 
