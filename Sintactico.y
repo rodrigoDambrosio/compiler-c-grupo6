@@ -221,7 +221,7 @@ lista_variables: lista_variables COMA ID
                 {
                     strcpy(t_ids[cant_id].cadena,$3);
                     cant_id++;
-                    crear_terceto(yytext,"_","_",tercetosCreados);
+                    // crear_terceto(yytext,"_","_",tercetosCreados);
                     // apilar(pilaVariables, $3, sizeof($3));
                     printf("ES UNA LISTA DE VARIABLES\n");
                 }
@@ -230,7 +230,7 @@ lista_variables: lista_variables COMA ID
                     printf("ES UNA VARIABLE\n");
                     strcpy(t_ids[cant_id].cadena,$1);
                     cant_id++;
-                    crear_terceto(yytext,"_","_",tercetosCreados);
+                    // crear_terceto(yytext,"_","_",tercetosCreados);
                     // apilar(pilaVariables, $1, sizeof($1));
                 }
 
