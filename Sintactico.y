@@ -263,9 +263,9 @@ si:
   {
     // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
     // printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
-    aux_terceto_if_else = tercetosCreados;
     // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",aux_terceto_if_else);
     saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
+    aux_terceto_if_else = tercetosCreados;
   }
   ELSE LA instrucciones LC 
   {
