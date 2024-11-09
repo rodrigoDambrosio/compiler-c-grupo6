@@ -75,6 +75,8 @@ int constante_aux_int;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
+int aux_id_ultimos=0;
+int nro_terceto_aux_ultimos=0;
 int aux_exp1=0,
  aux_exp2=0,
  aux_exp3=0;
@@ -547,6 +549,7 @@ ultimos:
     ID IGUAL SUM_ULT 
     {
        ultInd = crear_terceto($1,"_","_",tercetosCreados);
+       aux_id_ultimos = ultInd;
     } 
     PA CTE_INT 
     {
@@ -574,7 +577,7 @@ ultimos:
       int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
       insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
       int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
-
+      nro_terceto_aux_ultimos = tercetoAux;
       char auxUltId[LONG_TERCETO];
       char auxCero[LONG_TERCETO];
 
@@ -601,7 +604,14 @@ ultimos:
           ultInd = crear_terceto("OP_ASIG", auxUltId, aux_ult_asig, tercetosCreados);
         }    
       }
-      
+      // Asignacion final del aux al ID inicial de la sentencia
+      char id_string_aux [10];
+      sprintf(id_string_aux,"[%d]",aux_id_ultimos);
+
+      char aux_ultima_asig_string [10];
+      sprintf(aux_ultima_asig_string,"[%d]",nro_terceto_aux_ultimos);
+
+      ultInd = crear_terceto("OP_ASIG", id_string_aux, aux_ultima_asig_string, tercetosCreados);
       printf("ES SUMAR ULTIMOS\n");
     }
 ;
