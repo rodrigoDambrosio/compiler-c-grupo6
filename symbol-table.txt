@@ -1,40 +1,22 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
-a1                            FLOAT                         --                                      
-b1                            FLOAT                         --                                      
-variable1                     INTEGER                       --                                      
-p1                            STRING                        --                                      
-p2                            STRING                        --                                      
-p3                            STRING                        --                                      
-variable2                     INTEGER                       --                                      
+floatAsig1                    FLOAT                         --                                      
+floatAsig2                    FLOAT                         --                                      
+float1                        FLOAT                         --                                      
+float2                        FLOAT                         --                                      
+intAsig1                      INTEGER                       --                                      
+intAsig2                      INTEGER                       --                                      
+base                          INTEGER                       --                                      
+var1                          INTEGER                       --                                      
+cadena1                       STRING                        --                                      
+cadena2                       STRING                        --                                      
+entero1                       INTEGER                       --                                      
+entero2                       INTEGER                       --                                      
+c                             INTEGER                       --                                      
 a2                            FLOAT                         --                                      
 b3                            FLOAT                         --                                      
-_21                                                                                                 
-_10                                                                                                 
-_4                                                                                                  
-_67                                                                                                 
-_27                                                                                                 
-_500                                                                                                
-_34                                                                                                 
-_3                                                                                                  
-_99999.99                                                                                           
-_99.00                                                                                              
-_1.00                                                                                               
-_asldk                                                                                              
-_asldk@sdaaaaafafg                                                                                  
+y                             FLOAT                         --                                      
+a                             FLOAT                         --                                      
+x                             FLOAT                         --                                      
+e                             FLOAT                         --                                      
 _1                                                                                                  
-_1                                                                                                  
-_1                                                                                                  
-aux                           FLOAT                         --                                      
-aux_exp1                      FLOAT                         --                                      
-_1                                                                                                  
-_1                                                                                                  
-aux_exp2                      FLOAT                         --                                      
-aux_exp3                      FLOAT                         --                                      
-_0                                                                                                  
-_1                                                                                                  
-_0                                                                                                  
-_32                                                                                                 
-_5                                                                                                  
-_1                                                                                                  
-_100                                                                                                
-_1                                                                                                  
+_50                                                                                                 

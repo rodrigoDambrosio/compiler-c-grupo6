@@ -61,6 +61,7 @@ int verificar_si_ya_existe_en_ts(const char *nombre);
 const char * check_tipo_variable_ts(const char *nombre,const char *tipo, 
 const char* valor_string, int valor_var_int, 
 float valor_var_float);
+int verificar_si_falta_en_ts(const char *nombre);
 
 // Declaracion variables
 
@@ -107,6 +108,7 @@ int     sentenciaIndice=0,
         escribirIndice = 0,
         factorIndice = 0;
 
+int flag_tipos = 0;
 int triangulos_id_aux =0;
 int indTriangExp1=0;
 int indTriangExp2=0;
@@ -117,6 +119,7 @@ int auxPrimerLado = 0,
 auxSegundoLado = 0, 
 auxTercerLado = 0;
 char comparador[4];
+char ultimoTipo[15]="PRI";
 
 // int test_int=0;
 int ultimos_pivote_aux=0;
@@ -328,6 +331,10 @@ condicion:
   comparacion 
   {
     condicionInd = comparacionInd;
+     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
+                strcpy(ultimoTipo,"PRI");
+                flag_tipos = 0;
+                printf("\n\n\n\n\n\n\n\n ******************************  Seteo COMPARACION     ************************************************ \n\n\n\n\n\n");
   }
   | 
   OP_NOT comparacion
@@ -335,9 +342,20 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
     condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
+     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
+                strcpy(ultimoTipo,"PRI");
+                flag_tipos = 0;
+                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo NOT     ************************************************ \n\n\n\n\n\n");
   }
   | 
-  condicion OP_OR comparacion 
+  condicion OP_OR
+  {
+     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
+                strcpy(ultimoTipo,"PRI");
+                flag_tipos = 0;
+                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo OR     ************************************************ \n\n\n\n\n\n");
+  }
+  comparacion 
   {
     char condicionAux [LONG_TERCETO];
     char comparacionAux [LONG_TERCETO];
@@ -346,7 +364,14 @@ condicion:
     condicionInd = crear_terceto("OR", condicionAux , comparacionAux,tercetosCreados );
   }
   | 
-  condicion OP_AND comparacion 
+  condicion OP_AND 
+   {
+     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
+                strcpy(ultimoTipo,"PRI");
+                flag_tipos = 0;
+                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo AND     ************************************************ \n\n\n\n\n\n");
+  }
+  comparacion 
   {
     char condicionAux [LONG_TERCETO];
     char comparacionAux [LONG_TERCETO];
@@ -357,11 +382,7 @@ condicion:
 ;
 
 comparacion: 
-    expresion 
-    {
-
-    } 
-    operador_comparacion expresion 
+    expresion operador_comparacion expresion 
       {
                 char* exp1 = (char*) desapilar(pilaExpresion);
                 char* exp2 = (char*) desapilar(pilaExpresion);
@@ -401,6 +422,7 @@ asignacion:
           asignacionInd = crear_terceto(":=",auxAsig,auxInd,tercetosCreados);
           // TODO tengo que averiguar de que tipo es la expresion esta, por ahora lo voy a usar para ver si la variable existe
           // aux_tipo_validacion_ts = validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
+          strcpy(ultimoTipo, "PRI"); // esto es para evitar problemas en la validacion de tipos
     }
 	  ;
 
@@ -412,6 +434,7 @@ id:
     strcpy(nombre_id,$1);
     strcpy(aux_tipo_validacion_ts, check_tipo_variable_ts($1, "_", "", 0, 0)); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
     asignacionInd = crear_terceto(nombre_id,"_","_",tercetosCreados);
+    strcpy(ultimoTipo, "ASIG"); // esto es para evitar problemas en la validacion de tipos
   }
 ;
 
@@ -493,7 +516,38 @@ factor:
         char tipo_id_aux_factor[15];
         strcpy(tipo_id_aux_factor, check_tipo_variable_ts($1, "_", "", 0, 0));
         
-        if( strcmp(tipo_id_aux_factor, aux_tipo_validacion_ts) != 0)
+        if(strcmp(ultimoTipo,"PRI") == 0)
+        {
+        //   printf("\n\n\n PRIMERA EJECUCION DE LA COMPARACION %s ----------  \n\n\n",ultimoTipo);
+        //   printf("\n\n\n VINO LA VARIABLE %s ----------  \n\n\n",$1);
+          strcpy(ultimoTipo, tipo_id_aux_factor);
+          // printf("\n\n\n - %s QUEDO COMO PRIMER TIPO  \n\n\n",ultimoTipo);
+          flag_tipos = 1;
+        }
+        else if(strcmp(ultimoTipo,"ASIG") == 0)
+        {
+            if(strcmp(aux_tipo_validacion_ts , tipo_id_aux_factor) != 0)
+            {
+              //  printf("\n\n\n LA ANTERIOR ES %s ----------  \n\n\n",aux_tipo_validacion_ts);
+              //  printf("\n\n\n VINO LA VARIABLE %s ----------  \n\n\n",tipo_id_aux_factor);
+               printf("La variable %s tiene un tipo invalido", yytext);
+               yyerror_message("Error de tipos en la asignacion");
+            }
+            break;
+        }
+        else
+        {
+          //  printf("\n\n\n -********** EL SEGUNDO VINO COMO %s ACA COMPARO EL SEGUNDO  \n\n\n",ultimoTipo);
+          //  printf("\n\n\n -+++++++++++++++++ %s ACA COMPARO EL *********************  \n\n\n",tipo_id_aux_factor);
+          //  printf("\n\n\n VINO LA VARIABLE EN %s ----------  \n\n\n",$1);
+           if(strcmp(ultimoTipo,tipo_id_aux_factor) != 0)
+           {
+              yyerror_message("Error de tipos en la condicion");
+           }  
+        }
+
+
+        if( strcmp(tipo_id_aux_factor, aux_tipo_validacion_ts) != 0 && flag_tipos != 1)
         {
            printf("\nLa variable %s es de un tipo no compatible con la asignacion\n", $1);
            yyerror();
@@ -579,8 +633,9 @@ factor:
 leer : 
      LEER PA ID PC 
      {
+        verificar_si_falta_en_ts($3);
         leerIndice = crear_terceto("LEER", $3, "_", tercetosCreados);
-        printf("\n\n\n *** Se ejecuta LEER con la variable: %s\n", $3);
+        // printf("\n\n\n *** Se ejecuta LEER con la variable: %s\n", $3);
         // insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
         printf("ES LEER\n");
      }
@@ -590,14 +645,15 @@ leer :
 escribir:
     ESCRIBIR PA CTE_STRING {
       escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
-      printf("\n\n\n *** Se ejecuta LEER con la variable: %s \n", $3);
+      // printf("\n\n\n *** Se ejecuta ESCRIBIR con la CTE: %s \n", $3);
       // insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
     }PC 
     
     | ESCRIBIR PA ID PC
     {
+      verificar_si_falta_en_ts($3);
       escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
-      printf("\n\n\n *** Se ejecuta LEER con la variable: %s \n", $3);
+      // printf("\n\n\n *** Se ejecuta ESCRIBIR con la variable: %s \n", $3);
       // insertar_tabla_simbolos($3, "CTE_STR", $3, 2, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
     }
 ;
@@ -619,7 +675,7 @@ ultimos:
       // Aca me voy a fijar si el tamaño del pivot es valido
       // printf("\n\n ****** EL CONTADOR DE ELEMENTOS DIO: %d *******\n\n", contador_elementos_sumar_ult);
        int cantidad_elementos_restantes = contador_elementos_sumar_ult - ultimos_pivote_aux;
-       printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
+      //  printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
        if(ultimos_pivote_aux < 0 || cantidad_elementos_restantes <= 0)
        {
         int tercetoIdAux= ultInd;
@@ -839,7 +895,7 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
+    // printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
 
     while(tabla)
     { 
@@ -923,6 +979,28 @@ int verificar_si_ya_existe_en_ts(const char *nombre)
       tabla = tabla->next;
     }
   return 0;
+}
+
+int verificar_si_falta_en_ts(const char *nombre)
+{
+  t_simbolo *tabla = tabla_simbolos.primero;
+  while(tabla)
+    { 
+        // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+        if(strcmp(tabla->data.nombre, nombre) == 0)
+        {
+          // Esto significa que ya fue declara previamente
+          printf("La variable %s ya fue previamente declarada \n", nombre);
+          return 0;
+        }
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+    }
+    printf("La variable %s NO fue previamente declarada \n", nombre);
+    yyerror_message("La variable no fue declarada previamente y se esta usando");
 }
 
 char* validar_ts(const char *nombre,const char *tipo, 

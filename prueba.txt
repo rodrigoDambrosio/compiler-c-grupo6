@@ -1,36 +1,45 @@
 init {
-    a1, b1, x, y : Float
-    variable1,c,e,g,r,z,f : Int
-    p1, p2, p3 : String
-    variable2 : Int
-    a2, b3,b : Float
+    floatAsig1, floatAsig2,float1, float2 : Float
+    intAsig1, intAsig2,base,var1 : Int
+    cadena1, cadena2 : String
+    entero1, entero2,c : Int
+    a2, b3,y,a,x,e  : Float
 }
+
+*-Ejemplo de duplicacion de variables-*
+
+*- init { -*
+*-     floatAsig1, floatAsig2,float1, float2 : Float -*
+*-     intAsig1, intAsig2,base,var1 : Int -*
+*-     cadena1, cadena2 : String -*
+*-     entero1, entero2,c : Int -*
+*-     a2,a2,a2,a2, b3,y,a,x,e  : Float -*
+*- } -*
 
 *- Prueba expresion -*
 
-c:= ((e-21*10)/4) * 67
+entero1:= ((entero2-21*10)/4) * 67
 
-*- c:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
-
+*- entero1:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
 
 *- Asignaciones -*
 
-variable1 := 27 - c
-variable2 := r + 500
-variable2 := 34 * 3
-variable1 := z / f
+intAsig1 := 27 - c
+intAsig1 := 500 + c
+intAsig2 := 34 * 3
+intAsig2 := intAsig2 / intAsig2
 
-a1 := 99999.99
-b1 := 99.
-b3 := .9999
+floatAsig1 := 99999.99
+floatAsig2 := 99.
+floatAsig1 := .9999
 
 
 *- b76 := "@sdADaSjfla%daaaaaaaaaaaaaaaaaaaaaaaaaaaaaafg"-* *- -> Caso error maxima cant de car string-*
 *- a45645 := 965535 -*    *-  -> Caso error rango int -*
 *- a123456 := 34354444444454353454354354.53454354344444444444444444444444445444 -* *-  -> Caso error rango float -*
 
-p1 := "asldk"
-p2 := "@sdaaaaafafg"
+cadena1 := "asldk"
+cadena2 := "@sdaaaaafafg"
 
 *-init {-*
 *-    a1, b1 : Float-*
@@ -41,26 +50,27 @@ p2 := "@sdaaaaafafg"
 *-    a1, b1 : FLOTANTE -*
 *- } -*
 
-mientras ( a1>b1 OR b3 == b1)
+mientras ( entero1>entero2 OR float2 == float1)
 {
     escribir("a es mas grande que b")
-    variable1 := variable1 + 1
+    a := a + 1.1
 }
 
-si (NOT a == b)
+si (NOT entero1 == entero2)
 {
     escribir("a es mas grande que b")
-    variable1 := variable1 + 1
+    a := a + 1.2
 }
 
-si  (a > b AND b>g)
+si  (float1 > float2 AND entero1>entero2)
 {
     escribir("a es mas grande que b")
-    variable1 := variable1 + 1
+    entero1 := entero1 + 1
 }
 sino
 {
-    variable1 := 6
+    entero1 := entero1 + 50
+
 }
 
 leer(base) *- base es una variable -*
@@ -72,8 +82,25 @@ x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
 x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
 x = sumaLosUltimos(4; [28, 52])
 
-y = triangulo(x, 1+1, x)  
-y = triangulo(0, 1/x, 0) 
-y = triangulo((32+5+x)*z, 1/x, 100) 
+y = triangulo(x, 1+1, float1)  
+y = triangulo(0, 1/float1, 0) 
+y = triangulo((32+5+float2)*float1, 1/x, 100) 
 
-a:= 1
+float2:= 1.2
+
+*- Casos de prueba de tipos -*
+
+*- intAsig1 = 2.2 -*
+*- intAsig1 = "2.2" -*
+*- intAsig1 = cadena1 -*
+*- intAsig1 = float1 -*
+
+*- floatAsig1 = intAsig1 -*
+*- floatAsig1 = cadena1 -*
+*- floatAsig1 = "cadena1" -*
+*- floatAsig1 = 33 -*
+
+*- cadena1 = 33 -*
+*- cadena1 = 33.33 -*
+*- cadena1 = intAsig1 -*
+*- cadena1 = float1 -*
