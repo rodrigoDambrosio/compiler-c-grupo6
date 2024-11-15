@@ -902,18 +902,18 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
       // Para evitar repetidos / actualizar asignaciones
       if(strcmp(tabla->data.nombre, nombre) == 0 || strcmp(tabla->data.nombre, nombreCTE) == 0)
       {
-          if (strcmp(tipo, "CTE_STR") == 0)
-            {
-                strcpy(tabla->data.valor.valor_var_str, valor_string);
-            }
-            else if (strcmp(tipo, "CTE_INT") == 0)
-            {
-                tabla->data.valor.valor_var_int = valor_var_int;
-            }
-            else if (strcmp(tipo, "CTE_FLOAT") == 0)
-            {
-                tabla->data.valor.valor_var_float = valor_var_float;
-            }
+          // if (strcmp(tipo, "CTE_STR") == 0)
+          //   {
+          //       strcpy(tabla->data.valor.valor_var_str, valor_string);
+          //   }
+          //   else if (strcmp(tipo, "CTE_INT") == 0)
+          //   {
+          //       tabla->data.valor.valor_var_int = valor_var_int;
+          //   }
+          //   else if (strcmp(tipo, "CTE_FLOAT") == 0)
+          //   {
+          //       tabla->data.valor.valor_var_float = valor_var_float;
+          //   }
             return 1;
       }    
       if(strcmp(tabla->data.tipo, "CTE_STR") == 0)
@@ -1100,6 +1100,12 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);
             data->valor.valor_var_float = valor_var_float;
+
+            char aux_valor_float_ts[30];
+            data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(aux_valor_float_ts) +1);
+            sprintf(aux_valor_float_ts,"%.2f",valor_var_float);
+
+            strcpy(data->valor.valor_var_str, aux_valor_float_ts);
         }
         if(strcmp(tipo, "CTE_INT") == 0)
         {
@@ -1108,6 +1114,11 @@ t_data* crearDatos(const char *nombre, const char *tipo,
             data->nombre = (char*)malloc(sizeof(char) * strlen(full));
             strcpy(data->nombre, full);
             data->valor.valor_var_int = valor_var_int;
+
+            char aux_int[30];
+            data->valor.valor_var_str = (char*)malloc(sizeof(char) * strlen(aux_int) + 1);
+            sprintf(aux_int,"%d",valor_var_int);
+            strcpy(data->valor.valor_var_str, aux_int);
         }
         return data;
     }
@@ -1135,6 +1146,10 @@ void guardar_tabla_simbolos()
     while(tabla)
     {
         aux = tabla;
+        if(aux->next == NULL)
+        {
+          break;
+        }
         tabla = tabla->next;
 
         if(strcmp(aux->data.tipo, "INTEGER") == 0) 
@@ -1144,7 +1159,8 @@ void guardar_tabla_simbolos()
         else if(strcmp(aux->data.tipo, "CTE_INT") == 0)
         {
             // sprintf(linea, "%-30s%-30s%-40d%s\n", aux->data.nombre, "", aux->data.valor.valor_var_int, "");
-            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, "", "", "");
+            // sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, "", "", "");
+            sprintf(linea, "%-30s%-30s%-40s%d\n", aux->data.nombre, aux->data.tipo, aux->data.valor.valor_var_str, strlen(aux->data.valor.valor_var_str));
         }
         else if(strcmp(aux->data.tipo, "FLOAT") ==0)
         {
@@ -1153,7 +1169,8 @@ void guardar_tabla_simbolos()
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
             // sprintf(linea, "%-30s%-30s%-40f%s\n", aux->data.nombre, "", aux->data.valor.valor_var_float, "");
-            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, "", "", "");
+            sprintf(linea, "%-30s%-30s%-40s%d\n", aux->data.nombre, aux->data.tipo, aux->data.valor.valor_var_str, 5);                               
+            //  printf("\n\n\n\n\n ACAAAAAAAA %s",aux->data.nombre);
         }
         else if(strcmp(aux->data.tipo, "STRING") == 0)
         {
@@ -1164,7 +1181,8 @@ void guardar_tabla_simbolos()
             strncpy(aux_string, aux->data.valor.valor_var_str +1, strlen(aux->data.valor.valor_var_str)-2);
             strcat(full,aux_string);
             // sprintf(linea, "%-30s%-30s%-40s%-d\n", aux->data.nombre, "", aux_string, strlen(aux->data.valor.valor_var_str) -2);
-            sprintf(linea, "%-30s%-30s%-40s%-s\n", full, "", "", "");
+            // sprintf(linea, "%-30s%-30s%-40s%-s\n", full, "", "", "");
+            sprintf(linea, "%-30s%-30s%-40s%-d\n", full, aux->data.tipo, aux_string, strlen(aux->data.valor.valor_var_str));
         }
         fprintf(arch, "%s", linea);
         free(aux);
