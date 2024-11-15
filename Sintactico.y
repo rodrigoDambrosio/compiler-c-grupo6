@@ -8,6 +8,10 @@
 #include "pila.h"
 #include "tercetos.h"
 
+#define T_ENTERO 10
+#define T_FLOAT 20
+#define T_STRING 30
+
 int yystopparser=0;
 FILE  *yyin;
 
@@ -46,7 +50,11 @@ typedef struct{
   char cadena[40];
 }t_nombresId;
 
-
+int tipo_factor = -1;
+int tipo_expresion = -1;
+int tipo_termino = -1;
+int tipo_expresion_izq =-1;
+int tipo_asig_u =-1;
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -62,6 +70,7 @@ const char * check_tipo_variable_ts(const char *nombre,const char *tipo,
 const char* valor_string, int valor_var_int, 
 float valor_var_float);
 int verificar_si_falta_en_ts(const char *nombre);
+const char * check_tipo_define(int tipo_int);
 
 // Declaracion variables
 
@@ -79,7 +88,7 @@ char* dato_tope;
 char tipo_dato[10];
 int cant_id = 0;
 char nombre_id[20];
-int constante_aux_int;
+int constante_aux_int=0;
 float constante_aux_float;
 char constante_aux_string[40];
 char aux_string[40];
@@ -331,10 +340,6 @@ condicion:
   comparacion 
   {
     condicionInd = comparacionInd;
-     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
-                strcpy(ultimoTipo,"PRI");
-                flag_tipos = 0;
-                printf("\n\n\n\n\n\n\n\n ******************************  Seteo COMPARACION     ************************************************ \n\n\n\n\n\n");
   }
   | 
   OP_NOT comparacion
@@ -342,20 +347,9 @@ condicion:
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
     condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
-     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
-                strcpy(ultimoTipo,"PRI");
-                flag_tipos = 0;
-                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo NOT     ************************************************ \n\n\n\n\n\n");
   }
   | 
-  condicion OP_OR
-  {
-     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
-                strcpy(ultimoTipo,"PRI");
-                flag_tipos = 0;
-                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo OR     ************************************************ \n\n\n\n\n\n");
-  }
-  comparacion 
+  condicion OP_OR comparacion 
   {
     char condicionAux [LONG_TERCETO];
     char comparacionAux [LONG_TERCETO];
@@ -364,14 +358,7 @@ condicion:
     condicionInd = crear_terceto("OR", condicionAux , comparacionAux,tercetosCreados );
   }
   | 
-  condicion OP_AND 
-   {
-     // El strcpy es destino , VALOR, no invertirlo !!!!!!!!
-                strcpy(ultimoTipo,"PRI");
-                flag_tipos = 0;
-                // printf("\n\n\n\n\n\n\n\n ******************************  Seteo AND     ************************************************ \n\n\n\n\n\n");
-  }
-  comparacion 
+  condicion OP_AND comparacion 
   {
     char condicionAux [LONG_TERCETO];
     char comparacionAux [LONG_TERCETO];
@@ -382,8 +369,14 @@ condicion:
 ;
 
 comparacion: 
-    expresion operador_comparacion expresion 
+    expresion operador_comparacion {tipo_expresion_izq = tipo_expresion; } expresion 
       {
+                int tipo_expresion_derecha = tipo_expresion;
+                if(tipo_expresion_izq != tipo_expresion_derecha)
+                {
+                  printf("\nSe esta queriendo comparar un %s a la izquierda con un %s a la derecha\n", check_tipo_define(tipo_expresion_izq),check_tipo_define(tipo_expresion_derecha));
+                  yyerror_message("Error de tipos");
+                }
                 char* exp1 = (char*) desapilar(pilaExpresion);
                 char* exp2 = (char*) desapilar(pilaExpresion);
                 // printf ("A ver la comparacion %s %s \n",exp1, exp2);
@@ -397,6 +390,7 @@ comparacion:
                 char tString [10];
                 itoa(t,tString,10);
                 apilar(pilaComparacion,tString,sizeof(tString));
+                
     }
     // | PA condicion PC
 ;
@@ -421,8 +415,25 @@ asignacion:
           sprintf(auxAsig,"[%d]",asignacionInd);
           asignacionInd = crear_terceto(":=",auxAsig,auxInd,tercetosCreados);
           // TODO tengo que averiguar de que tipo es la expresion esta, por ahora lo voy a usar para ver si la variable existe
-          // aux_tipo_validacion_ts = validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
-          strcpy(ultimoTipo, "PRI"); // esto es para evitar problemas en la validacion de tipos
+          
+          if(strcmp("INTEGER",aux_tipo_validacion_ts)==0){
+                tipo_asig_u = T_ENTERO;
+          }
+          else if(strcmp("FLOAT",aux_tipo_validacion_ts)==0){
+                tipo_asig_u = T_FLOAT;
+          }
+          else if(strcmp("STRING",aux_tipo_validacion_ts)==0){
+                tipo_asig_u = T_STRING;
+          }
+          // printf("\n\n El tipo de la asig es %d el otro de EXP %d el tip ode TS es %s \n",tipo_asig_u,tipo_expresion,aux_tipo_validacion_ts);
+          if(tipo_expresion != tipo_asig_u ){
+            printf("\n\nEl ID %s tiene un tipo %s que no es compatible en la asignacion\n\n",nombre_id,aux_tipo_validacion_ts);
+            yyerror_message("Error de tipos en la asignacion");
+          }
+          // else{
+          //               printf("OK \n\n\n");
+
+          // }
     }
 	  ;
 
@@ -434,7 +445,6 @@ id:
     strcpy(nombre_id,$1);
     strcpy(aux_tipo_validacion_ts, check_tipo_variable_ts($1, "_", "", 0, 0)); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
     asignacionInd = crear_terceto(nombre_id,"_","_",tercetosCreados);
-    strcpy(ultimoTipo, "ASIG"); // esto es para evitar problemas en la validacion de tipos
   }
 ;
 
@@ -446,9 +456,16 @@ expresion:
       expresionInd = terminoInd;
       char expresionIndString [10];
       itoa(expresionInd,expresionIndString,10);
-      apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
+      apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString));
+      tipo_expresion = tipo_termino; 
     }
-	 | expresion OP_SUM termino {
+	 | expresion OP_SUM termino 
+   {
+        if(tipo_expresion != tipo_termino)
+        {
+           printf("\nSe esta queriendo sumar un %s con un %s\n", check_tipo_define(tipo_expresion),check_tipo_define(tipo_termino));
+           yyerror_message("Error de tipos");
+        }
         printf("    Expresion+Termino es Expresion\n");
         char auxTer[LONG_TERCETO];
         char auxExp[LONG_TERCETO];
@@ -460,7 +477,13 @@ expresion:
         apilar(pilaExpresion,expresionIndString,sizeof(expresionIndString)); 
     }
 
-	 | expresion OP_RES termino {
+	 | expresion OP_RES termino 
+   {
+        if(tipo_expresion != tipo_termino)
+        {
+          printf("\nSe esta queriendo restar un %s con un %s\n", check_tipo_define(tipo_expresion),check_tipo_define(tipo_termino));
+          yyerror_message("Error de tipos");
+        }
         printf("    Expresion-Termino es Expresion\n");
         char auxTer[LONG_TERCETO];
         char auxExp[LONG_TERCETO];
@@ -481,9 +504,19 @@ termino:
         char terminoIndString [10];
         itoa(expresionInd,terminoIndString,10);
         apilar(pilaTermino,terminoIndString, sizeof(terminoIndString));
+        tipo_termino = tipo_factor;
        }
        |termino OP_MUL factor 
        {
+        if(tipo_termino != tipo_factor)
+        {
+           printf("\nSe esta queriendo multiplicar un %s con un %s\n", check_tipo_define(tipo_termino),check_tipo_define(tipo_factor));
+           yyerror_message("Error de tipos");
+        }
+        // else
+        // {
+        //             // printf("OOOOOOOK %s \n\n\n", check_tipo_define(tipo_termino));
+        // }
         printf("Termino*Factor es Termino\n");
         char auxTer[LONG_TERCETO];
         char auxFac[LONG_TERCETO];
@@ -496,6 +529,17 @@ termino:
        }
        |termino OP_DIV factor 
        {
+        if(tipo_termino != tipo_factor)
+        {
+           printf("\nSe esta queriendo dividir un %s con un %s\n", check_tipo_define(tipo_termino),check_tipo_define(tipo_factor));
+           yyerror_message("Error de tipos");
+        }
+        // Esto lo agregue por probar algo nuevo, se puede sacar, si se quiere usar habria que mejorar detalles
+        // if(constante_aux_int == 0)
+        // {
+        //   yyerror_message("Error, se esta queriendo dividir por 0");
+        // }
+        // Es solo para validar eso, no se pide especifico
         printf("Termino/Factor es Termino\n");
         char auxTer[LONG_TERCETO];
         char auxFac[LONG_TERCETO];
@@ -515,44 +559,18 @@ factor:
         // validar_ts(yytext, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
         char tipo_id_aux_factor[15];
         strcpy(tipo_id_aux_factor, check_tipo_variable_ts($1, "_", "", 0, 0));
-        
-        if(strcmp(ultimoTipo,"PRI") == 0)
+        if(strcmp("INTEGER" , tipo_id_aux_factor) == 0)
         {
-        //   printf("\n\n\n PRIMERA EJECUCION DE LA COMPARACION %s ----------  \n\n\n",ultimoTipo);
-        //   printf("\n\n\n VINO LA VARIABLE %s ----------  \n\n\n",$1);
-          strcpy(ultimoTipo, tipo_id_aux_factor);
-          // printf("\n\n\n - %s QUEDO COMO PRIMER TIPO  \n\n\n",ultimoTipo);
-          flag_tipos = 1;
+          tipo_factor = T_ENTERO;
         }
-        else if(strcmp(ultimoTipo,"ASIG") == 0)
+        else if(strcmp("FLOAT" , tipo_id_aux_factor) == 0)
         {
-            if(strcmp(aux_tipo_validacion_ts , tipo_id_aux_factor) != 0)
-            {
-              //  printf("\n\n\n LA ANTERIOR ES %s ----------  \n\n\n",aux_tipo_validacion_ts);
-              //  printf("\n\n\n VINO LA VARIABLE %s ----------  \n\n\n",tipo_id_aux_factor);
-               printf("La variable %s tiene un tipo invalido", yytext);
-               yyerror_message("Error de tipos en la asignacion");
-            }
-            break;
+          tipo_factor = T_FLOAT;
         }
-        else
+        else if(strcmp("STRING" , tipo_id_aux_factor) == 0)
         {
-          //  printf("\n\n\n -********** EL SEGUNDO VINO COMO %s ACA COMPARO EL SEGUNDO  \n\n\n",ultimoTipo);
-          //  printf("\n\n\n -+++++++++++++++++ %s ACA COMPARO EL *********************  \n\n\n",tipo_id_aux_factor);
-          //  printf("\n\n\n VINO LA VARIABLE EN %s ----------  \n\n\n",$1);
-           if(strcmp(ultimoTipo,tipo_id_aux_factor) != 0)
-           {
-              yyerror_message("Error de tipos en la condicion");
-           }  
+          tipo_factor = T_STRING;
         }
-
-
-        if( strcmp(tipo_id_aux_factor, aux_tipo_validacion_ts) != 0 && flag_tipos != 1)
-        {
-           printf("\nLa variable %s es de un tipo no compatible con la asignacion\n", $1);
-           yyerror();
-        }
-
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
@@ -561,11 +579,8 @@ factor:
       | CTE_STRING 
       {
         printf("ES CONSTANTE STRING\n");
-        if(strcmp(aux_tipo_validacion_ts,"STRING") != 0) // significaria que estoy queriendo guardar una cte string en algo que no es String
-        {
-          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
-          yyerror_message("Se esta queriendo asignar un string a una variable que no es string");
-        }
+
+        tipo_factor = T_STRING;
         strcpy(constante_aux_string,$1);
         
         char nuevaCadena[31];       
@@ -579,18 +594,16 @@ factor:
         itoa(terminoInd,factorIndiceString,10);
         apilar(pilaFactor,factorIndiceString,sizeof(factorIndiceString));
         // Checkear si la variable a donde se asigna es tambien string
-        printf("\n\n\n ++++ nombre_id %s ----- valor %s \n\n",nuevaCadena, $1);
+        // printf("\n\n\n ++++ nombre_id %s ----- valor %s \n\n",nuevaCadena, $1);
         insertar_tabla_simbolos(nuevaCadena, "CTE_STR", $1, 0, 0.0);
       }
       | CTE_INT 
       {
         printf("ES CONSTANTE INT\n");
         constante_aux_int=$1;
-        if(strcmp(aux_tipo_validacion_ts,"INTEGER") != 0) // significaria que estoy queriendo guardar un int en algo que no es int
-        {
-          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
-          yyerror_message("Se esta queriendo asignar un entero a una variable que no es entera");
-        }
+                  // printf("\n\n\n - %s QUEDO COMO PRIMER TIPO  \n\n\n",ultimoTipo);
+        tipo_factor = T_ENTERO;
+
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
@@ -605,12 +618,8 @@ factor:
       {
         printf("ES CONSTANTE FLOAT\n");
         constante_aux_float=$1;
+        tipo_factor = T_FLOAT;
 
-        if(strcmp(aux_tipo_validacion_ts,"FLOAT") != 0) // significaria que estoy queriendo guardar un int en algo que no es int
-        {
-          // printf("*********************** este es el tipo del id que viene %s", aux_tipo_validacion_ts);
-          yyerror_message("Se esta queriendo asignar un real a una variable que no es real");
-        }
         factorIndice = crear_terceto(yytext,"_","_",tercetosCreados);
         char factorIndiceString [10];
         itoa(terminoInd,factorIndiceString,10);
@@ -1212,4 +1221,19 @@ char* agregarCorchetes(const char* cadena)
     resultado[longitud + 2] = '\0'; 
     
     return resultado;
+}
+
+const char * check_tipo_define(int tipo_int)
+{
+  switch(tipo_int)
+  {
+    case 10:
+      return "ENTERO";
+    case 20:
+      return "FLOAT";
+    case 30:
+      return "STRING";
+    default:
+      return "";
+  }
 }

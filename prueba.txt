@@ -18,7 +18,7 @@ init {
 
 *- Prueba expresion -*
 
-entero1:= ((entero2 -21 * 10) /4) * 67
+entero1:= ((entero2-21*10)/4) * 67
 
 *- entero1:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
 
@@ -33,22 +33,6 @@ floatAsig1 := 99999.99
 floatAsig2 := 99.
 floatAsig1 := .9999
 
-*- Casos de prueba de tipos -*
-
-*- intAsig1 = 2.2 -*
-*- intAsig1 = "2.2" -*
-*- intAsig1 = cadena1 -*
-*- intAsig1 = float1 -*
-
-*- floatAsig1 = intAsig1 -*
-*- floatAsig1 = cadena1 -*
-*- floatAsig1 = "cadena1" -*
-*- floatAsig1 = 33 -*
-
-*- cadena1 = 33 -*
-*- cadena1 = 33.33 -*
-*- cadena1 = intAsig1 -*
-*- cadena1 = float1 -*
 
 *- b76 := "@sdADaSjfla%daaaaaaaaaaaaaaaaaaaaaaaaaaaaaafg"-* *- -> Caso error maxima cant de car string-*
 *- a45645 := 965535 -*    *-  -> Caso error rango int -*
@@ -69,23 +53,23 @@ cadena2 := "@sdaaaaafafg"
 mientras ( entero1>entero2 OR float2 == float1)
 {
     escribir("a es mas grande que b")
-    a := a + 1.27
+    a := a + 1.1
 }
 
 si (NOT entero1 == entero2)
 {
     escribir("a es mas grande que b")
-    a := a + 1.27
+    a := a + 1.2
 }
 
 si  (float1 > float2 AND entero1>entero2)
 {
     escribir("a es mas grande que b")
-    entero1 := entero1 + 3
+    entero1 := entero1 + 1
 }
 sino
 {
-    entero1 := entero1 + 501
+    entero1 := entero1 + 50
 
 }
 
@@ -94,12 +78,29 @@ leer(base) *- base es una variable -*
 escribir("ewr")  *- “ewr” es una cte string -*
 escribir(var1)  *- var1 es una variable numerica definida previamente -*
 
-x = sumaLosUltimos(4; [281, 13.51, 41, 5.54, 172, 532])
-x = sumaLosUltimos(0; [282, 13.5, 41, 5.55, 171, 542])
-x = sumaLosUltimos(4; [283, 523])
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
+x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
+x = sumaLosUltimos(4; [28, 52])
 
-y = triangulo(x, 16+12, float1)  
-y = triangulo(42, 15/float1, 2) 
-y = triangulo((32+5+float2)*float1, 91/x, 1100) 
+y = triangulo(x, 1+1, float1)  
+y = triangulo(0, 1/entero1, 0) 
+y = triangulo((32.3+5.2+float2)*float1, 1.6/x, 100) 
 
-float2:= 1.265
+float2:= 1.2
+
+*- Casos de prueba de tipos -*
+
+*- intAsig1 = 2.2 -*
+*- intAsig1 = "2.2" -*
+*- intAsig1 = cadena1 -*
+*- intAsig1 = float1 -*
+
+*- floatAsig1 = intAsig1 -*
+*- floatAsig1 = cadena1 -*
+*- floatAsig1 = "cadena1" -*
+*- floatAsig1 = 33 -*
+
+*- cadena1 = 33 -*
+*- cadena1 = 33.33 -*
+*- cadena1 = intAsig1 -*
+*- cadena1 = float1 -*
