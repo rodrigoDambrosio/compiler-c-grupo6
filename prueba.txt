@@ -90,17 +90,17 @@ float2:= 1.2
 
 *- Casos de prueba de tipos -*
 
-*- intAsig1 = 2.2 -*
-*- intAsig1 = "2.2" -*
-*- intAsig1 = cadena1 -*
-*- intAsig1 = float1 -*
+*- intAsig1 := 2.2 -*
+*- intAsig1 := "2.2" -*
+*- intAsig1 := cadena1 -*
+*- intAsig1 := float1 -*
 
-*- floatAsig1 = intAsig1 -*
-*- floatAsig1 = cadena1 -*
-*- floatAsig1 = "cadena1" -*
-*- floatAsig1 = 33 -*
+*- floatAsig1 := intAsig1 -*
+*- floatAsig1 := cadena1 -*
+*- floatAsig1 := "cadena1" -*
+*- floatAsig1 := 33 -*
 
-*- cadena1 = 33 -*
-*- cadena1 = 33.33 -*
-*- cadena1 = intAsig1 -*
-*- cadena1 = float1 -*
+*- cadena1 := 33 -*
+*- cadena1 := 33.33 -*
+*- cadena1 := intAsig1 -*
+*- cadena1 := float1 -*
