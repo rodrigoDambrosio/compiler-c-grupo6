@@ -6,101 +6,11 @@ init {
     a2, b3,y,a,x,e  : Float
 }
 
-*-Ejemplo de duplicacion de variables-*
-
-*- init { -*
-*-     floatAsig1, floatAsig2,float1, float2 : Float -*
-*-     intAsig1, intAsig2,base,var1 : Int -*
-*-     cadena1, cadena2 : String -*
-*-     entero1, entero2,c : Int -*
-*-     a2,a2,a2,a2, b3,y,a,x,e  : Float -*
-*- } -*
-
-*- Prueba expresion -*
-
-entero1:= ((entero2-21*10)/4) * 67
-
-*- entero1:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
-
-*- Asignaciones -*
-
-intAsig1 := 27 - c
-intAsig1 := 500 + c
-intAsig2 := 34 * 3
-intAsig2 := intAsig2 / intAsig2
-
-floatAsig1 := 99999.99
-floatAsig2 := 99.
-floatAsig1 := .9999
-
-
-*- b76 := "@sdADaSjfla%daaaaaaaaaaaaaaaaaaaaaaaaaaaaaafg"-* *- -> Caso error maxima cant de car string-*
-*- a45645 := 965535 -*    *-  -> Caso error rango int -*
-*- a123456 := 34354444444454353454354354.53454354344444444444444444444444445444 -* *-  -> Caso error rango float -*
-
-cadena1 := "asldk"
-cadena2 := "@sdaaaaafafg"
-
-*-init {-*
-*-    a1, b1 : Float-*
-*-}-*
-
-*- Ejemplo con un tipo de dato que no esta definido -*
-*-init { -*
-*-    a1, b1 : FLOTANTE -*
-*- } -*
-
-mientras ( entero1>entero2 OR float2 == float1)
-{
-    escribir("a es mas grande que b")
-    a := a + 1.1
+si (intAsig1 == intAsig2){
+    intAsig1 := 4
 }
 
-si (NOT entero1 == entero2)
-{
-    escribir("a es mas grande que b")
-    a := a + 1.2
-}
-
-si  (float1 > float2 AND entero1>entero2)
-{
-    escribir("a es mas grande que b")
-    entero1 := entero1 + 1
-}
-sino
-{
-    entero1 := entero1 + 50
-
-}
-
-leer(base) *- base es una variable -*
-
-escribir("ewr")  *- “ewr” es una cte string -*
-escribir(var1)  *- var1 es una variable numerica definida previamente -*
-
-x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
-x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
-x = sumaLosUltimos(4; [28, 52])
-
-y = triangulo(x, 1+1, float1)  
-y = triangulo(0, 1/entero1, 0) 
-y = triangulo((32.3+5.2+float2)*float1, 1.6/x, 100) 
-
-float2:= 1.2
-
-*- Casos de prueba de tipos -*
-
-*- intAsig1 := 2.2 -*
-*- intAsig1 := "2.2" -*
-*- intAsig1 := cadena1 -*
-*- intAsig1 := float1 -*
-
-*- floatAsig1 := intAsig1 -*
-*- floatAsig1 := cadena1 -*
-*- floatAsig1 := "cadena1" -*
-*- floatAsig1 := 33 -*
-
-*- cadena1 := 33 -*
-*- cadena1 := 33.33 -*
-*- cadena1 := intAsig1 -*
-*- cadena1 := float1 -*
+a2 := 3.4
+a2 := 4.4
+a2 := 5.4
+a2 := 6.4

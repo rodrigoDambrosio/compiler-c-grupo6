@@ -880,6 +880,8 @@ int main(int argc, char *argv[])
         abrir_archivo_intermedia();
         escribir_tercetos_intermedia();
         fclose(fpIntermedia);
+
+        generar_assembler();
     }
   fclose(yyin);
   return 0;
@@ -1155,10 +1157,10 @@ void guardar_tabla_simbolos()
     while(tabla)
     {
         aux = tabla;
-        if(aux->next == NULL)
-        {
-          break;
-        }
+        // if(aux->next == NULL)
+        // {
+        //   break;
+        // }
         tabla = tabla->next;
 
         if(strcmp(aux->data.tipo, "INTEGER") == 0) 
@@ -1236,4 +1238,277 @@ const char * check_tipo_define(int tipo_int)
     default:
       return "";
   }
+}
+void generar_assembler();
+void trim_end(char * str);
+
+void generar_assembler()
+{
+    FILE* arch_inter;
+    FILE* arch_tabla;
+    FILE* arch_asse;
+    char idWhile[200];
+    int contWhile=0;
+    arch_inter = fopen("intermediate-code.txt","rt");
+    arch_tabla = fopen("symbol-table.txt","rt");
+    arch_asse = fopen("assembler_generated.asm","wt");
+    if(!arch_asse )
+    {
+        printf("Error en el archivo de assembler");
+        return;
+    }
+    if( !arch_tabla )
+    {
+        printf("Error en la apertura de la tabla de simbolos");
+        return;
+    }
+    if( !arch_inter)
+    {
+        printf("Error en la apertura del archivo intermedia");
+        return;
+    }
+    Pila p_ass;
+    Pila p_while;
+    crear_pila(&p_ass);
+    crear_pila(&p_while);
+    fprintf(arch_asse,  "include macros2.asm\n");
+    fprintf(arch_asse,  "include number.asm\n");
+    fprintf(arch_asse, ".MODEL LARGE\n.STACK 200h\n.386\n.DATA\n\n");
+    //Bajo tabla de simbolos en Assembler
+    char linea[1000];
+    fgets(linea, sizeof(linea), arch_tabla); // Para que se saltee la primera linea de la tabla de simbolos
+    while(fgets(linea, sizeof(linea),arch_tabla))
+    {
+        printf("LA LINEA TIENE %s \n\n\n", linea);
+        char nombre[30];
+        char tipo[30];
+        char valor[40];
+        
+        strncpy(nombre, linea, 30);
+        trim_end(nombre);
+        // nombre[30] = '\0';  // Asegurar que la cadena termine con '\0'
+        // printf("EL NOMBRE QUE QUEDA ES %s * \n\n\n", nombre);
+        
+        // Copiar los siguientes 30 caracteres a variable2
+        strncpy(tipo, linea + 30, 30);
+        // tipo[30] = '\0'; 
+        printf("EL TIPO QUE QUEDA ES %s * \n\n\n", tipo);
+        strncpy(valor, linea + 60, 40);
+        // valor[40] = '\0';
+        printf("DATO: Nombre ***** %s ***** Tipo ***** %s ***** Valor ***** %s ***** \n",nombre,tipo,valor);
+        if(strstr(tipo,"STRING") != NULL)
+        {
+          if(valor[0] =='-')
+          {
+              valor[0] = '?';
+              valor[1] = '\0';   
+          }
+          fprintf(arch_asse,"%-20s db\t\t %-30s, \'$\', %s dup (?)\n",nombre,valor,"14");
+        }
+        else // todo VER COMO HAGO CON EL VALOR DE LAS CTES
+        {
+            if(strcmp(tipo,"FLOAT")==0 && strcmp(tipo,"INTEGER")==0 && strcmp(tipo,"STRING")==0)
+            {
+                  if( strlen(valor)>1 && valor[0] =='-')
+                  {
+                      valor[0] = '?';
+                      valor[1] = '\0';
+                  }
+                  fprintf(arch_asse,"%-20s dd\t\t %-30s\n",nombre,valor);
+            }
+            else{
+                if( strlen(valor)>1 && valor[0] =='-')
+                {
+                    valor[0] = '?';
+                    valor[1] = '\0';
+                }
+                fprintf(arch_asse,"%-20s dd\t\t ?\n",nombre,valor);
+            }
+           
+        }
+    }
+    
+    fprintf(arch_asse,  "\n.CODE");
+    fprintf(arch_asse,  "\nMOV EAX,@DATA");
+    fprintf(arch_asse,  "\nMOV DS,EAX");
+    fprintf(arch_asse,  "\nMOV ES,EAX;\n\n");
+    char st[40];
+    int operacion = 0;
+    char et[10];
+
+    while(fgets(linea, sizeof(linea),arch_inter))
+    {
+      char numTerceto[40];
+      //int numTerceto;
+      char posUno[40];
+      char posDos[40];
+      char posTres[40];
+      printf("Linea de intermedia %s\n",linea);
+        
+      // sscanf(linea,"[%s] ( %s ; %s ; %s )",numTerceto,posUno,posDos,posTres);
+      sscanf(linea, "%s ( %s ; %s ; %s )", numTerceto, posUno, posDos, posTres);
+      // printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
+      if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') )
+      {
+        printf("ANTES ENTRE ACA \n\n");
+        apilar(&p_ass, posUno, sizeof(posUno));
+      }
+      if(strcmp(":=",posUno) == 0 )
+      {
+        printf("ST TIENE :::::::: %s \n\n",st);
+        strcpy(st, desapilar(&p_ass));
+        printf("ST TIENE AHORA :::::::: %s \n\n",st);
+
+        if(operacion == 0)
+        {
+          fprintf(arch_asse,"FLD %s\n",st);  
+          strcpy(st, desapilar(&p_ass));
+        }
+        fprintf(arch_asse,"FSTP %s\n",st);  
+        operacion = 0;   
+      }
+      if(strcmp("+",posUno) == 0 ){
+          strcpy(st, desapilar(&p_ass));   
+          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));   
+          fprintf(arch_asse,"FLD %s\n",st);
+          fprintf(arch_asse,"FADD\n");
+          operacion = 1;
+      }
+      
+      if(strcmp("-",posUno) == 0 )
+      {
+          strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+          fprintf(arch_asse,"FSUB\n");
+          operacion = 1;
+      }
+    
+      if(strcmp("/",posUno) == 0 )
+      {
+          strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+          fprintf(arch_asse,"FDIV\n");
+          operacion = 1;
+      }
+    
+      if(strcmp("*",posUno) == 0 )
+      {
+          strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+            strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st);
+          fprintf(arch_asse,"FMUL\n");
+          operacion = 1;
+      }
+      if(strcmp("CMP",posUno) == 0 )
+      {
+          strcpy(st, desapilar(&p_ass)); 
+          fprintf(arch_asse,"FLD %s\n",st);
+            strcpy(st, desapilar(&p_ass));      
+          fprintf(arch_asse,"FLD %s\n",st); 
+          fprintf(arch_asse,"FXCH\n"); 
+          fprintf(arch_asse,"FCOM\n");
+          fprintf(arch_asse,"FSTSW AX\n");
+          fprintf(arch_asse,"SAHF\n");
+          fprintf(arch_asse,"FFREE\n");
+      }
+      if(strcmp ("BLE",posUno)==0) 
+      {
+        sscanf(posTres,"%[^ ]",et);
+        fprintf(arch_asse,"JNA %s\n",et);
+      }
+      if(strcmp ("BNE",posUno)==0)
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JNE %s\n",et);
+      }
+      if(strcmp ("BLT",posUno)==0) 
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JB %s\n",et);
+      }
+      if(strcmp ("BGT",posUno)==0) 
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JA %s\n",et);
+      }
+      if(strcmp ("BGE",posUno)==0) 
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JAE %s\n",et);
+      }
+          
+      if(strcmp ("BEQ",posUno)==0) 
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JE %s\n",et);
+      }
+      if(strcmp("BI", posUno) == 0)
+      {
+          sscanf(posTres,"%[^ ]",et);
+          fprintf(arch_asse,"JMP %s\n",et);
+      }
+
+      if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
+          fprintf(arch_asse,"%s\n",posUno);
+      }
+
+      /*
+      //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
+      //Pasaje de etiquetas en assembler
+      
+      // if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
+      //     fprintf(arch_asse,"%s\n",posUno);
+      // }
+      if(strncmp(posUno,"ETIQ_ELSE",9) == 0 ){
+          fprintf(arch_asse,"%s\n",posUno);
+      }
+      if(strncmp(posUno,"InicioCiclo",11) == 0 ){
+          fprintf(arch_asse,"%s\n",posUno);
+      }
+      if(strncmp(posUno,"ETIQ_CICLO",7) == 0 ){
+          fprintf(arch_asse,"%s\n",posUno);
+          fprintf(arch_asse,"FFREE\n");
+      }
+      */
+      printf("\n\n ****************************  Aca?       **************************************\n\n");
+    }
+    printf("\n\n ****************************  SALI      **************************************\n\n");
+    fprintf(arch_asse,  "\nmov ax,4c00h");
+    fprintf(arch_asse,  "\nint 21h");
+    fprintf(arch_asse,  "\nEnd");
+    fclose(arch_inter);
+    fclose(arch_tabla);
+    fclose(arch_asse);
+}
+
+void trim_end(char * str)
+{
+    int index, i;
+
+    /* Set default index */
+    index = -1;
+        // printf("la cosa es !!!!!!!! %s \n\n ", str);
+
+    /* Find last index of non-white space character */
+    i = 0;
+    while(isalpha(str[i]) || str[i] == '_' || isalnum(str[i]) )
+    {
+        printf("LA LETRA ES %c \n\n ", str[i]);
+        if(str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+        {
+            index= i;
+        }
+
+        i++;
+    }
+
+    /* Mark next character to last non-white space character as NULL */
+    str[index + 1] = '\0';
+    printf("\n\n EL STRING QUEDA  %s * \n\n\n",str);
 }
