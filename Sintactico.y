@@ -1155,10 +1155,10 @@ void guardar_tabla_simbolos()
     while(tabla)
     {
         aux = tabla;
-        if(aux->next == NULL)
-        {
-          break;
-        }
+        // if(aux->next == NULL)
+        // {
+        //   break;
+        // }
         tabla = tabla->next;
 
         if(strcmp(aux->data.tipo, "INTEGER") == 0) 
