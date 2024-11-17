@@ -1,16 +1,15 @@
 init {
-    floatAsig1, floatAsig2,float1, float2 : Float
-    intAsig1, intAsig2,base,var1 : Int
-    cadena1, cadena2 : String
-    entero1, entero2,c : Int
-    a2, b3,y,a,x,e  : Float
+    floatAsig1 : Float
+    intAsig1 : Int
+    cadena1 : String
+    a2  : Float
 }
 
-si (intAsig1 == intAsig2){
+si (intAsig1 == intAsig1){
     intAsig1 := 4
 }
+sino {
+    cadena1 := "ACA TENGO ELSE"
+}
 
-a2 := 3.4
-a2 := 4.4
-a2 := 5.4
-a2 := 6.4
+cadena1 := "A2"

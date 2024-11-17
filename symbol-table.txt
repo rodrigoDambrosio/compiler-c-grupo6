@@ -1,25 +1,8 @@
 NOMBRE                        TIPODATO                      VALOR                                   LONGITUD                      
 floatAsig1                    FLOAT                         --                                      
-floatAsig2                    FLOAT                         --                                      
-float1                        FLOAT                         --                                      
-float2                        FLOAT                         --                                      
 intAsig1                      INTEGER                       --                                      
-intAsig2                      INTEGER                       --                                      
-base                          INTEGER                       --                                      
-var1                          INTEGER                       --                                      
 cadena1                       STRING                        --                                      
-cadena2                       STRING                        --                                      
-entero1                       INTEGER                       --                                      
-entero2                       INTEGER                       --                                      
-c                             INTEGER                       --                                      
 a2                            FLOAT                         --                                      
-b3                            FLOAT                         --                                      
-y                             FLOAT                         --                                      
-a                             FLOAT                         --                                      
-x                             FLOAT                         --                                      
-e                             FLOAT                         --                                      
 _4                            CTE_INT                       4                                       1
-_3.40                         CTE_FLOAT                     3.40                                    5
-_4.40                         CTE_FLOAT                     4.40                                    5
-_5.40                         CTE_FLOAT                     5.40                                    5
-_6.40                         CTE_FLOAT                     6.40                                    5
+_ACA TENGO ELSE               CTE_STR                       ACA TENGO ELSE                          16
+_ACA TENGO ELSEA2A TENGO ELSE CTE_STR                       A2A TENGO ELSE                          4

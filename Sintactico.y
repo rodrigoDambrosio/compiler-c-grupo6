@@ -55,6 +55,8 @@ int tipo_expresion = -1;
 int tipo_termino = -1;
 int tipo_expresion_izq =-1;
 int tipo_asig_u =-1;
+int fueOr = 0;
+int et_inicio_while_count =1;
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -281,32 +283,72 @@ si:
     while(!es_pila_vacia(pilaComparacion))
     {
         char* t = (char *) desapilar(pilaComparacion);
-        escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
+        //escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
+        //Cambio ET
+        escribirTercetoActualEnAnterior_etiqueta(tercetosCreados,atoi(t),"ETIQ_IF");
     }
+    char resultado[50]; 
+    sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
+    crear_terceto(resultado,"_","_",tercetosCreados);
   }
+  // IF ELSE
   | IF PA condicion PC LA instrucciones LC 
   {
     // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
     // printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
     // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",aux_terceto_if_else);
+    
+    // char et_1[50]; 
+    // sprintf(et_1, "ETIQ_IF%d", tercetosCreados);
+    // printf("\n\n\n ------------- %s %d ----------------- \n\n\n",et_1, tercetosCreados);
     saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
+    // DEBERIA SER ASI
+    // [8] ( BI ; _ ; [12] ) 
+    // [8] ( BI ; _ ; ETIF12 ) 
+    // Se a donde saltar al final del else
     aux_terceto_if_else = tercetosCreados;
   }
   ELSE LA instrucciones LC 
   {
     printf("ES CONDICION SINO \n");
+    // printf("\n\n\nEL TERCETO ACTUAL ES %d \n", tercetosCreados);
+    //       getchar();
+
      while(!es_pila_vacia(pilaComparacion))
      {
         dato_tope = (char *) desapilar(pilaComparacion);
-        // printf("tope pila ------> %s\n", dato_tope);
-        escribir_terceto_actual_en_anterior(aux_terceto_if_else,atoi(dato_tope));
+        // esto esta ok
+        // printf("\n\n\ntope pila ------> %s nro actual -----> %d\n\n\n\n", dato_tope, tercetosCreados);
+        // escribir_terceto_actual_en_anterior(aux_terceto_if_else,atoi(dato_tope));
+        // int tercetoAEscribir,int tercetoBuscado
+        
+        printf("\nTENGO EL QUE PONER DONDE ESTA EL ELSE (%d) EN LA COND DEL IF EN (%d) \n",aux_terceto_if_else,atoi(dato_tope));
+        getchar();
+        // void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
+        escribirTercetoActualEnAnterior_etiqueta(aux_terceto_if_else,atoi(dato_tope), "ETIQ_IF");
+        
+        // char resultado[50]; 
+        // sprintf(resultado, "ETIQ_IF%d", aux_terceto_if_else);
+        // crear_terceto(resultado,"_","_",tercetosCreados);
+
+        // saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
+
         // test_int =atoi(dato_tope);
      }
           // printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
           // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
           // printf("\n \n \n ESTO ES EL TERCETO ACTUAL %d \n \n \n",tercetosCreados);
 
-      escribir_terceto_actual_en_anterior(tercetosCreados,saltoFinElse);
+      // crear_terceto(resultado,"_","_",tercetosCreados);
+      printf("\nTENGO EL QUE PONER EL FIN DEL ELSE (%d) EN %d \n",tercetosCreados,saltoFinElse);
+      // printf("\nTENGO EL QUE PONER EL FIN DEL ELSE STRINGS (%s) EN %s \n",que_guardo,a_donde_guardo);
+
+      // void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
+      getchar();
+      escribirTercetoActualEnAnterior_etiqueta(tercetosCreados,saltoFinElse, "ETIQ_IF");
+      
+      // ok abajo
+      // escribir_terceto_actual_en_anterior(tercetosCreados,saltoFinElse);
   }
 ;
 
@@ -314,24 +356,31 @@ mientras:
   WHILE PA 
   {
     // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
-    mientrasInd = crear_terceto("InicioMientras","_","_",tercetosCreados); 
+    char et_inicio[50]; 
+    sprintf(et_inicio, "InicioMientras%d", tercetosCreados);
+    mientrasInd = crear_terceto(et_inicio,"_","_",tercetosCreados);
+    et_inicio_while_count++; 
     apilar_nro_terceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
-  } condicion PC 
-  {
-      // Aca cuando es un OR o AND me esta faltando escribir el nro de terceto del salto de la primera condicion?
-  }
+  } condicion PC // Aca cuando es un OR o AND me esta faltando escribir el nro de terceto del salto de la primera condicion?
   LA instrucciones LC 
   {
     // Aca ya se cuantos tercetos tengo que dejar
     int t = desapilar_nro_terceto(); // Aca debería tener el nro del terceto inicial del while
     char auxT [LONG_TERCETO]; 
-    escribir_terceto_actual_en_anterior(tercetosCreados+1,t);
+    // escribir_terceto_actual_en_anterior(tercetosCreados+1,t);
+    escribirTercetoActualEnAnterior_etiqueta(tercetosCreados+1,t,"ETIQ_CICLO");
     t = desapilar_nro_terceto(); 
     sprintf(auxT,"[%d]",mientrasInd);
     crear_terceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
     // printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
-    escribir_terceto_actual_en_anterior(tercetosCreados,aux_comp);
+    // escribir_terceto_actual_en_anterior(tercetosCreados,aux_comp);
+    char resultado[50]; 
+    sprintf(resultado, "ETIQ_CICLO%d", tercetosCreados);
+    mientrasInd=crear_terceto(resultado,"_","_",tercetosCreados);
     printf("ES UN MIENTRAS\n");
+    // Tengo que ver de ponerle algo mas a la etiqueta de inicio de ciclo porque no permitiria varios
+    printf("\n RESULTADO %s \n\n",resultado);
+    // crear_terceto(resultado,"","",tercetosCreados);
   }
 ;
 
@@ -1283,32 +1332,41 @@ void generar_assembler()
         char nombre[30];
         char tipo[30];
         char valor[40];
-        
+        char longitud[30];
+        // Tengo que conseguir las 3 cosas: nombre, tipo y valor (si es cte)
         strncpy(nombre, linea, 30);
-        trim_end(nombre);
-        // nombre[30] = '\0';  // Asegurar que la cadena termine con '\0'
-        // printf("EL NOMBRE QUE QUEDA ES %s * \n\n\n", nombre);
-        
-        // Copiar los siguientes 30 caracteres a variable2
+        trim_end(nombre);        
+
         strncpy(tipo, linea + 30, 30);
-        // tipo[30] = '\0'; 
-        printf("EL TIPO QUE QUEDA ES %s * \n\n\n", tipo);
+        trim_end(tipo);
+
         strncpy(valor, linea + 60, 40);
-        // valor[40] = '\0';
-        printf("DATO: Nombre ***** %s ***** Tipo ***** %s ***** Valor ***** %s ***** \n",nombre,tipo,valor);
-        if(strstr(tipo,"STRING") != NULL)
+        trim_end(valor);
+
+        strncpy(longitud, linea + 100, 10);
+        trim_end(longitud);
+
+        printf("\nDATO: Nombre ***** %s ***** \n",nombre);
+        printf("\nDATO: Tipo ***** %s ***** \n",tipo);
+        printf("\nDATO: ***** Valor ***** %s ***** \n",valor);
+        printf("\nDATO: ***** LONGITUD ***** %s ***** \n",longitud);
+
+        if(strcmp(tipo,"CTE_STR") == 0)
         {
           if(valor[0] =='-')
           {
               valor[0] = '?';
               valor[1] = '\0';   
           }
-          fprintf(arch_asse,"%-20s db\t\t %-30s, \'$\', %s dup (?)\n",nombre,valor,"14");
+          fprintf(arch_asse,"%-20s db\t\t \"%s\", \'$\', %s dup (?)\n",nombre,valor,longitud);
         }
         else // todo VER COMO HAGO CON EL VALOR DE LAS CTES
         {
-            if(strcmp(tipo,"FLOAT")==0 && strcmp(tipo,"INTEGER")==0 && strcmp(tipo,"STRING")==0)
+            printf("\n\n _______________________________________ ENTRO _________________________________ \n");
+            if(strcmp(tipo,"CTE_FLOAT")==0 || strcmp(tipo,"CTE_INT")==0)
             {
+                 printf("\n\n ============== ENTRO ES UNA VARIABLE SET 3 ============== \n");
+
                   if( strlen(valor)>1 && valor[0] =='-')
                   {
                       valor[0] = '?';
@@ -1316,7 +1374,8 @@ void generar_assembler()
                   }
                   fprintf(arch_asse,"%-20s dd\t\t %-30s\n",nombre,valor);
             }
-            else{
+            else
+            {
                 if( strlen(valor)>1 && valor[0] =='-')
                 {
                     valor[0] = '?';
@@ -1350,14 +1409,14 @@ void generar_assembler()
       // printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
       if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') )
       {
-        printf("ANTES ENTRE ACA \n\n");
+        // printf("ANTES ENTRE ACA \n\n");
         apilar(&p_ass, posUno, sizeof(posUno));
       }
       if(strcmp(":=",posUno) == 0 )
       {
-        printf("ST TIENE :::::::: %s \n\n",st);
+        // printf("ST TIENE :::::::: %s \n\n",st);
         strcpy(st, desapilar(&p_ass));
-        printf("ST TIENE AHORA :::::::: %s \n\n",st);
+        // printf("ST TIENE AHORA :::::::: %s \n\n",st);
 
         if(operacion == 0)
         {
@@ -1457,28 +1516,25 @@ void generar_assembler()
       if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
           fprintf(arch_asse,"%s\n",posUno);
       }
-
-      /*
-      //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
-      //Pasaje de etiquetas en assembler
-      
-      // if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
+      // if(strncmp(posUno,"ETIQ_ELSE",9) == 0 ){
       //     fprintf(arch_asse,"%s\n",posUno);
       // }
-      if(strncmp(posUno,"ETIQ_ELSE",9) == 0 ){
-          fprintf(arch_asse,"%s\n",posUno);
-      }
-      if(strncmp(posUno,"InicioCiclo",11) == 0 ){
+      //WHILE
+      if(strncmp(posUno,"InicioMientras",14) == 0 ){
           fprintf(arch_asse,"%s\n",posUno);
       }
       if(strncmp(posUno,"ETIQ_CICLO",7) == 0 ){
           fprintf(arch_asse,"%s\n",posUno);
           fprintf(arch_asse,"FFREE\n");
       }
+      /*
+      //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
+      //Pasaje de etiquetas en assembler
+      
       */
-      printf("\n\n ****************************  Aca?       **************************************\n\n");
+      // printf("\n\n ****************************  Aca?       **************************************\n\n");
     }
-    printf("\n\n ****************************  SALI      **************************************\n\n");
+    // printf("\n\n ****************************  SALI      **************************************\n\n");
     fprintf(arch_asse,  "\nmov ax,4c00h");
     fprintf(arch_asse,  "\nint 21h");
     fprintf(arch_asse,  "\nEnd");
@@ -1497,9 +1553,9 @@ void trim_end(char * str)
 
     /* Find last index of non-white space character */
     i = 0;
-    while(isalpha(str[i]) || str[i] == '_' || isalnum(str[i]) )
+    while(isalpha(str[i]) || str[i] == '_' || isalnum(str[i]) || str[i] == '.' )
     {
-        printf("LA LETRA ES %c \n\n ", str[i]);
+        // printf("LA LETRA ES %c \n\n ", str[i]);
         if(str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
         {
             index= i;
@@ -1510,5 +1566,65 @@ void trim_end(char * str)
 
     /* Mark next character to last non-white space character as NULL */
     str[index + 1] = '\0';
-    printf("\n\n EL STRING QUEDA  %s * \n\n\n",str);
+    // printf("\n\n EL STRING QUEDA  %s * \n\n\n",str);
+}
+
+void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
+
+void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta)
+{
+    t_cola  aux;
+    crear_cola(&aux);
+    t_Terceto terceto;
+    printf("\n\n\n a escribir %d a donde %d \n\n\n",tercetoAEscribir,tercetoBuscado);
+    getchar();
+    while(!cola_vacia(&colaTercetos))
+    {
+      printf("\n\n\n\n EL TERCETO %d",terceto.numTerceto);
+        sacar_de_cola(&colaTercetos,&terceto,sizeof(terceto));
+        if(terceto.numTerceto == tercetoBuscado){
+            
+            printf("\n\n\n\n EL TERCETO %d",tercetoBuscado);
+            getchar();
+
+            int flag = 0;
+            if(fueOr == 1){
+                    if(strcmp ("BNE",terceto.posUno)==0 && flag != 1) {
+                        flag = 1;
+                       strcpy(terceto.posUno, "BEQ\0");                          
+                    }                        
+                    if(strcmp ("BLT",terceto.posUno)==0 && flag != 1) {
+                         flag = 1;
+                        strcpy(terceto.posUno, "BGE\0");        
+                    }
+                    if(strcmp ("BLE",terceto.posUno)==0  && flag != 1) {
+                      strcpy(terceto.posUno, "BGT\0");        
+                     flag = 1;
+                    }
+                    if(strcmp ("BGT",terceto.posUno)==0  && flag != 1) {
+                        strcpy(terceto.posUno, "BLE\0");        
+                    flag = 1;
+                    }       
+                    if(strcmp ("BGE",terceto.posUno)==0  && flag != 1) {
+                       strcpy(terceto.posUno, "BLT\0"); 
+                    flag = 1;                                  
+                    }
+                        
+                    if(strcmp ("BEQ",terceto.posUno)==0  && flag != 1) {
+                        strcpy(terceto.posUno, "BNE\0");
+                    flag = 1;                                
+                    }
+            }
+                char nueComponente [LONG_TERCETO];
+                sprintf( nueComponente, "%s%d",etiqueta,tercetoAEscribir);
+                printf("\n\n\n\n ME VA A QUEDAR %s \n\n\n", nueComponente);
+                            getchar();
+
+                strcpy(terceto.posTres, nueComponente);
+        }
+        poner_en_cola(&aux,&terceto,sizeof(terceto));
+    }
+    
+    colaTercetos=aux;
+    // printf("Entro a escribirTAE3  %d\n",tercetoBuscado);
 }
