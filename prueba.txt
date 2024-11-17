@@ -9,13 +9,5 @@ si (intAsig1 == intAsig1){
     intAsig1 := 4
 }
 sino {
-    intAsig1 := 2 + intAsig1
+    intAsig1 := 7
 }
-
-cadena1 := "final_de"
-
-mientras(intAsig1 == intAsig1){
-    intAsig1 := 4
-}
-
-cadena1 := "the_end"

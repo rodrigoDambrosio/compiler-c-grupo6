@@ -1385,6 +1385,7 @@ void generar_assembler()
     fprintf(arch_asse,  "\nMOV EAX,@DATA");
     fprintf(arch_asse,  "\nMOV DS,EAX");
     fprintf(arch_asse,  "\nMOV ES,EAX;\n\n");
+    fprintf(arch_asse,  "\nSTART:\n\n");
     char st[40];
     int operacion = 0;
     char et[10];
@@ -1526,7 +1527,7 @@ void generar_assembler()
 
     fprintf(arch_asse,  "\nmov ax,4c00h");
     fprintf(arch_asse,  "\nint 21h");
-    fprintf(arch_asse,  "\nEnd");
+    fprintf(arch_asse,  "\nEnd START");
     fclose(arch_inter);
     fclose(arch_tabla);
     fclose(arch_asse);
