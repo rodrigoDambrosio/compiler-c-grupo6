@@ -5,9 +5,6 @@ init {
     a2  : Float
 }
 
-si (intAsig1 == intAsig1){
+mientras (intAsig1 == intAsig1){
     intAsig1 := 4
-}
-sino {
-    intAsig1 := 7
 }

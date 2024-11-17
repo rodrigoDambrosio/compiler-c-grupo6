@@ -232,7 +232,7 @@ lista_asignacion :
           {
                   for(i=0;i<cant_id;i++)
 									{
-                    printf("VARIABLE :::::: %s \n\n\n\n",t_ids[i].cadena);
+                    // printf("VARIABLE :::::: %s \n\n\n\n",t_ids[i].cadena);
                     verificar_si_ya_existe_en_ts(t_ids[i].cadena);    
 									  insertar_tabla_simbolos(t_ids[i].cadena, tipo_dato, "", 0, 0);
 									}
@@ -340,7 +340,7 @@ si:
         // saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
 
         // test_int =atoi(dato_tope);
-     }
+      }
           // printf("************************************* \n \n \n ACA RECONOCI TODO EL IF ELSE \n \n \n");
           // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
           // printf("\n \n \n ESTO ES EL TERCETO ACTUAL %d \n \n \n",tercetosCreados);
@@ -430,8 +430,8 @@ condicion:
 ;
 
 comparacion: 
-    expresion operador_comparacion {tipo_expresion_izq = tipo_expresion; } expresion 
-      {
+    expresion operador_comparacion { tipo_expresion_izq = tipo_expresion; } expresion 
+    {
                 int tipo_expresion_derecha = tipo_expresion;
                 if(tipo_expresion_izq != tipo_expresion_derecha)
                 {
@@ -457,11 +457,11 @@ comparacion:
 ;
 
 operador_comparacion:
-  OP_MAYOR {strcpy(comparador, "BLE");}
+  OP_MAYOR    {strcpy(comparador, "BLE");}
   | OP_MAYORI {strcpy(comparador, "BLT");};
-  | OP_MEN {strcpy(comparador, "BGE");}
-  | OP_MENI {strcpy(comparador,"BGT");}
-  | OP_IGUAL {strcpy(comparador, "BNE");}
+  | OP_MEN    {strcpy(comparador, "BGE");}
+  | OP_MENI   {strcpy(comparador,"BGT");}
+  | OP_IGUAL  {strcpy(comparador, "BNE");}
   // | OP_NOT_IGUAL {strcpy(comparador, "BNE");}
 
 ;
@@ -582,11 +582,11 @@ termino:
        }
        |termino OP_DIV factor 
        {
-        if(tipo_termino != tipo_factor)
-        {
-           printf("\nSe esta queriendo dividir un %s con un %s\n", check_tipo_define(tipo_termino),check_tipo_define(tipo_factor));
-           yyerror_message("Error de tipos");
-        }
+          if(tipo_termino != tipo_factor)
+          {
+            printf("\nSe esta queriendo dividir un %s con un %s\n", check_tipo_define(tipo_termino),check_tipo_define(tipo_factor));
+            yyerror_message("Error de tipos");
+          }
         // Esto lo agregue por probar algo nuevo, se puede sacar, si se quiere usar habria que mejorar detalles
         // if(constante_aux_int == 0)
         // {
@@ -748,35 +748,35 @@ ultimos:
        }
        else
        {
-      int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
-      insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
-      int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
-      nro_terceto_aux_ultimos = tercetoAux;
-      char auxUltId[LONG_TERCETO];
-      char auxCero[LONG_TERCETO];
+          int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
+          insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
+          int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
+          nro_terceto_aux_ultimos = tercetoAux;
+          char auxUltId[LONG_TERCETO];
+          char auxCero[LONG_TERCETO];
 
-      sprintf(auxUltId,"[%d]",tercetoAux);
-      sprintf(auxCero,"[%d]",ceroAux);
+          sprintf(auxUltId,"[%d]",tercetoAux);
+          sprintf(auxCero,"[%d]",ceroAux);
 
-      ultInd = crear_terceto(":=", auxUltId, auxCero, tercetosCreados);
-   
-      int jUltimos;
-      char* auxTerceto;
-      char auxDesapilado[LONG_TERCETO];
-        for(jUltimos = 0; jUltimos< ultimos_pivote_aux  ; jUltimos++)
-        {
-          auxTerceto = (char*) desapilar(pilaSumarUltimos);
-          // printf("\n %s ------------------------------------ \n", auxTerceto);
-          ultInd = crear_terceto(auxTerceto, "_", "_", tercetosCreados);
+          ultInd = crear_terceto(":=", auxUltId, auxCero, tercetosCreados);
+      
+          int jUltimos;
+          char* auxTerceto;
+          char auxDesapilado[LONG_TERCETO];
+          for(jUltimos = 0; jUltimos< ultimos_pivote_aux  ; jUltimos++)
+          {
+            auxTerceto = (char*) desapilar(pilaSumarUltimos);
+            // printf("\n %s ------------------------------------ \n", auxTerceto);
+            ultInd = crear_terceto(auxTerceto, "_", "_", tercetosCreados);
 
-          char ultIndChar [10];
-          sprintf(ultIndChar,"[%d]",ultInd);
-          ultInd = crear_terceto("+", auxUltId, ultIndChar, tercetosCreados);
+            char ultIndChar [10];
+            sprintf(ultIndChar,"[%d]",ultInd);
+            ultInd = crear_terceto("+", auxUltId, ultIndChar, tercetosCreados);
 
-          char aux_ult_asig [10];
-          sprintf(aux_ult_asig,"[%d]",ultInd);
-          ultInd = crear_terceto(":=", auxUltId, aux_ult_asig, tercetosCreados);
-        }    
+            char aux_ult_asig [10];
+            sprintf(aux_ult_asig,"[%d]",ultInd);
+            ultInd = crear_terceto(":=", auxUltId, aux_ult_asig, tercetosCreados);
+          }    
       }
       // Asignacion final del aux al ID inicial de la sentencia
       char id_string_aux [10];
@@ -910,7 +910,6 @@ int main(int argc, char *argv[])
     if((yyin = fopen(argv[1], "rt"))==NULL)
     {
         printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
-       
     }
     else
     { 
@@ -986,9 +985,9 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
             }
       }
       if(tabla->next == NULL)
-        {
-            break;
-        }
+      {
+          break;
+      }
       tabla = tabla->next;
     }
 
@@ -1028,11 +1027,11 @@ int verificar_si_ya_existe_en_ts(const char *nombre)
   while(tabla)
     { 
         // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
-        if(strcmp(tabla->data.nombre, nombre) == 0)
-        {
-          printf("La variable %s ya fue previamente declarada \n", nombre);
-          yyerror_message("VARIABLE PREVIAMENTE DECLARADA");
-        }
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+        printf("La variable %s ya fue previamente declarada \n", nombre);
+        yyerror_message("VARIABLE PREVIAMENTE DECLARADA");
+      }
       if(tabla->next == NULL)
       {
         break;
@@ -1048,11 +1047,11 @@ int verificar_si_falta_en_ts(const char *nombre)
   while(tabla)
     { 
         // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
-        if(strcmp(tabla->data.nombre, nombre) == 0)
-        {
-          printf("La variable %s ya fue previamente declarada \n", nombre);
-          return 0;
-        }
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+        printf("La variable %s ya fue previamente declarada \n", nombre);
+        return 0;
+      }
       if(tabla->next == NULL)
       {
         break;
@@ -1462,7 +1461,7 @@ void generar_assembler()
       {
           strcpy(st, desapilar(&p_ass)); 
           fprintf(arch_asse,"FLD %s\n",st);
-            strcpy(st, desapilar(&p_ass));      
+          strcpy(st, desapilar(&p_ass));      
           fprintf(arch_asse,"FLD %s\n",st); 
           fprintf(arch_asse,"FXCH\n"); 
           fprintf(arch_asse,"FCOM\n");
@@ -1515,14 +1514,15 @@ void generar_assembler()
           fprintf(arch_asse,"%s:\n",posUno);
       }
       if(strncmp(posUno,"ETIQ_CICLO",7) == 0 ){
-          fprintf(arch_asse,"%s\n",posUno);
+          fprintf(arch_asse,"%s:\n",posUno);
           fprintf(arch_asse,"FFREE\n");
       }
       
       //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //Pasaje de etiquetas en assembler
       //TODO: Floats y string en assembler
-      //TODO: WHILE
+      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler)
+      //TODO: WHILE, check por las dudas
     }
 
     fprintf(arch_asse,  "\nmov ax,4c00h");

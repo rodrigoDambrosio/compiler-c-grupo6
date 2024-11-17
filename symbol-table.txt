@@ -4,4 +4,3 @@ intAsig1                      INTEGER                       --
 cadena1                       STRING                        --                                      
 a2                            FLOAT                         --                                      
 _4                            CTE_INT                       4                                       4
-_7                            CTE_INT                       7                                       7
