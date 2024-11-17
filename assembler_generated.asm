@@ -12,6 +12,7 @@ a2                   dd		 ?
 _4                   dd		 4                             
 _2                   dd		 2                             
 _final_de            db		 "final_de", '$', 8 dup (?)
+_the_ende            db		 "the_ende", '$', 8 dup (?)
 
 .CODE
 MOV EAX,@DATA
@@ -35,7 +36,9 @@ FLD 2
 FADD
 FSTP intAsig1
 ETIQ_IF15:
-InicioMientras16
+FLD "final_de"
+FSTP cadena1
+InicioMientras19:
 FLD intAsig1
 FLD intAsig1
 FXCH
@@ -43,13 +46,13 @@ FCOM
 FSTSW AX
 SAHF
 FFREE
-JNE ETIQ_CICLO25
+JNE ETIQ_CICLO28
 FLD 4
 FSTP intAsig1
-JMP [16]
-ETIQ_CICLO25:
+JMP InicioMientras19
+ETIQ_CICLO28
 FFREE
-FLD "final_de"
+FLD "the_end"
 FSTP cadena1
 
 mov ax,4c00h

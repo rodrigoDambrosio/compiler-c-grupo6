@@ -57,7 +57,7 @@ int tipo_expresion_izq =-1;
 int tipo_asig_u =-1;
 int fueOr = 0; // TODO:Revisar nombre
 int et_inicio_while_count =1;
-
+char aux_et_inicio[50]; 
 // TODO: mover
 void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
 void generar_assembler();
@@ -365,9 +365,9 @@ mientras:
   WHILE PA 
   {
     // Creo este terceto que va a ser el inicial al que va a retornar si la condicion se sigue cumpliendo
-    char et_inicio[50]; 
-    sprintf(et_inicio, "InicioMientras%d", tercetosCreados);
-    mientrasInd = crear_terceto(et_inicio,"_","_",tercetosCreados);
+    // char et_inicio[50]; 
+    sprintf(aux_et_inicio, "InicioMientras%d", tercetosCreados);
+    mientrasInd = crear_terceto(aux_et_inicio,"_","_",tercetosCreados);
     et_inicio_while_count++; 
     apilar_nro_terceto(mientrasInd); // Lo apilo para despues tenerlo para el branch incondicional
   } condicion PC LA instrucciones LC // Aca cuando es un OR o AND me esta faltando escribir el nro de terceto del salto de la primera condicion?
@@ -378,8 +378,12 @@ mientras:
     // escribir_terceto_actual_en_anterior(tercetosCreados+1,t);
     escribirTercetoActualEnAnterior_etiqueta(tercetosCreados+1,t,"ETIQ_CICLO");
     t = desapilar_nro_terceto(); 
-    sprintf(auxT,"[%d]",mientrasInd);
-    crear_terceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
+   
+    // sprintf(auxT,"[%d]",mientrasInd);
+    crear_terceto("BI","_",aux_et_inicio,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
+
+    // sprintf(auxT,"[%d]",mientrasInd);
+    // crear_terceto("BI","_",auxT,tercetosCreados); // Este es el salto incondicional para ir al principio y checkear la condicion de nuevo
     // printf("\n\n\n ---------- Voy a escribir en --> %d el valor ---> %d" , aux_comp, tercetosCreados);
     // escribir_terceto_actual_en_anterior(tercetosCreados,aux_comp);
     char resultado[50]; 
@@ -1507,7 +1511,7 @@ void generar_assembler()
       }
       //WHILE
       if(strncmp(posUno,"InicioMientras",14) == 0 ){
-          fprintf(arch_asse,"%s\n",posUno);
+          fprintf(arch_asse,"%s:\n",posUno);
       }
       if(strncmp(posUno,"ETIQ_CICLO",7) == 0 ){
           fprintf(arch_asse,"%s\n",posUno);
