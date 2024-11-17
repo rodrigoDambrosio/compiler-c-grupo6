@@ -7,9 +7,11 @@ init {
 
 si (intAsig1 == intAsig1){
     intAsig1 := 4
+    cadena1 := "A2"
 }
 sino {
-    cadena1 := "ACA TENGO ELSE"
+    cadena1 := "ELSE"
+    floatAsig1 := 2.6
 }
 
-cadena1 := "A2"
+cadena1 := "not_like_us"

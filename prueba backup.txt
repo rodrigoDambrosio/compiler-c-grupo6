@@ -83,8 +83,8 @@ x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
 x = sumaLosUltimos(4; [28, 52])
 
 y = triangulo(x, 1+1, float1)  
-y = triangulo(0, 1/float1, 0) 
-y = triangulo((32+5+float2)*float1, 1/x, 100) 
+y = triangulo(0, 1.5/float1, 0) 
+y = triangulo((32.3+5.5+float2)*float1, 1.78/x, 100) 
 
 float2:= 1.2
 

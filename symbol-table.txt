@@ -3,6 +3,8 @@ floatAsig1                    FLOAT                         --
 intAsig1                      INTEGER                       --                                      
 cadena1                       STRING                        --                                      
 a2                            FLOAT                         --                                      
-_4                            CTE_INT                       4                                       1
-_ACA TENGO ELSE               CTE_STR                       ACA TENGO ELSE                          16
-_ACA TENGO ELSEA2A TENGO ELSE CTE_STR                       A2A TENGO ELSE                          4
+_4                            CTE_INT                       4                                       4
+_A2                           CTE_STR                       A2                                      2
+_ELSE                         CTE_STR                       ELSE                                    4
+_2.60                         CTE_FLOAT                     2.60                                    2.60
+_not_like_us                  CTE_STR                       not_like_us                             11
