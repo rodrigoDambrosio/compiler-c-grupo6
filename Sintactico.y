@@ -1407,7 +1407,6 @@ void generar_assembler()
         // printf("ST TIENE :::::::: %s \n\n",st);
         strcpy(st, desapilar(&p_ass));
         // printf("ST TIENE AHORA :::::::: %s \n\n",st);
-        // TODO: cuentas
         if(operacion == 0)
         {
           fprintf(arch_asse,"FLD %s\n",st);  
@@ -1504,7 +1503,7 @@ void generar_assembler()
       }
 
       if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
-          fprintf(arch_asse,"%s\n",posUno);
+          fprintf(arch_asse,"%s:\n",posUno);
       }
       //WHILE
       if(strncmp(posUno,"InicioMientras",14) == 0 ){
@@ -1517,7 +1516,8 @@ void generar_assembler()
       
       //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //Pasaje de etiquetas en assembler
-      
+      //TODO: Floats y string en assembler
+      //TODO: WHILE
     }
 
     fprintf(arch_asse,  "\nmov ax,4c00h");
