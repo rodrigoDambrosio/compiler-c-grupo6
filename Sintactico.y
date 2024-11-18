@@ -1468,10 +1468,10 @@ void generar_assembler()
     }
     
     fprintf(arch_asse,  "\n.CODE");
+    fprintf(arch_asse,  "\nSTART:\n");
     fprintf(arch_asse,  "\nMOV EAX,@DATA");
     fprintf(arch_asse,  "\nMOV DS,EAX");
     fprintf(arch_asse,  "\nMOV ES,EAX;\n\n");
-    fprintf(arch_asse,  "\nSTART:\n\n");
     char st[40];
     int operacion = 0;
     char et[10];
@@ -1652,8 +1652,8 @@ void generar_assembler()
       }
       //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //TODO: Floats y string en assembler
-      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) casi WIP
-      //TODO: WHILE, check por las dudas
+      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) -> DONE
+      //TODO: WHILE parece ok -> DONE
       //TODO: Check cuentas que de verdad sume
     }
 
