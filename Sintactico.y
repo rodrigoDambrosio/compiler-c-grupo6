@@ -11,7 +11,8 @@
 #define T_ENTERO 10
 #define T_FLOAT 20
 #define T_STRING 30
-
+#define TRUE 1
+#define FALSE 0
 int yystopparser=0;
 FILE  *yyin;
 
@@ -135,10 +136,9 @@ int saltoFinElse = 0;
 int auxPrimerLado = 0, 
 auxSegundoLado = 0, 
 auxTercerLado = 0;
-char comparador[4];
-char ultimoTipo[15]="PRI"; // TODO: Sacar variables que no se usan
+int contador_et_escribir = 1;
+char comparador[4]; // TODO: Sacar variables que no se usan
 
-// int test_int=0;
 int ultimos_pivote_aux=0;
 int contador_elementos_sumar_ult = 0;
 t_nombresId t_ids[10];
@@ -703,17 +703,23 @@ leer :
 ;
 
 escribir:
-    ESCRIBIR PA CTE_STRING {
-      escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
+    ESCRIBIR PA CTE_STRING 
+    {
+      char et_escribir_aux[25];
+      sprintf(et_escribir_aux,"ET_ESCRIBIR%d",contador_et_escribir);
+      contador_et_escribir++;
+      escribirIndice = crear_terceto(et_escribir_aux, $3, "_", tercetosCreados);
       printf("\n\n\n *** Se ejecuta ESCRIBIR con la CTE: %s \n", $3);
-      // REVISAR TS ACA, NO VOLVI A PROBAR
-      // insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0); // SE MANDA POR AHORA CON ESTE TIPO, PODRIA SER CUALQUIERA
-    }PC 
-    
+      insertar_tabla_simbolos($3, "CTE_STR", $3, 1, 0);
+    }
+    PC 
     | ESCRIBIR PA ID PC
     {
       verificar_si_falta_en_ts($3);
-      escribirIndice = crear_terceto("ESCRIBIR", $3, "_", tercetosCreados);
+      char et_escribir_aux[25];
+      sprintf(et_escribir_aux,"ET_ESCRIBIR%d",contador_et_escribir);
+      contador_et_escribir++;
+      escribirIndice = crear_terceto(et_escribir_aux, $3, "_", tercetosCreados);
       printf("\n\n\n *** Se ejecuta ESCRIBIR con la variable: %s \n", $3);
     }
 ;
@@ -1119,6 +1125,68 @@ const char * check_tipo_variable_ts(const char *nombre,const char *tipo,
   yyerror_message("Variable no declarada");
   return "";
 }
+int check_es_cte_columna_valor(const char *nombre);
+int check_es_cte_columna_valor(const char *nombre)
+{    
+
+  t_simbolo *tabla = tabla_simbolos.primero;
+  // printf("\n\n\n\n\n quiero ver que es -%s- primero tengo %s \n\n\n\n\n\n\n\n",nombre, por_las_dudas->data.nombre);
+  // getchar();
+  while(tabla)
+  { 
+      // printf("\n\n\n\n\n WHILE -%s- SE COMPARA CONTRA valor %s el name es %s \n\n\n\n\n\n\n\n",nombre, tabla->data.valor.valor_var_str,tabla->data.nombre);
+      // getchar();
+      // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+      if(tabla->data.valor.valor_var_str != NULL && strcmp(tabla->data.valor.valor_var_str, nombre) == 0)
+      {
+          // printf("\n\n\n\n\n VARIABLE DECLARADA -%s- \n\n\n\n\n\n\n\n",tabla->data.nombre);
+          // getchar();
+          return TRUE;
+      }    
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+  }
+  // printf("\n\n\n\n\n VARIABLE NO DECLARADA ENTONCES ES UNA CTE -%s- \n\n\n\n\n\n\n\n",nombre);
+  // getchar();
+  // char resultado[50]; 
+  // sprintf(resultado, "_%s", nombre);
+  // printf("\n\n\n\n\n devuelvo entonces -%s- \n\n\n\n\n\n\n\n",resultado);
+  return FALSE;
+} 
+const char * check_es_cte(const char *nombre);
+const char * check_es_cte(const char *nombre)
+{    
+
+  t_simbolo *tabla = tabla_simbolos.primero;
+  // printf("\n\n\n\n\n quiero ver que es -%s- primero tengo %s \n\n\n\n\n\n\n\n",nombre, por_las_dudas->data.nombre);
+  // getchar();
+  while(tabla)
+  { 
+    // printf("\n\n\n\n\n WHILE -%s- SE COMPARA CONTRA %s \n\n\n\n\n\n\n\n",nombre, tabla->data.nombre);
+    // getchar();
+      // printf("\n\n\n\n\n +++++++++++ VALIDO SI     %s         ESTA EN TS       +++++++++++++++++++ \n\n\n\n\n\n\n\n\n",nombre );
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+          // printf("\n\n\n\n\n VARIABLE DECLARADA -%s- \n\n\n\n\n\n\n\n",tabla->data.nombre);
+          // getchar();
+          return tabla->data.nombre;
+      }    
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+  }
+  // printf("\n\n\n\n\n VARIABLE NO DECLARADA ENTONCES ES UNA CTE -%s- \n\n\n\n\n\n\n\n",nombre);
+  // getchar();
+  char resultado[50]; 
+  sprintf(resultado, "_%s", nombre);
+  // printf("\n\n\n\n\n devuelvo entonces -%s- \n\n\n\n\n\n\n\n",resultado);
+  return resultado;
+}
 
 t_data* crearDatos(const char *nombre, const char *tipo, 
                   const char* valString, int valor_var_int, 
@@ -1241,9 +1309,31 @@ void guardar_tabla_simbolos()
             sprintf(linea, "%-30s%-30s%-40s%-d\n", resultado, aux->data.tipo, aux_string, strlen(aux_string));
         }
         fprintf(arch, "%s", linea);
-        free(aux);
+        // free(aux); me conviene tener la tabla de simbolos en memoria para despues
     }
     fclose(arch); 
+}
+void liberar_memoria_tabla_simbolos(); // TODO: VER COMO BORRAR ESTO Y QUE QUEDE FREE, TODAVIA NO USE EL METODO EN NINGUN LADO
+void liberar_memoria_tabla_simbolos()
+{
+    if(tabla_simbolos.primero == NULL)
+    {        
+      return;
+    }
+
+    t_simbolo *aux;
+    t_simbolo *tabla = tabla_simbolos.primero;
+
+    while(tabla)
+    {
+        aux = tabla;
+        // if(aux->next == NULL)
+        // {
+        //   break;
+        // }
+        tabla = tabla->next;
+        free(aux); //me conviene tener la tabla de simbolos en memoria para despues
+    }
 }
 
 void crear_tabla_simbolos()
@@ -1355,11 +1445,8 @@ void generar_assembler()
         }
         else
         {
-            // printf("\n\n _______________________________________ ENTRO _________________________________ \n");
             if(strcmp(tipo,"CTE_FLOAT")==0 || strcmp(tipo,"CTE_INT")==0)
             {
-                 printf("\n\n ============== ENTRO ES UNA VARIABLE SET 3 ============== \n");
-
                   if( strlen(valor)>1 && valor[0] =='-')
                   {
                       valor[0] = '?';
@@ -1396,6 +1483,7 @@ void generar_assembler()
       char posUno[40];
       char posDos[40];
       char posTres[40];
+      char aux_check_operador[50]; 
       printf("Linea de intermedia %s\n",linea);
         
       // sscanf(linea,"[%s] ( %s ; %s ; %s )",numTerceto,posUno,posDos,posTres);
@@ -1413,56 +1501,73 @@ void generar_assembler()
         // printf("ST TIENE AHORA :::::::: %s \n\n",st);
         if(operacion == 0)
         {
-          fprintf(arch_asse,"FLD %s\n",st);  
+          // printf("\n\n ST ES -%s-\n\n\n",st);
+          // getchar();
+          // printf("\n\n -%s-\n\n\n",aux_check_operador);
+          // getchar();
+          strcpy(aux_check_operador, check_es_cte(st));
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);  
           strcpy(st, desapilar(&p_ass));
         }
-        fprintf(arch_asse,"FSTP %s\n",st);  
+        strcpy(aux_check_operador, check_es_cte(st));
+        fprintf(arch_asse,"FSTP %s\n",aux_check_operador);  
         operacion = 0;   
       }
-      if(strcmp("+",posUno) == 0 ){
-          strcpy(st, desapilar(&p_ass));   
-          fprintf(arch_asse,"FLD %s\n",st);
-          strcpy(st, desapilar(&p_ass));   
-          fprintf(arch_asse,"FLD %s\n",st);
+      if(strcmp("+",posUno) == 0 )
+      {
+          strcpy(st, desapilar(&p_ass));  
+          strcpy(aux_check_operador, check_es_cte(st)); 
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          strcpy(st, desapilar(&p_ass));  
+          strcpy(aux_check_operador, check_es_cte(st));  
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
           fprintf(arch_asse,"FADD\n");
           operacion = 1;
       }
       
       if(strcmp("-",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
-          strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));  
+          strcpy(aux_check_operador, check_es_cte(st));     
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          strcpy(st, desapilar(&p_ass)); 
+          strcpy(aux_check_operador, check_es_cte(st));          
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
           fprintf(arch_asse,"FSUB\n");
           operacion = 1;
       }
     
       if(strcmp("/",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
-          strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));   
+          strcpy(aux_check_operador, check_es_cte(st));        
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          strcpy(st, desapilar(&p_ass));    
+          strcpy(aux_check_operador, check_es_cte(st));        
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
           fprintf(arch_asse,"FDIV\n");
           operacion = 1;
       }
     
       if(strcmp("*",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
-            strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(st, desapilar(&p_ass));  
+          strcpy(aux_check_operador, check_es_cte(st));        
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          strcpy(st, desapilar(&p_ass));
+          strcpy(aux_check_operador, check_es_cte(st));
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
           fprintf(arch_asse,"FMUL\n");
           operacion = 1;
       }
       if(strcmp("CMP",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass)); 
-          fprintf(arch_asse,"FLD %s\n",st);
+          strcpy(aux_check_operador, check_es_cte(st));
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass));      
-          fprintf(arch_asse,"FLD %s\n",st); 
+          strcpy(aux_check_operador, check_es_cte(st));
+          fprintf(arch_asse,"FLD %s\n",aux_check_operador); 
           fprintf(arch_asse,"FXCH\n"); 
           fprintf(arch_asse,"FCOM\n");
           fprintf(arch_asse,"FSTSW AX\n");
@@ -1517,12 +1622,39 @@ void generar_assembler()
           fprintf(arch_asse,"%s:\n",posUno);
           fprintf(arch_asse,"FFREE\n");
       }
-      
-      //TODO TAG ESCRIBIR Y LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
-      //Pasaje de etiquetas en assembler
+
+      if(strncmp(posUno,"ET_ESCRIBIR",11) == 0 )
+      {
+        /*
+        Para evitar cosas raras
+        MOV AX, @DATA
+        MOV DS, AX
+        MOV ES, AX
+        */
+          fprintf(arch_asse,"MOV AX, @DATA\n",posUno);
+          fprintf(arch_asse,"MOV DS, AX\n");
+          fprintf(arch_asse,"MOV ES, AX\n",posUno);
+          // Check que cosa es, id o cte str
+          if(check_es_cte_columna_valor(posDos))
+          {
+            char aux_valor[50];
+            strcpy(aux_valor,posDos);
+            aux_valor[0] = '_';
+            aux_valor[strlen(aux_valor)-1] = '\0';
+            fprintf(arch_asse,"LEA DX, %s\n",aux_valor);
+          }
+          else
+          {
+            fprintf(arch_asse,"LEA DX, %s\n",posDos);
+          }
+          fprintf(arch_asse,"MOV AH, 09h\n");
+          fprintf(arch_asse,"INT 21h\n",posUno);
+      }
+      //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //TODO: Floats y string en assembler
-      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler)
+      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) casi WIP
       //TODO: WHILE, check por las dudas
+      //TODO: Check cuentas que de verdad sume
     }
 
     fprintf(arch_asse,  "\nmov ax,4c00h");
@@ -1536,12 +1668,7 @@ void generar_assembler()
 void trim_end(char * str)
 {
     int index, i;
-
-    /* Set default index */
     index = -1;
-        // printf("la cosa es !!!!!!!! %s \n\n ", str);
-
-    /* Find last index of non-white space character */
     i = 0;
     while(isalpha(str[i]) || str[i] == '_' || isalnum(str[i]) || str[i] == '.' )
     {
@@ -1551,8 +1678,6 @@ void trim_end(char * str)
         }
         i++;
     }
-
-    /* Mark next character to last non-white space character as NULL */
     str[index + 1] = '\0';
     // printf("\n\n EL STRING QUEDA  %s * \n\n\n",str);
 }

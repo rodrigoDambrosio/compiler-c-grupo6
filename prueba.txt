@@ -4,7 +4,8 @@ init {
     cadena1 : String
     a2  : Float
 }
+intAsig1:= 6
 
-mientras (intAsig1 == intAsig1){
-    intAsig1 := 4
+si(intAsig1==6){
+    escribir("holaaaaa")
 }
