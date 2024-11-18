@@ -1572,7 +1572,6 @@ void generar_assembler()
           fprintf(arch_asse,"FCOM\n");
           fprintf(arch_asse,"FSTSW AX\n");
           fprintf(arch_asse,"SAHF\n");
-          fprintf(arch_asse,"FFREE\n");
       }
       if(strcmp ("BLE",posUno)==0) 
       {
@@ -1656,7 +1655,7 @@ void generar_assembler()
       //TODO: WHILE parece ok -> DONE
       //TODO: Check cuentas que de verdad sume
     }
-
+    fprintf(arch_asse,"FFREE\n");
     fprintf(arch_asse,  "\nmov ax,4c00h");
     fprintf(arch_asse,  "\nint 21h");
     fprintf(arch_asse,  "\nEnd START");
