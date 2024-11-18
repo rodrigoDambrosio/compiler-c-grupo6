@@ -31,7 +31,6 @@ FXCH
 FCOM
 FSTSW AX
 SAHF
-FFREE
 JNE ETIQ_IF11
 MOV AX, @DATA
 MOV DS, AX
@@ -40,6 +39,7 @@ LEA DX, _holaaaaa
 MOV AH, 09h
 INT 21h
 ETIQ_IF11:
+FFREE
 
 mov ax,4c00h
 int 21h

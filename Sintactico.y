@@ -59,8 +59,12 @@ int tipo_asig_u =-1;
 int fueOr = 0; // TODO:Revisar nombre
 int et_inicio_while_count =1;
 char aux_et_inicio[50]; 
+char check_es_cte_aux[50];
 // TODO: mover
 void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
+void liberar_memoria_tabla_simbolos(); // TODO: VER COMO BORRAR ESTO Y QUE QUEDE FREE, TODAVIA NO USE EL METODO EN NINGUN LADO
+const char * check_es_cte(const char *nombre);
+int check_es_cte_columna_valor(const char *nombre);
 void generar_assembler();
 void trim_end(char * str);
 
@@ -75,9 +79,7 @@ char* validar_ts(const char *nombre,const char *tipo,
                             const char* valor_string, int valor_var_int, 
                             float valor_var_float);
 int verificar_si_ya_existe_en_ts(const char *nombre);
-const char * check_tipo_variable_ts(const char *nombre,const char *tipo, 
-const char* valor_string, int valor_var_int, 
-float valor_var_float);
+const char * check_tipo_variable_ts(const char *nombre);
 int verificar_si_falta_en_ts(const char *nombre);
 const char * check_tipo_define(int tipo_int);
 
@@ -432,26 +434,25 @@ condicion:
 comparacion: 
     expresion operador_comparacion { tipo_expresion_izq = tipo_expresion; } expresion 
     {
-                int tipo_expresion_derecha = tipo_expresion;
-                if(tipo_expresion_izq != tipo_expresion_derecha)
-                {
-                  printf("\nSe esta queriendo comparar un %s a la izquierda con un %s a la derecha\n", check_tipo_define(tipo_expresion_izq),check_tipo_define(tipo_expresion_derecha));
-                  yyerror_message("Error de tipos");
-                }
-                char* exp1 = (char*) desapilar(pilaExpresion);
-                char* exp2 = (char*) desapilar(pilaExpresion);
-                // printf ("A ver la comparacion %s %s \n",exp1, exp2);
-                comparacionInd=crear_terceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
-                // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
-                aux_comp = condicionInd+1;
-                // Guardo este nro de terceto para despues actualizarlo mas adelante con el nro del salto al final de toda la condicion
-                int t = crear_terceto(comparador,"_","_" ,tercetosCreados);
-                // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
-                apilar_nro_terceto(t);
-                char tString [10];
-                itoa(t,tString,10);
-                apilar(pilaComparacion,tString,sizeof(tString));
-                
+        int tipo_expresion_derecha = tipo_expresion;
+        if(tipo_expresion_izq != tipo_expresion_derecha)
+        {
+          printf("\nSe esta queriendo comparar un %s a la izquierda con un %s a la derecha\n", check_tipo_define(tipo_expresion_izq),check_tipo_define(tipo_expresion_derecha));
+          yyerror_message("Error de tipos");
+        }
+        char* exp1 = (char*) desapilar(pilaExpresion);
+        char* exp2 = (char*) desapilar(pilaExpresion);
+        // printf ("A ver la comparacion %s %s \n",exp1, exp2);
+        comparacionInd=crear_terceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
+        // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",condicionInd+1);
+        aux_comp = condicionInd+1;
+        // Guardo este nro de terceto para despues actualizarlo mas adelante con el nro del salto al final de toda la condicion
+        int t = crear_terceto(comparador,"_","_" ,tercetosCreados);
+        // printf("\n \n \n ACA RECONOZCO UNA PARTE DE LA COMPARACION nro ind de donde hay que guardar la celda del salto %d \n \n \n",t);
+        apilar_nro_terceto(t);
+        char tString [10];
+        itoa(t,tString,10);
+        apilar(pilaComparacion,tString,sizeof(tString));      
     }
     // | PA condicion PC
 ;
@@ -463,7 +464,6 @@ operador_comparacion:
   | OP_MENI   {strcpy(comparador,"BGT");}
   | OP_IGUAL  {strcpy(comparador, "BNE");}
   // | OP_NOT_IGUAL {strcpy(comparador, "BNE");}
-
 ;
 
 asignacion: 
@@ -500,7 +500,7 @@ id:
   ID
   {
     strcpy(nombre_id,$1);
-    strcpy(aux_tipo_validacion_ts, check_tipo_variable_ts($1, "_", "", 0, 0)); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
+    strcpy(aux_tipo_validacion_ts, check_tipo_variable_ts($1)); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
     asignacionInd = crear_terceto(nombre_id,"_","_",tercetosCreados);
   }
 ;
@@ -611,7 +611,7 @@ factor:
         printf("ID es Factor \n");
         // validar_ts(yytext, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos, ya lo hago abajo
         char tipo_id_aux_factor[15];
-        strcpy(tipo_id_aux_factor, check_tipo_variable_ts($1, "_", "", 0, 0));
+        strcpy(tipo_id_aux_factor, check_tipo_variable_ts($1));
         if(strcmp("INTEGER" , tipo_id_aux_factor) == 0)
         {
           tipo_factor = T_ENTERO;
@@ -938,7 +938,8 @@ int main(int argc, char *argv[])
         fclose(fpIntermedia);
 
         generar_assembler();
-    }
+        liberar_memoria_tabla_simbolos();
+  }
   fclose(yyin);
   return 0;
 }
@@ -1100,9 +1101,7 @@ char* validar_ts(const char *nombre,const char *tipo,
   return NULL;
 }
 
-const char * check_tipo_variable_ts(const char *nombre,const char *tipo, 
-                            const char* valor_string, int valor_var_int, 
-                            float valor_var_float)
+const char * check_tipo_variable_ts(const char *nombre)
 {    
 
   t_simbolo *tabla = tabla_simbolos.primero;
@@ -1125,10 +1124,8 @@ const char * check_tipo_variable_ts(const char *nombre,const char *tipo,
   yyerror_message("Variable no declarada");
   return "";
 }
-int check_es_cte_columna_valor(const char *nombre);
 int check_es_cte_columna_valor(const char *nombre)
-{    
-
+{
   t_simbolo *tabla = tabla_simbolos.primero;
   // printf("\n\n\n\n\n quiero ver que es -%s- primero tengo %s \n\n\n\n\n\n\n\n",nombre, por_las_dudas->data.nombre);
   // getchar();
@@ -1149,14 +1146,8 @@ int check_es_cte_columna_valor(const char *nombre)
       }
       tabla = tabla->next;
   }
-  // printf("\n\n\n\n\n VARIABLE NO DECLARADA ENTONCES ES UNA CTE -%s- \n\n\n\n\n\n\n\n",nombre);
-  // getchar();
-  // char resultado[50]; 
-  // sprintf(resultado, "_%s", nombre);
-  // printf("\n\n\n\n\n devuelvo entonces -%s- \n\n\n\n\n\n\n\n",resultado);
   return FALSE;
 } 
-const char * check_es_cte(const char *nombre);
 const char * check_es_cte(const char *nombre)
 {    
 
@@ -1182,10 +1173,9 @@ const char * check_es_cte(const char *nombre)
   }
   // printf("\n\n\n\n\n VARIABLE NO DECLARADA ENTONCES ES UNA CTE -%s- \n\n\n\n\n\n\n\n",nombre);
   // getchar();
-  char resultado[50]; 
-  sprintf(resultado, "_%s", nombre);
+  sprintf(check_es_cte_aux, "_%s", nombre);
   // printf("\n\n\n\n\n devuelvo entonces -%s- \n\n\n\n\n\n\n\n",resultado);
-  return resultado;
+  return check_es_cte_aux;
 }
 
 t_data* crearDatos(const char *nombre, const char *tipo, 
@@ -1257,8 +1247,8 @@ void guardar_tabla_simbolos()
     FILE* arch;
     if((arch = fopen("symbol-table.txt", "wt")) == NULL)
     {
-            printf("\nNo se pudo crear la tabla de simbolos.\n\n");
-            return;
+      printf("\nNo se pudo crear la tabla de simbolos.\n\n");
+      return;
     }
     else if(tabla_simbolos.primero == NULL)
     {        
@@ -1313,7 +1303,6 @@ void guardar_tabla_simbolos()
     }
     fclose(arch); 
 }
-void liberar_memoria_tabla_simbolos(); // TODO: VER COMO BORRAR ESTO Y QUE QUEDE FREE, TODAVIA NO USE EL METODO EN NINGUN LADO
 void liberar_memoria_tabla_simbolos()
 {
     if(tabla_simbolos.primero == NULL)
@@ -1377,41 +1366,41 @@ const char * check_tipo_define(int tipo_int)
 
 void generar_assembler()
 {
-    FILE* arch_inter;
-    FILE* arch_tabla;
-    FILE* arch_asse;
-    char idWhile[200];
-    int contWhile=0;
-    arch_inter = fopen("intermediate-code.txt","rt");
-    arch_tabla = fopen("symbol-table.txt","rt");
-    arch_asse = fopen("assembler_generated.asm","wt");
-    if(!arch_asse )
+    FILE* file_intermediate_code;
+    FILE* file_symbol_table;
+    FILE* file_assembler;
+    file_intermediate_code = fopen("intermediate-code.txt","rt");
+    file_symbol_table = fopen("symbol-table.txt","rt");
+    file_assembler = fopen("final.asm","wt");
+    
+    if(!file_assembler)
     {
         printf("Error en el archivo de assembler");
         return;
     }
-    if( !arch_tabla )
+    if(!file_symbol_table)
     {
         printf("Error en la apertura de la tabla de simbolos");
         return;
     }
-    if( !arch_inter)
+    if(!file_intermediate_code)
     {
         printf("Error en la apertura del archivo intermedia");
         return;
     }
+
     Pila p_ass;
     Pila p_while;
     crear_pila(&p_ass);
     crear_pila(&p_while);
-    fprintf(arch_asse,  "include macros2.asm\n");
-    fprintf(arch_asse,  "include number.asm\n");
-    fprintf(arch_asse, ".MODEL LARGE\n.STACK 200h\n.386\n.DATA\n\n");
+    fprintf(file_assembler,  "include macros2.asm\n");
+    fprintf(file_assembler,  "include number.asm\n");
+    fprintf(file_assembler, ".MODEL LARGE\n.STACK 200h\n.386\n.DATA\n\n");
     char linea[1000];
-    fgets(linea, sizeof(linea), arch_tabla); // Skipeo el encabezado
-    while(fgets(linea, sizeof(linea),arch_tabla))
+    fgets(linea, sizeof(linea), file_symbol_table); // Skipeo el encabezado
+    while(fgets(linea, sizeof(linea),file_symbol_table))
     {
-        printf("LA LINEA TIENE %s \n\n\n", linea);
+        // printf("LA LINEA TIENE %s \n\n\n", linea);
         char nombre[30];
         char tipo[30];
         char valor[40];
@@ -1429,10 +1418,10 @@ void generar_assembler()
         strncpy(longitud, linea + 100, 10);
         trim_end(longitud);
 
-        printf("\nDATO: Nombre ***** %s ***** \n",nombre);
-        printf("\nDATO: Tipo ***** %s ***** \n",tipo);
-        printf("\nDATO: ***** Valor ***** %s ***** \n",valor);
-        printf("\nDATO: ***** LONGITUD ***** %s ***** \n",longitud);
+        // printf("\nDATO: Nombre ***** %s ***** \n",nombre);
+        // printf("\nDATO: Tipo ***** %s ***** \n",tipo);
+        // printf("\nDATO: ***** Valor ***** %s ***** \n",valor);
+        // printf("\nDATO: ***** LONGITUD ***** %s ***** \n",longitud);
 
         if(strcmp(tipo,"CTE_STR") == 0)
         {
@@ -1441,18 +1430,18 @@ void generar_assembler()
               valor[0] = '?';
               valor[1] = '\0';   
           }
-          fprintf(arch_asse,"%-20s db\t\t \"%s\", \'$\', %s dup (?)\n",nombre,valor,longitud);
+          fprintf(file_assembler,"%-20s db\t\t \"%s\", \'$\', %s dup (?)\n",nombre,valor,longitud);
         }
         else
         {
             if(strcmp(tipo,"CTE_FLOAT")==0 || strcmp(tipo,"CTE_INT")==0)
             {
-                  if( strlen(valor)>1 && valor[0] =='-')
-                  {
-                      valor[0] = '?';
-                      valor[1] = '\0';
-                  }
-                  fprintf(arch_asse,"%-20s dd\t\t %-30s\n",nombre,valor);
+                if( strlen(valor)>1 && valor[0] =='-')
+                {
+                    valor[0] = '?';
+                    valor[1] = '\0';
+                }
+                fprintf(file_assembler,"%-20s dd\t\t %-30s\n",nombre,valor);
             }
             else
             {
@@ -1461,25 +1450,23 @@ void generar_assembler()
                     valor[0] = '?';
                     valor[1] = '\0';
                 }
-                fprintf(arch_asse,"%-20s dd\t\t ?\n",nombre,valor);
+                fprintf(file_assembler,"%-20s dd\t\t ?\n",nombre,valor);
             }
-           
         }
     }
     
-    fprintf(arch_asse,  "\n.CODE");
-    fprintf(arch_asse,  "\nSTART:\n");
-    fprintf(arch_asse,  "\nMOV EAX,@DATA");
-    fprintf(arch_asse,  "\nMOV DS,EAX");
-    fprintf(arch_asse,  "\nMOV ES,EAX;\n\n");
+    fprintf(file_assembler,  "\n.CODE");
+    fprintf(file_assembler,  "\nSTART:\n");
+    fprintf(file_assembler,  "\nMOV EAX,@DATA");
+    fprintf(file_assembler,  "\nMOV DS,EAX");
+    fprintf(file_assembler,  "\nMOV ES,EAX;\n\n");
     char st[40];
     int operacion = 0;
     char et[10];
 
-    while(fgets(linea, sizeof(linea),arch_inter))
+    while(fgets(linea, sizeof(linea),file_intermediate_code))
     {
       char numTerceto[40];
-      //int numTerceto;
       char posUno[40];
       char posDos[40];
       char posTres[40];
@@ -1506,122 +1493,119 @@ void generar_assembler()
           // printf("\n\n -%s-\n\n\n",aux_check_operador);
           // getchar();
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);  
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);  
           strcpy(st, desapilar(&p_ass));
         }
         strcpy(aux_check_operador, check_es_cte(st));
-        fprintf(arch_asse,"FSTP %s\n",aux_check_operador);  
+        fprintf(file_assembler,"FSTP %s\n",aux_check_operador);  
         operacion = 0;   
       }
       if(strcmp("+",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass));  
           strcpy(aux_check_operador, check_es_cte(st)); 
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass));  
           strcpy(aux_check_operador, check_es_cte(st));  
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
-          fprintf(arch_asse,"FADD\n");
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FADD\n");
           operacion = 1;
       }
-      
       if(strcmp("-",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass));  
           strcpy(aux_check_operador, check_es_cte(st));     
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass)); 
           strcpy(aux_check_operador, check_es_cte(st));          
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
-          fprintf(arch_asse,"FSUB\n");
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FSUB\n");
           operacion = 1;
       }
-    
       if(strcmp("/",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass));   
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass));    
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
-          fprintf(arch_asse,"FDIV\n");
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FDIV\n");
           operacion = 1;
       }
-    
       if(strcmp("*",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass));  
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass));
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
-          fprintf(arch_asse,"FMUL\n");
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FMUL\n");
           operacion = 1;
       }
       if(strcmp("CMP",posUno) == 0 )
       {
           strcpy(st, desapilar(&p_ass)); 
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
           strcpy(st, desapilar(&p_ass));      
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(arch_asse,"FLD %s\n",aux_check_operador); 
-          fprintf(arch_asse,"FXCH\n"); 
-          fprintf(arch_asse,"FCOM\n");
-          fprintf(arch_asse,"FSTSW AX\n");
-          fprintf(arch_asse,"SAHF\n");
+          fprintf(file_assembler,"FLD %s\n",aux_check_operador); 
+          fprintf(file_assembler,"FXCH\n"); 
+          fprintf(file_assembler,"FCOM\n");
+          fprintf(file_assembler,"FSTSW AX\n");
+          fprintf(file_assembler,"SAHF\n");
       }
       if(strcmp ("BLE",posUno)==0) 
       {
         sscanf(posTres,"%[^ ]",et);
-        fprintf(arch_asse,"JNA %s\n",et);
+        fprintf(file_assembler,"JNA %s\n",et);
       }
       if(strcmp ("BNE",posUno)==0)
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JNE %s\n",et);
+          fprintf(file_assembler,"JNE %s\n",et);
       }
       if(strcmp ("BLT",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JB %s\n",et);
+          fprintf(file_assembler,"JB %s\n",et);
       }
       if(strcmp ("BGT",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JA %s\n",et);
+          fprintf(file_assembler,"JA %s\n",et);
       }
       if(strcmp ("BGE",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JAE %s\n",et);
+          fprintf(file_assembler,"JAE %s\n",et);
       }
-          
       if(strcmp ("BEQ",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JE %s\n",et);
+          fprintf(file_assembler,"JE %s\n",et);
       }
       if(strcmp("BI", posUno) == 0)
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(arch_asse,"JMP %s\n",et);
+          fprintf(file_assembler,"JMP %s\n",et);
       }
-
-      if(strncmp(posUno,"ETIQ_IF",7) == 0 ){
-          fprintf(arch_asse,"%s:\n",posUno);
+      if(strncmp(posUno,"ETIQ_IF",7) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
       }
       //WHILE
-      if(strncmp(posUno,"InicioMientras",14) == 0 ){
-          fprintf(arch_asse,"%s:\n",posUno);
+      if(strncmp(posUno,"InicioMientras",14) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
       }
-      if(strncmp(posUno,"ETIQ_CICLO",7) == 0 ){
-          fprintf(arch_asse,"%s:\n",posUno);
-          fprintf(arch_asse,"FFREE\n");
+      if(strncmp(posUno,"ETIQ_CICLO",7) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
+          fprintf(file_assembler,"FFREE\n");
       }
-
       if(strncmp(posUno,"ET_ESCRIBIR",11) == 0 )
       {
         /*
@@ -1630,24 +1614,24 @@ void generar_assembler()
         MOV DS, AX
         MOV ES, AX
         */
-          fprintf(arch_asse,"MOV AX, @DATA\n",posUno);
-          fprintf(arch_asse,"MOV DS, AX\n");
-          fprintf(arch_asse,"MOV ES, AX\n",posUno);
-          // Check que cosa es, id o cte str
-          if(check_es_cte_columna_valor(posDos))
-          {
-            char aux_valor[50];
-            strcpy(aux_valor,posDos);
-            aux_valor[0] = '_';
-            aux_valor[strlen(aux_valor)-1] = '\0';
-            fprintf(arch_asse,"LEA DX, %s\n",aux_valor);
-          }
-          else
-          {
-            fprintf(arch_asse,"LEA DX, %s\n",posDos);
-          }
-          fprintf(arch_asse,"MOV AH, 09h\n");
-          fprintf(arch_asse,"INT 21h\n",posUno);
+        fprintf(file_assembler,"MOV AX, @DATA\n",posUno);
+        fprintf(file_assembler,"MOV DS, AX\n");
+        fprintf(file_assembler,"MOV ES, AX\n",posUno);
+        // Check que cosa es, id o cte str
+        if(check_es_cte_columna_valor(posDos) == TRUE)
+        {
+          char aux_valor[50];
+          strcpy(aux_valor,posDos);
+          aux_valor[0] = '_';
+          aux_valor[strlen(aux_valor)-1] = '\0';
+          fprintf(file_assembler,"LEA DX, %s\n",aux_valor);
+        }
+        else
+        {
+          fprintf(file_assembler,"LEA DX, %s\n",posDos);
+        }
+        fprintf(file_assembler,"MOV AH, 09h\n");
+        fprintf(file_assembler,"INT 21h\n",posUno);
       }
       //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //TODO: Floats y string en assembler
@@ -1655,13 +1639,13 @@ void generar_assembler()
       //TODO: WHILE parece ok -> DONE
       //TODO: Check cuentas que de verdad sume
     }
-    fprintf(arch_asse,"FFREE\n");
-    fprintf(arch_asse,  "\nmov ax,4c00h");
-    fprintf(arch_asse,  "\nint 21h");
-    fprintf(arch_asse,  "\nEnd START");
-    fclose(arch_inter);
-    fclose(arch_tabla);
-    fclose(arch_asse);
+    fprintf(file_assembler,"FFREE\n");
+    fprintf(file_assembler,"\nmov ax,4c00h");
+    fprintf(file_assembler,"\nint 21h");
+    fprintf(file_assembler,"\nEnd START");
+    fclose(file_intermediate_code);
+    fclose(file_symbol_table);
+    fclose(file_assembler);
 }
 
 void trim_end(char * str)
@@ -1696,40 +1680,44 @@ void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBu
             int flag = 0;
             if(fueOr == 1)
             {
-                    if(strcmp ("BNE",terceto.posUno)==0 && flag != 1) {
-                        flag = 1;
-                       strcpy(terceto.posUno, "BEQ\0");                          
-                    }                        
-                    if(strcmp ("BLT",terceto.posUno)==0 && flag != 1) {
-                         flag = 1;
-                        strcpy(terceto.posUno, "BGE\0");        
-                    }
-                    if(strcmp ("BLE",terceto.posUno)==0  && flag != 1) {
-                      strcpy(terceto.posUno, "BGT\0");        
-                     flag = 1;
-                    }
-                    if(strcmp ("BGT",terceto.posUno)==0  && flag != 1) {
-                        strcpy(terceto.posUno, "BLE\0");        
-                    flag = 1;
-                    }       
-                    if(strcmp ("BGE",terceto.posUno)==0  && flag != 1) {
-                       strcpy(terceto.posUno, "BLT\0"); 
-                    flag = 1;                                  
-                    }
-                        
-                    if(strcmp ("BEQ",terceto.posUno)==0  && flag != 1) {
-                        strcpy(terceto.posUno, "BNE\0");
-                    flag = 1;                                
-                    }
+                if(strcmp ("BNE",terceto.posUno)==0 && flag != 1) 
+                {
+                  flag = 1;
+                  strcpy(terceto.posUno, "BEQ\0");                          
+                }                        
+                if(strcmp ("BLT",terceto.posUno)==0 && flag != 1) 
+                {
+                  flag = 1;
+                  strcpy(terceto.posUno, "BGE\0");        
+                }
+                if(strcmp ("BLE",terceto.posUno)==0  && flag != 1) 
+                {
+                  strcpy(terceto.posUno, "BGT\0");        
+                  flag = 1;
+                }
+                if(strcmp ("BGT",terceto.posUno)==0  && flag != 1) 
+                {
+                  strcpy(terceto.posUno, "BLE\0");        
+                  flag = 1;
+                }       
+                if(strcmp ("BGE",terceto.posUno)==0  && flag != 1) 
+                {
+                  strcpy(terceto.posUno, "BLT\0"); 
+                  flag = 1;                                  
+                }
+                if(strcmp ("BEQ",terceto.posUno)==0  && flag != 1) 
+                {
+                  strcpy(terceto.posUno, "BNE\0");
+                  flag = 1;                                
+                }
             }
-                char nueComponente [LONG_TERCETO];
-                sprintf( nueComponente, "%s%d",etiqueta,tercetoAEscribir);
-                // printf("\n\n\n\n ME VA A QUEDAR %s \n\n\n", nueComponente);
-                //             getchar();
-                strcpy(terceto.posTres, nueComponente);
+            char nueComponente [LONG_TERCETO];
+            sprintf( nueComponente, "%s%d",etiqueta,tercetoAEscribir);
+            // printf("\n\n\n\n ME VA A QUEDAR %s \n\n\n", nueComponente);
+            // getchar();
+            strcpy(terceto.posTres, nueComponente);
         }
         poner_en_cola(&aux,&terceto,sizeof(terceto));
     }
-    
     colaTercetos=aux;
 }
