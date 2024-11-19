@@ -4,10 +4,5 @@ init {
     cadena1 : String
     a2  : Float
 }
-a5 := 1
-floatAsig1:= 2.2
-intAsig1 := 6 + a5
-si(intAsig1<8){
-    escribir("ahoraaa")
-}
+a2:=2.6
 floatAsig1 = triangulo(floatAsig1, floatAsig1, floatAsig1)  

@@ -51,7 +51,9 @@ typedef struct
 typedef struct{
   char cadena[40];
 }t_nombresId;
-
+int auxExp_triang1;
+int auxExp_triang2;
+int auxExp_triang3;
 int tipo_factor = -1;
 int tipo_expresion = -1;
 int tipo_termino = -1;
@@ -837,34 +839,34 @@ triangulos:
            }  
            expresion 
            {
-            aux_exp1 = crear_terceto("aux_exp1","_","_",tercetosCreados);
+            auxExp_triang1 = crear_terceto("aux_exp1","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp1", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
-            sprintf(aux_exp_c,"[%d]",aux_exp1);
+            sprintf(aux_exp_c,"[%d]",auxExp_triang1);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
             indTriangExp1= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            }
            COMA expresion
            {
-            aux_exp2 = crear_terceto("aux_exp2","_","_",tercetosCreados);
+            auxExp_triang2 = crear_terceto("aux_exp2","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp2", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
-            sprintf(aux_exp_c,"[%d]",aux_exp2);
+            sprintf(aux_exp_c,"[%d]",auxExp_triang2);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
             indTriangExp2= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            } 
            COMA expresion
            {
-            aux_exp3 = crear_terceto("aux_exp3","_","_",tercetosCreados);
+            auxExp_triang3 = crear_terceto("aux_exp3","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp3", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
-            sprintf(aux_exp_c,"[%d]",aux_exp3);
+            sprintf(aux_exp_c,"[%d]",auxExp_triang3);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
             indTriangExp3= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            } 
@@ -876,10 +878,17 @@ triangulos:
             char auxTres[LONG_TERCETO];
             char auxIdTriang[LONG_TERCETO];
 
-            sprintf(auxUno,"[%d]",indTriangExp1);
-            sprintf(auxDos,"[%d]",indTriangExp2);
-            sprintf(auxTres,"[%d]",indTriangExp3);
-
+            // sprintf(auxUno,"[%d]",indTriangExp1); //auxExp1
+            // sprintf(auxDos,"[%d]",indTriangExp2); //auxExp2
+            // sprintf(auxTres,"[%d]",indTriangExp3); //auxExp3
+            sprintf(auxUno,"[%d]",auxExp_triang1); //auxExp1
+            sprintf(auxDos,"[%d]",auxExp_triang2); //auxExp2
+            sprintf(auxTres,"[%d]",auxExp_triang3); //auxExp3
+            
+            char et_triang[25];
+            // indTriang = crear_terceto("CMP",auxDos,auxUno,tercetosCreados);
+            // int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
+            // escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
             indTriang = crear_terceto("CMP",auxDos,auxUno,tercetosCreados);
             int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
             escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
@@ -892,7 +901,7 @@ triangulos:
 
             sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
 
-            crear_terceto(":=",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
+            crear_terceto(":=","\"Equilatero\"",auxIdTriang ,tercetosCreados);
 
             char auxBi[LONG_TERCETO];
 
@@ -901,7 +910,7 @@ triangulos:
             crear_terceto("BI","_",auxBi,tercetosCreados);
 
             // Salto al final que ya se cuanto es
-            crear_terceto(":=",auxIdTriang,"\"Isosceles\"" ,tercetosCreados);
+            crear_terceto(":=","\"Isosceles\"",auxIdTriang ,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados+4);
 
             crear_terceto("BI","_",auxBi,tercetosCreados);
@@ -911,12 +920,14 @@ triangulos:
             indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
             crear_terceto("BE","_",auxBi ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
-            crear_terceto(":=",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
+            crear_terceto(":=","\"Escaleno\"",auxIdTriang ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
             
             printf("ES TRIANGULOS\n");
            }
 ;
 %%
+
+//////////////////////////////////// FUNCIONES ////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
 {

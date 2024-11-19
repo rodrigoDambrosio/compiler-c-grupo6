@@ -4,11 +4,7 @@ intAsig1                      INTEGER                       --
 a5                            INTEGER                       --                                      
 cadena1                       STRING                        --                                      
 a2                            FLOAT                         --                                      
-_1                            CTE_INT                       1                                       1
-_2.20                         CTE_FLOAT                     2.20                                    2.20
-_6                            CTE_INT                       6                                       6
-_8                            CTE_INT                       8                                       8
-_ahoraaa                      CTE_STR                       ahoraaa                                 7
+_2.60                         CTE_FLOAT                     2.60                                    2.60
 aux_exp1                      FLOAT                         --                                      
 aux_exp2                      FLOAT                         --                                      
 aux_exp3                      FLOAT                         --                                      
