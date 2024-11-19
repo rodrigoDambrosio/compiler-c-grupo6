@@ -1,16 +1,13 @@
 init {
     floatAsig1 : Float
-    intAsig1 : Int
+    intAsig1,a5 : Int
     cadena1 : String
     a2  : Float
 }
-intAsig1 := 6
-si(intAsig1 < 3){
-    escribir("esuntre")
-    intAsig1 := 8
+a5 := 1
+floatAsig1:= 2.2
+intAsig1 := 6 + a5
+si(intAsig1<8){
+    escribir("ahoraaa")
 }
-si(intAsig1 >= 8){
-       escribir("agoraaa")
-}
-
-escribir("SIUUUUUU")
+floatAsig1 = triangulo(floatAsig1, floatAsig1, floatAsig1)  

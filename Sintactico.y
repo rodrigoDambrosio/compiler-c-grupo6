@@ -837,36 +837,36 @@ triangulos:
            }  
            expresion 
            {
-            aux_exp1 = crear_terceto("aux_exp1","","",tercetosCreados);
+            aux_exp1 = crear_terceto("aux_exp1","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp1", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp1);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp1= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp1= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            }
            COMA expresion
            {
-            aux_exp2 = crear_terceto("aux_exp2","","",tercetosCreados);
+            aux_exp2 = crear_terceto("aux_exp2","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp2", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp2);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp2= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp2= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            } 
            COMA expresion
            {
-            aux_exp3 = crear_terceto("aux_exp3","","",tercetosCreados);
+            aux_exp3 = crear_terceto("aux_exp3","_","_",tercetosCreados);
             insertar_tabla_simbolos("aux_exp3", "FLOAT", "", 0, 0);
             // printf("\n\n\n ************************** EXP %d ", expresionInd);
             char aux_exp_c[LONG_TERCETO];
             char aux_ind_exp[LONG_TERCETO];
             sprintf(aux_exp_c,"[%d]",aux_exp3);
             sprintf(aux_ind_exp,"[%d]",expresionInd);
-            indTriangExp3= crear_terceto(":=",aux_exp_c,aux_ind_exp,tercetosCreados);
+            indTriangExp3= crear_terceto(":=",aux_ind_exp,aux_exp_c,tercetosCreados);
            } 
            PC  
            {
@@ -1039,19 +1039,19 @@ void liberar_diccionario(Diccionario *dic) {
 const char* buscar_nombre(Diccionario *dic, int posicion) 
 {
     int i =0;
-    printf("LLEGUE A BISCAR Y BUSCO %d", posicion);
-    getchar();
+    // printf("LLEGUE A BISCAR Y BUSCO %d", posicion);
+    // getchar();
     for ( i = 0; i < dic->cantidad; i++) 
     {
-        printf("PRIMERA IT %d",dic->entradas[i].posicion );
+        // printf("PRIMERA IT %d",dic->entradas[i].posicion );
 
         if (dic->entradas[i].posicion == posicion) 
         {
             return dic->entradas[i].nombre; // Retorna el nombre de la variable
         }
-        getchar();
+        // getchar();
     }
-        printf("NO ENCONTRE %d", posicion);
+    printf("NO ENCONTRE %d", posicion);
     getchar();
     return NULL; // No encontrado
 }
@@ -2001,8 +2001,9 @@ void generar_assembler()
       //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //TODO: Floats y string en assembler
       //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) -> DONE
-      //TODO: WHILE parece ok -> DONE
-      //TODO: Check cuentas que de verdad sume
+      //TODO: WHILE parece ok -> revisar / comparar
+      //TODO: Check cuentas que de verdad sume -> SUMA OK
+      //TODO: triangulos asignacion a expresion :/ tengo que hacer que en el cmp quede el aux, no el :=
     }
     fprintf(file_assembler,"\nFFREE");
     fprintf(file_assembler,"\nmov ax,4c00h");
