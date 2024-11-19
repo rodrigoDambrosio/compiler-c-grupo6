@@ -4,5 +4,9 @@ init {
     cadena1 : String
     a2  : Float
 }
+si(1==1){
+escribir("addddd")
+}
+
 a2:=2.6
 floatAsig1 = triangulo(floatAsig1, floatAsig1, floatAsig1)  

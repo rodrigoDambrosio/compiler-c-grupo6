@@ -890,38 +890,48 @@ triangulos:
             // int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
             // escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
             indTriang = crear_terceto("CMP",auxDos,auxUno,tercetosCreados);
-            int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
-            escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
-
+            int primerSaltoBNE = crear_terceto("BNE","_","TRI_1" ,tercetosCreados);
+            // escribir_terceto_actual_en_anterior(primerSaltoBNE+7, primerSaltoBNE); // Siempre el siguente CMP va a ser en +7
+            // PRIMER SALTO A 36
             // printf("\n\n ************* anterior:%d siguiente:%d \n \n ",a-1,a+4);
 
             indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
-            int segundoSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
-            escribir_terceto_actual_en_anterior(segundoSaltoBNE+3, segundoSaltoBNE); // Escribo a donde salta si a=b pero a!=c (isosceles)
+            // ACA HAY QUE SALTAR A ANTES DE ISOCLES
+            int segundoSaltoBNE = crear_terceto("BNE","_","TRI_2" ,tercetosCreados);
+            // escribir_terceto_actual_en_anterior(segundoSaltoBNE+3, segundoSaltoBNE); // Escribo a donde salta si a=b pero a!=c (isosceles)
 
             sprintf(auxIdTriang,"[%d]",triangulos_id_aux);
 
-            crear_terceto(":=","\"Equilatero\"",auxIdTriang ,tercetosCreados);
+            crear_terceto(":=",auxIdTriang,"\"Equilatero\"" ,tercetosCreados);
 
             char auxBi[LONG_TERCETO];
 
             sprintf(auxBi,"[%d]",tercetosCreados+6);
 
-            crear_terceto("BI","_",auxBi,tercetosCreados);
+            crear_terceto("BI","_","FIN_TRI",tercetosCreados);
 
             // Salto al final que ya se cuanto es
-            crear_terceto(":=","\"Isosceles\"",auxIdTriang ,tercetosCreados);
+            // ACA TENGO EL SALTO 2
+            crear_terceto("TRI_2","_","_" ,tercetosCreados);
+            crear_terceto(":=",auxIdTriang ,"\"Isosceles\"" ,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados+4);
 
-            crear_terceto("BI","_",auxBi,tercetosCreados);
+            crear_terceto("BI","_","FIN_TRI",tercetosCreados);
             // Salto el caso escaleno
             // Comparo a y c
             // Si son iguales tengo que volver al tecerto de isosceles, caso contrario es escaleno a!=b!=c
+            // ACA ESTARIA LA PRIMERA ET
+            crear_terceto("TRI_1","_","_" ,tercetosCreados);
             indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
-            crear_terceto("BE","_",auxBi ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
-            crear_terceto(":=","\"Escaleno\"",auxIdTriang ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
+            crear_terceto("BE","_","TRI_2" ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
+            crear_terceto(":=",auxIdTriang,"\"Escaleno\"" ,tercetosCreados); // En caso contrario son todos distintos entonces es escaleno
+            crear_terceto("FIN_TRI","_","_" ,tercetosCreados);
             
+            insertar_tabla_simbolos("_Escaleno", "CTE_STR", "\"Escaleno\"", 0, 0.0);
+            insertar_tabla_simbolos("_Isosceles", "CTE_STR", "\"Isosceles\"", 0, 0.0);
+            insertar_tabla_simbolos("_Equilatero", "CTE_STR","\"Equilatero\"", 0, 0.0);
+
             printf("ES TRIANGULOS\n");
            }
 ;
@@ -1603,9 +1613,9 @@ void generar_assembler()
         
       // sscanf(linea,"[%s] ( %s ; %s ; %s )",numTerceto,posUno,posDos,posTres);
       sscanf(linea, "%s ( %s ; %s ; %s )", numTerceto, posUno, posDos, posTres);
-      // printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
-      // getchar();
-      if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') )
+      printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
+      getchar();
+      if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') && strncmp(posUno,"TRI",3) != 0 && strncmp(posUno,"FIN_TRI",7) != 0 && strncmp(posUno,"ET",2) != 0 )
       {
         // printf("\n\n IF CMP Y VACIOS -%s-\n\n",posUno);
         char numTercetoSinC[10];
@@ -1635,15 +1645,15 @@ void generar_assembler()
         }
         else
         {
-            // printf("ELSEEEEEEE\n\n ");
-            // getchar();
+            printf("ELSEEEEEEE\n\n ");
+            getchar();
             char numTercetoSinC[10];
             eliminar_corchetes(posDos,numTercetoSinC);
-            // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
-            // getchar();
+            printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+            getchar();
             strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
-            // printf("devolvio %s\n\n",numTercetoSinC);
-            // getchar();
+            printf("devolvio %s\n\n",numTercetoSinC);
+            getchar();
         }
         if(operacion == 0)
         {
@@ -1975,6 +1985,14 @@ void generar_assembler()
       {
           fprintf(file_assembler,"%s:\n",posUno);
           fprintf(file_assembler,"FFREE\n"); // TODO: ESTO SE NECEISTA ACA ?
+      }
+      if(strncmp(posUno,"TRI",3) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
+      }
+      if(strncmp(posUno,"FIN_TRI",3) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
       }
       if(strncmp(posUno,"ET_ESCRIBIR",11) == 0 )
       {

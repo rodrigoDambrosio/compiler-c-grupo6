@@ -4,7 +4,12 @@ intAsig1                      INTEGER                       --
 a5                            INTEGER                       --                                      
 cadena1                       STRING                        --                                      
 a2                            FLOAT                         --                                      
+_1                            CTE_INT                       1                                       1
+_addddd                       CTE_STR                       addddd                                  6
 _2.60                         CTE_FLOAT                     2.60                                    2.60
 aux_exp1                      FLOAT                         --                                      
 aux_exp2                      FLOAT                         --                                      
 aux_exp3                      FLOAT                         --                                      
+_Escaleno                     CTE_STR                       Escaleno                                8
+_Isosceles                    CTE_STR                       Isosceles                               9
+_Equilatero                   CTE_STR                       Equilatero                              10
