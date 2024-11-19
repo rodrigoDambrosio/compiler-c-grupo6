@@ -13,6 +13,7 @@
 #define T_STRING 30
 #define TRUE 1
 #define FALSE 0
+
 int yystopparser=0;
 FILE  *yyin;
 
@@ -58,6 +59,7 @@ int tipo_expresion_izq =-1;
 int tipo_asig_u =-1;
 int fueOr = 0; // TODO:Revisar nombre
 int et_inicio_while_count =1;
+int et_ultimos_contador = 1;
 char aux_et_inicio[50]; 
 char check_es_cte_aux[50];
 // TODO: mover
@@ -142,7 +144,7 @@ int contador_et_escribir = 1;
 char comparador[4]; // TODO: Sacar variables que no se usan
 
 int ultimos_pivote_aux=0;
-int contador_elementos_sumar_ult = 0;
+int contador_elementos_sumar_ult = 1;
 t_nombresId t_ids[10];
 t_Terceto terceto_test;
 t_cola  colaTercetos;
@@ -727,6 +729,10 @@ escribir:
 ultimos: 
     ID IGUAL SUM_ULT 
     {
+      //  char aux_et [10];
+      //  sprintf(aux_et,"ET_ULT%d",contador_elementos_sumar_ult);
+      //  crear_terceto(aux_et,"_","_",tercetosCreados);
+      //  contador_elementos_sumar_ult++;
        ultInd = crear_terceto($1,"_","_",tercetosCreados);
        validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
        aux_id_ultimos = ultInd;
@@ -744,19 +750,20 @@ ultimos:
       //  printf("\n\n ****** PIVOTE: %d *******\n\n", ultimos_pivote_aux);
        if(ultimos_pivote_aux < 0 || cantidad_elementos_restantes <= 0)
        {
-        int tercetoIdAux= ultInd;
-        char auxUltId[LONG_TERCETO];
-        char auxCero[LONG_TERCETO];
-        ultInd = crear_terceto("0","_","_",tercetosCreados);
-        sprintf(auxUltId,"[%d]",tercetoIdAux);
-        sprintf(auxCero,"[%d]",ultInd);
-        ultInd = crear_terceto(":=", auxUltId,auxCero,tercetosCreados);
+          int tercetoIdAux= ultInd;
+          char auxUltId[LONG_TERCETO];
+          char auxCero[LONG_TERCETO];
+          ultInd = crear_terceto("0","_","_",tercetosCreados);
+          sprintf(auxUltId,"[%d]",tercetoIdAux);
+          sprintf(auxCero,"[%d]",ultInd);
+          ultInd = crear_terceto(":=", auxUltId,auxCero,tercetosCreados);
        }
        else
        {
           int tercetoAux = crear_terceto("aux", "_", "_", tercetosCreados);
           insertar_tabla_simbolos("aux", "FLOAT", "", 0, 0); // Se agrega var auxiliar en tabla de simbolos se usa para assembler
           int ceroAux = crear_terceto("0", "_", "_", tercetosCreados);
+          insertar_tabla_simbolos("_0", "CTE_FLOAT", "", 0, 0); // Lo agrego por si falla alguna funcion de TS
           nro_terceto_aux_ultimos = tercetoAux;
           char auxUltId[LONG_TERCETO];
           char auxCero[LONG_TERCETO];
@@ -936,7 +943,6 @@ int main(int argc, char *argv[])
         abrir_archivo_intermedia();
         escribir_tercetos_intermedia();
         fclose(fpIntermedia);
-
         generar_assembler();
         liberar_memoria_tabla_simbolos();
   }
@@ -956,6 +962,114 @@ int yyerror_message(char* mensaje_error)
   exit (1);
 }
 
+
+// TEST DE DICCIONARIO
+// TODO: MOVER
+typedef struct {
+    char nombre[50];  // Nombre de la variable o constante
+    int posicion;             // Posición en el terceto
+} EntradaDiccionario;
+
+typedef struct {
+    EntradaDiccionario *entradas; // Array dinámico de entradas
+    int cantidad;                 // Número actual de entradas
+    int capacidad;                // Capacidad máxima actual
+} Diccionario;
+
+const char* buscar_nombre(Diccionario *dic, int posicion);
+void inicializar_diccionario(Diccionario *dic);
+void agregar_entrada(Diccionario *dic, const char *nombre, int posicion);
+void agregar_entrada(Diccionario *dic, const char *nombre, int posicion);
+void liberar_diccionario(Diccionario *dic);
+int buscar_posicion(Diccionario *dic, const char *nombre);
+
+
+// Inicializa el diccionario
+void inicializar_diccionario(Diccionario *dic) {
+    dic->cantidad = 0;
+    dic->capacidad = 10; // Capacidad inicial
+    dic->entradas = malloc(dic->capacidad * sizeof(EntradaDiccionario));
+    if (!dic->entradas) {
+        perror("Error al inicializar el diccionario");
+        exit(1);
+    }
+}
+
+// Agrega una nueva entrada al diccionario
+void agregar_entrada(Diccionario *dic, const char *nombre, int posicion) {
+    // Redimensionar si es necesario
+    if (dic->cantidad == dic->capacidad) {
+        dic->capacidad *= 2;
+        dic->entradas = realloc(dic->entradas, dic->capacidad * sizeof(EntradaDiccionario));
+        if (!dic->entradas) {
+            perror("Error al redimensionar el diccionario");
+            exit(1);
+        }
+    }
+    // Agregar la nueva entrada
+    strcpy(dic->entradas[dic->cantidad].nombre, nombre);
+    dic->entradas[dic->cantidad].posicion = posicion;
+    dic->cantidad++;
+
+    // printf("EL DIC QUEDO\n");
+    // printf("NOMBRE %s\n",dic->entradas[dic->cantidad-1].nombre );
+    // printf("POS %d vino por par la pos %d\n",dic->entradas[dic->cantidad-1].posicion, posicion);
+}
+
+// Busca una entrada en el diccionario por nombre
+int buscar_posicion(Diccionario *dic, const char *nombre) 
+{
+    int i = 0;
+    for ( i =0 ; i < dic->cantidad; i++) {
+        if (strcmp(dic->entradas[i].nombre, nombre) == 0) {
+            return dic->entradas[i].posicion; // Retorna la posición del terceto
+        }
+    }
+    return -1; // No encontrado
+}
+
+// Libera la memoria del diccionario
+void liberar_diccionario(Diccionario *dic) {
+    free(dic->entradas);
+    dic->entradas = NULL;
+    dic->cantidad = 0;
+    dic->capacidad = 0;
+}
+// Busca una entrada en el diccionario por posición
+const char* buscar_nombre(Diccionario *dic, int posicion) 
+{
+    int i =0;
+    printf("LLEGUE A BISCAR Y BUSCO %d", posicion);
+    getchar();
+    for ( i = 0; i < dic->cantidad; i++) 
+    {
+        printf("PRIMERA IT %d",dic->entradas[i].posicion );
+
+        if (dic->entradas[i].posicion == posicion) 
+        {
+            return dic->entradas[i].nombre; // Retorna el nombre de la variable
+        }
+        getchar();
+    }
+        printf("NO ENCONTRE %d", posicion);
+    getchar();
+    return NULL; // No encontrado
+}
+void eliminar_corchetes(const char *cadena, char *resultado);
+void eliminar_corchetes(const char *cadena, char *resultado) {
+    int longitud = strlen(cadena);
+
+    // Verificar si la cadena tiene corchetes y al menos un carácter entre ellos
+    if (cadena[0] == '[' && cadena[longitud - 1] == ']' && longitud > 2) {
+        strncpy(resultado, cadena + 1, longitud - 2); // Copiar contenido entre corchetes
+        resultado[longitud - 2] = '\0';              // Terminar el string
+    } else {
+        strcpy(resultado, cadena); // Copiar la cadena completa si no tiene formato válido
+    }
+}
+
+///////// END DIC ///////////////////////////
+
 int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
                             const char* valor_string, int valor_var_int, 
                             float valor_var_float)
@@ -963,8 +1077,8 @@ int insertar_tabla_simbolos(const char *nombre,const char *tipo,
     t_simbolo *tabla = tabla_simbolos.primero;
     char nombreCTE[32] = "_";
     strcat(nombreCTE, nombre);
-    // printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s ************  %s ------------- %d ------------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
-
+    // printf("\n\n\n\n\n VOY A INSERTAR ->>>>>>>>: %s -------  %s **********  %s ----------- %d ----------- %f \n\n\n\n",nombre,tipo,valor_string,valor_var_int,valor_var_float);
+    // getchar();
     while(tabla)
     { 
       // Para evitar repetidos / actualizar asignaciones
@@ -1292,8 +1406,10 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_STR") == 0)
         {
+            memset(aux_string, 0 , sizeof(aux_string));
             strncpy(aux_string, aux->data.valor.valor_var_str +1, strlen(aux->data.valor.valor_var_str)-2);
             // printf("\n\n\n - AUX STRING QUEDO  -%s-  \n\n\n\n EL ORIGINAL TENIA -%s-\n\n\n\n",aux_string,aux->data.valor.valor_var_str);
+            // getchar();
             char resultado[50]; 
             sprintf(resultado, "_%s", aux_string);
             sprintf(linea, "%-30s%-30s%-40s%-d\n", resultado, aux->data.tipo, aux_string, strlen(aux_string));
@@ -1457,13 +1573,14 @@ void generar_assembler()
     
     fprintf(file_assembler,  "\n.CODE");
     fprintf(file_assembler,  "\nSTART:\n");
-    fprintf(file_assembler,  "\nMOV EAX,@DATA");
-    fprintf(file_assembler,  "\nMOV DS,EAX");
-    fprintf(file_assembler,  "\nMOV ES,EAX;\n\n");
+    fprintf(file_assembler,  "\n\tMOV EAX,@DATA");
+    fprintf(file_assembler,  "\n\tMOV DS,EAX");
+    fprintf(file_assembler,  "\n\tMOV ES,EAX\n\n");
     char st[40];
     int operacion = 0;
     char et[10];
-
+    Diccionario dic;
+    inicializar_diccionario(&dic);
     while(fgets(linea, sizeof(linea),file_intermediate_code))
     {
       char numTerceto[40];
@@ -1476,121 +1593,363 @@ void generar_assembler()
       // sscanf(linea,"[%s] ( %s ; %s ; %s )",numTerceto,posUno,posDos,posTres);
       sscanf(linea, "%s ( %s ; %s ; %s )", numTerceto, posUno, posDos, posTres);
       // printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
+      // getchar();
       if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') )
       {
-        // printf("ANTES ENTRE ACA \n\n");
+        // printf("\n\n IF CMP Y VACIOS -%s-\n\n",posUno);
+        char numTercetoSinC[10];
+        eliminar_corchetes(numTerceto,numTercetoSinC);
+        agregar_entrada(&dic,posUno,atoi(numTercetoSinC));
+        // printf("\n\n GUARDE EN EL DIC LO DE POSUNO -%s- EN EL TERCETO %d\n\n",posUno,atoi(numTercetoSinC));
+        // getchar();
         apilar(&p_ass, posUno, sizeof(posUno));
       }
       if(strcmp(":=",posUno) == 0 )
       {
-        // printf("ST TIENE :::::::: %s \n\n",st);
-        strcpy(st, desapilar(&p_ass));
-        // printf("ST TIENE AHORA :::::::: %s \n\n",st);
+        // printf("EN IF ASIG ANTES DE DESAPILAR que tengo de los tercetos 1-%s 2-%s 3-%s \n\n",posUno,posDos,posTres);
+        // getchar();
+        // if(posDos[0]=='[')
+        // {
+        //     printf("JAAAAA");
+        //     getchar();
+        // }
+        // buscarValorPosTerceto("2");
+        // buscarValorPosTerceto("3");
+        // entonces uso esto y no desapilo nada
+        if(!es_pila_vacia(&p_ass))
+        {
+            strcpy(st, desapilar(&p_ass));
+            // printf("ENTRO IF := DESAPILO %s \n\n",st);
+            // getchar();
+        }
+        else
+        {
+            // printf("ELSEEEEEEE\n\n ");
+            // getchar();
+            char numTercetoSinC[10];
+            eliminar_corchetes(posDos,numTercetoSinC);
+            // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+            // getchar();
+            strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+            // printf("devolvio %s\n\n",numTercetoSinC);
+            // getchar();
+        }
         if(operacion == 0)
         {
-          // printf("\n\n ST ES -%s-\n\n\n",st);
-          // getchar();
-          // printf("\n\n -%s-\n\n\n",aux_check_operador);
-          // getchar();
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);  
-          strcpy(st, desapilar(&p_ass));
+          // printf("\n\n ADENTRO IF OP := -%s-\n\n\n",aux_check_operador);
+          // getchar();
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);  
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
+          // printf("\n\n ADENTRO IF OP DESAPILO -%s-\n\n\n",st);
+          // getchar();
         }
         strcpy(aux_check_operador, check_es_cte(st));
-        fprintf(file_assembler,"FSTP %s\n",aux_check_operador);  
+        fprintf(file_assembler,"\tFSTP %s\n",aux_check_operador);  
         operacion = 0;   
       }
       if(strcmp("+",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));  
+          // strcpy(st, desapilar(&p_ass));  
+          // printf("\n\n ADENTRO IF + DESAPILO -%s-\n\n\n",st);
+          // getchar();
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
+          // printf("\n\n PASE IF ELSE -%s-\n\n\n");
+          // getchar(); 
           strcpy(aux_check_operador, check_es_cte(st)); 
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          strcpy(st, desapilar(&p_ass));  
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          // strcpy(st, desapilar(&p_ass)); 
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
+          // printf("\n\n ADENTRO IF + DESAPILO 2da -%s-\n\n\n",st);
+          // getchar(); 
           strcpy(aux_check_operador, check_es_cte(st));  
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          fprintf(file_assembler,"FADD\n");
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"\tFADD\n");
           operacion = 1;
       }
       if(strcmp("-",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));  
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
           strcpy(aux_check_operador, check_es_cte(st));     
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          strcpy(st, desapilar(&p_ass)); 
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
           strcpy(aux_check_operador, check_es_cte(st));          
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          fprintf(file_assembler,"FSUB\n");
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"\tFSUB\n");
           operacion = 1;
       }
       if(strcmp("/",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));   
+          // strcpy(st, desapilar(&p_ass));  
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          } 
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          strcpy(st, desapilar(&p_ass));    
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }  
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          fprintf(file_assembler,"FDIV\n");
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"\tFDIV\n");
           operacion = 1;
       }
       if(strcmp("*",posUno) == 0 )
       {
-          strcpy(st, desapilar(&p_ass));  
+          // strcpy(st, desapilar(&p_ass)); 
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
           strcpy(aux_check_operador, check_es_cte(st));        
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          strcpy(st, desapilar(&p_ass));
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          fprintf(file_assembler,"FMUL\n");
+          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          fprintf(file_assembler,"\tFMUL\n");
           operacion = 1;
       }
-      if(strcmp("CMP",posUno) == 0 )
+      if(strcmp("CMP",posUno) == 0 ) // TODO: CHECK EL ORDEN DEBERIAN VENIR DOS INTASIG1
       {
-          strcpy(st, desapilar(&p_ass)); 
+          // strcpy(st, desapilar(&p_ass)); 
+          // getchar();
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador);
-          strcpy(st, desapilar(&p_ass));      
+          char comp_aux_der[15];
+          sprintf(comp_aux_der,"\tFLD %s\n",aux_check_operador);
+          // fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          // strcpy(st, desapilar(&p_ass));
+          if(!es_pila_vacia(&p_ass))
+          {
+              strcpy(st, desapilar(&p_ass));
+              // printf("ENTRO IF := DESAPILO %s \n\n",st);
+              // getchar();
+          }
+          else
+          {
+              // printf("ELSEEEEEEE\n\n ");
+              // getchar();
+              char numTercetoSinC[10];
+              eliminar_corchetes(posDos,numTercetoSinC);
+              // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+              // getchar();
+              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+              // printf("devolvio %s\n\n",numTercetoSinC);
+              // getchar();
+          }      
           strcpy(aux_check_operador, check_es_cte(st));
-          fprintf(file_assembler,"FLD %s\n",aux_check_operador); 
-          fprintf(file_assembler,"FXCH\n"); 
-          fprintf(file_assembler,"FCOM\n");
-          fprintf(file_assembler,"FSTSW AX\n");
-          fprintf(file_assembler,"SAHF\n");
+          // fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
+          char comp_aux_izq[15];
+          sprintf(comp_aux_izq,"\tFLD %s\n",aux_check_operador); 
+          fprintf(file_assembler,"%s",comp_aux_izq);
+          fprintf(file_assembler,"%s",comp_aux_der);
+          fprintf(file_assembler,"\tFXCH\n"); 
+          fprintf(file_assembler,"\tFCOM\n");
+          fprintf(file_assembler,"\tFSTSW AX\n");
+          fprintf(file_assembler,"\tSAHF\n");
       }
       if(strcmp ("BLE",posUno)==0) 
       {
         sscanf(posTres,"%[^ ]",et);
-        fprintf(file_assembler,"JNA %s\n",et);
+        fprintf(file_assembler,"\tJNA %s\n",et);
       }
       if(strcmp ("BNE",posUno)==0)
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JNE %s\n",et);
+          fprintf(file_assembler,"\tJNE %s\n",et);
       }
       if(strcmp ("BLT",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JB %s\n",et);
+          fprintf(file_assembler,"\tJB %s\n",et);
       }
       if(strcmp ("BGT",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JA %s\n",et);
+          fprintf(file_assembler,"\tJA %s\n",et);
       }
       if(strcmp ("BGE",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JAE %s\n",et);
+          fprintf(file_assembler,"\tJAE %s\n",et);
       }
       if(strcmp ("BEQ",posUno)==0) 
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JE %s\n",et);
+          fprintf(file_assembler,"\tJE %s\n",et);
       }
       if(strcmp("BI", posUno) == 0)
       {
           sscanf(posTres,"%[^ ]",et);
-          fprintf(file_assembler,"JMP %s\n",et);
+          fprintf(file_assembler,"\tJMP %s\n",et);
       }
       if(strncmp(posUno,"ETIQ_IF",7) == 0 )
       {
@@ -1604,7 +1963,7 @@ void generar_assembler()
       if(strncmp(posUno,"ETIQ_CICLO",7) == 0 )
       {
           fprintf(file_assembler,"%s:\n",posUno);
-          fprintf(file_assembler,"FFREE\n");
+          fprintf(file_assembler,"FFREE\n"); // TODO: ESTO SE NECEISTA ACA ?
       }
       if(strncmp(posUno,"ET_ESCRIBIR",11) == 0 )
       {
@@ -1614,9 +1973,9 @@ void generar_assembler()
         MOV DS, AX
         MOV ES, AX
         */
-        fprintf(file_assembler,"MOV AX, @DATA\n",posUno);
-        fprintf(file_assembler,"MOV DS, AX\n");
-        fprintf(file_assembler,"MOV ES, AX\n",posUno);
+        // fprintf(file_assembler,"\tMOV AX, @DATA\n",posUno);
+        // fprintf(file_assembler,"\tMOV DS, AX\n");
+        // fprintf(file_assembler,"\tMOV ES, AX\n",posUno);
         // Check que cosa es, id o cte str
         if(check_es_cte_columna_valor(posDos) == TRUE)
         {
@@ -1624,22 +1983,28 @@ void generar_assembler()
           strcpy(aux_valor,posDos);
           aux_valor[0] = '_';
           aux_valor[strlen(aux_valor)-1] = '\0';
-          fprintf(file_assembler,"LEA DX, %s\n",aux_valor);
+          fprintf(file_assembler,"\tdisplayString %s\n",aux_valor);
         }
         else
         {
-          fprintf(file_assembler,"LEA DX, %s\n",posDos);
+          fprintf(file_assembler,"\tdisplayString %s\n",posDos);
         }
-        fprintf(file_assembler,"MOV AH, 09h\n");
-        fprintf(file_assembler,"INT 21h\n",posUno);
+        fprintf(file_assembler,"\tnewLine 1\n");
+        // fprintf(file_assembler,"\tMOV AH, 09h\n");
+        // fprintf(file_assembler,"\tINT 21h\n",posUno);
       }
+      // TODO: Necesito la etiqueta?? -> NO
+      // if(strncmp(posUno,"ET_ULT",6) == 0 )
+      // {
+        
+      // }
       //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
       //TODO: Floats y string en assembler
       //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) -> DONE
       //TODO: WHILE parece ok -> DONE
       //TODO: Check cuentas que de verdad sume
     }
-    fprintf(file_assembler,"FFREE\n");
+    fprintf(file_assembler,"\nFFREE");
     fprintf(file_assembler,"\nmov ax,4c00h");
     fprintf(file_assembler,"\nint 21h");
     fprintf(file_assembler,"\nEnd START");
@@ -1721,3 +2086,5 @@ void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBu
     }
     colaTercetos=aux;
 }
+
+

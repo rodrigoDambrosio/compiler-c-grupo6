@@ -10,37 +10,47 @@ intAsig1             dd		 ?
 cadena1              dd		 ?
 a2                   dd		 ?
 _6                   dd		 6                             
-_2                   dd		 2                             
+_3                   dd		 3                             
+_aaaaaaaaaaa         db		 "aaaaaaaaaaa", '$', 11 dup (?)
 _8                   dd		 8                             
-_holaaaaa            db		 "holaaaaa", '$', 8 dup (?)
+_agoraaa             db		 "agoraaa", '$', 7 dup (?)
+_MIAUMIAU            db		 "MIAUMIAU", '$', 8 dup (?)
 
 .CODE
 START:
 
-MOV EAX,@DATA
-MOV DS,EAX
-MOV ES,EAX;
+	MOV EAX,@DATA
+	MOV DS,EAX
+	MOV ES,EAX
 
-FLD _2
-FLD _6
-FADD
-FSTP intAsig1
-FLD _8
-FLD intAsig1
-FXCH
-FCOM
-FSTSW AX
-SAHF
-JNE ETIQ_IF11
-MOV AX, @DATA
-MOV DS, AX
-MOV ES, AX
-LEA DX, _holaaaaa
-MOV AH, 09h
-INT 21h
-ETIQ_IF11:
+	FLD _6
+	FSTP intAsig1
+	FLD intAsig1
+	FLD _3
+	FXCH
+	FCOM
+	FSTSW AX
+	SAHF
+	JAE ETIQ_IF12
+	displayString _aaaaaaaaaaa
+	newLine 1
+	FLD _8
+	FSTP intAsig1
+ETIQ_IF12:
+	FLD intAsig1
+	FLD _8
+	FXCH
+	FCOM
+	FSTSW AX
+	SAHF
+	JB ETIQ_IF18
+	displayString _agoraaa
+	newLine 1
+ETIQ_IF18:
+	displayString _MIAUMIAU
+	newLine 1
+
 FFREE
-
 mov ax,4c00h
 int 21h
 End START

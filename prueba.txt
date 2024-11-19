@@ -4,8 +4,13 @@ init {
     cadena1 : String
     a2  : Float
 }
-intAsig1:= 6 + 2
-
-si(intAsig1==8){
-    escribir("holaaaaa")
+intAsig1 := 6
+si(intAsig1 < 3){
+    escribir("esuntre")
+    intAsig1 := 8
 }
+si(intAsig1 >= 8){
+       escribir("agoraaa")
+}
+
+escribir("SIUUUUUU")
