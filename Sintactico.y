@@ -1613,8 +1613,8 @@ void generar_assembler()
         
       // sscanf(linea,"[%s] ( %s ; %s ; %s )",numTerceto,posUno,posDos,posTres);
       sscanf(linea, "%s ( %s ; %s ; %s )", numTerceto, posUno, posDos, posTres);
-      printf("TERCETO %s %s %s %s \n",numTerceto,posUno,posDos,posTres);
-      getchar();
+      // printf("TERCETO NRO %s P1 %s P2 %s P3 %s \n",numTerceto,posUno,posDos,posTres);
+      // getchar();
       if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') && strncmp(posUno,"TRI",3) != 0 && strncmp(posUno,"FIN_TRI",7) != 0 && strncmp(posUno,"ET",2) != 0 )
       {
         // printf("\n\n IF CMP Y VACIOS -%s-\n\n",posUno);
@@ -1627,16 +1627,6 @@ void generar_assembler()
       }
       if(strcmp(":=",posUno) == 0 )
       {
-        // printf("EN IF ASIG ANTES DE DESAPILAR que tengo de los tercetos 1-%s 2-%s 3-%s \n\n",posUno,posDos,posTres);
-        // getchar();
-        // if(posDos[0]=='[')
-        // {
-        //     printf("JAAAAA");
-        //     getchar();
-        // }
-        // buscarValorPosTerceto("2");
-        // buscarValorPosTerceto("3");
-        // entonces uso esto y no desapilo nada
         if(!es_pila_vacia(&p_ass))
         {
             strcpy(st, desapilar(&p_ass));
@@ -1645,15 +1635,15 @@ void generar_assembler()
         }
         else
         {
-            printf("ELSEEEEEEE\n\n ");
-            getchar();
+            // printf("ELSEEEEEEE\n\n ");
+            // getchar();
             char numTercetoSinC[10];
             eliminar_corchetes(posDos,numTercetoSinC);
-            printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
-            getchar();
+            // printf("EL TERCETO QUE BUSCO ES %s\n\n ",numTercetoSinC);
+            // getchar();
             strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
-            printf("devolvio %s\n\n",numTercetoSinC);
-            getchar();
+            // printf("devolvio %s\n\n",numTercetoSinC);
+            // getchar();
         }
         if(operacion == 0)
         {
@@ -2022,17 +2012,12 @@ void generar_assembler()
         // fprintf(file_assembler,"\tMOV AH, 09h\n");
         // fprintf(file_assembler,"\tINT 21h\n",posUno);
       }
-      // TODO: Necesito la etiqueta?? -> NO
-      // if(strncmp(posUno,"ET_ULT",6) == 0 )
-      // {
-        
-      // }
-      //TODO TAG ESCRIBIR -> DONDE | LEER, VER COMO RESOLVER LOS SALTOS CONDICIONALES Y POR QUE NO FUNCIONA LO DE TRIANGULOS Y SUMAULTIMOS
-      //TODO: Floats y string en assembler
-      //TODO: las constantes en el assembler deberian arrancar con _ (asi toma el codigo el assembler) -> DONE
+
+      //TODO  INSTRUCCION LEER CHECK QUE HACE O COMO FUNCIONA
+      //TODO: Floats y string en assembler, los float no pueden tener un nombre con ., habria que sacarlo en la TS
       //TODO: WHILE parece ok -> revisar / comparar
       //TODO: Check cuentas que de verdad sume -> SUMA OK
-      //TODO: triangulos asignacion a expresion :/ tengo que hacer que en el cmp quede el aux, no el :=
+      //TODO: triangulos asignacion a expresion -> LISTO FALTA VALIDAR QUE HACE Y QUE NO
     }
     fprintf(file_assembler,"\nFFREE");
     fprintf(file_assembler,"\nmov ax,4c00h");
