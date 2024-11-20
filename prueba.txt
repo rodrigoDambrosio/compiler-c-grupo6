@@ -4,7 +4,11 @@ init {
     cadena1 : String
     a2  : Float
 }
-si(1==1){
+
+leer(cadena1)
+escribir(cadena1)
+
+si(a5==1){
 escribir("addddd")
 }
 

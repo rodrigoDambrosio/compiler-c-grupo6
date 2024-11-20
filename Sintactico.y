@@ -59,6 +59,7 @@ int tipo_expresion = -1;
 int tipo_termino = -1;
 int tipo_expresion_izq =-1;
 int tipo_asig_u =-1;
+int contador_leer= 1;
 int fueOr = 0; // TODO:Revisar nombre
 int et_inicio_while_count =1;
 int et_ultimos_contador = 1;
@@ -71,7 +72,7 @@ const char * check_es_cte(const char *nombre);
 int check_es_cte_columna_valor(const char *nombre);
 void generar_assembler();
 void trim_end(char * str);
-
+void reemplazarPuntoPorGuionBajo(char* str);
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
@@ -699,9 +700,11 @@ leer :
      LEER PA ID PC 
      {
         verificar_si_falta_en_ts($3);
-        leerIndice = crear_terceto("LEER", $3, "_", tercetosCreados);
+        char et_leer_aux[25];
+        sprintf(et_leer_aux,"ET_LEER%d",contador_leer);
+        contador_leer++;
+        leerIndice = crear_terceto(et_leer_aux, $3, "_", tercetosCreados);
         printf("\n\n\n *** Se ejecuta LEER con la variable: %s\n", $3);
-        printf("ES LEER\n");
      }
      
 ;
@@ -1419,7 +1422,8 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
-            sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, aux->data.tipo, aux->data.valor.valor_var_str, aux->data.valor.valor_var_str);                              
+          reemplazarPuntoPorGuionBajo(aux->data.nombre);
+          sprintf(linea, "%-30s%-30s%-40s%s\n", aux->data.nombre, aux->data.tipo, aux->data.valor.valor_var_str, aux->data.valor.valor_var_str);                              
         }
         else if(strcmp(aux->data.tipo, "STRING") == 0)
         {
@@ -1433,6 +1437,7 @@ void guardar_tabla_simbolos()
             // getchar();
             char resultado[50]; 
             sprintf(resultado, "_%s", aux_string);
+            reemplazarPuntoPorGuionBajo(resultado);
             sprintf(linea, "%-30s%-30s%-40s%-d\n", resultado, aux->data.tipo, aux_string, strlen(aux_string));
         }
         fprintf(arch, "%s", linea);
@@ -1615,7 +1620,8 @@ void generar_assembler()
       sscanf(linea, "%s ( %s ; %s ; %s )", numTerceto, posUno, posDos, posTres);
       // printf("TERCETO NRO %s P1 %s P2 %s P3 %s \n",numTerceto,posUno,posDos,posTres);
       // getchar();
-      if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') && strncmp(posUno,"TRI",3) != 0 && strncmp(posUno,"FIN_TRI",7) != 0 && strncmp(posUno,"ET",2) != 0 )
+      if( strncmp(posUno,"CMP",4) != 0  && (posDos[0]  == '_')  &&  (posTres[0] == '_') 
+      && strncmp(posUno,"TRI",3) != 0 && strncmp(posUno,"FIN_TRI",7) != 0 && strncmp(posUno,"ET",2) != 0 )
       {
         // printf("\n\n IF CMP Y VACIOS -%s-\n\n",posUno);
         char numTercetoSinC[10];
@@ -1966,7 +1972,6 @@ void generar_assembler()
       {
           fprintf(file_assembler,"%s:\n",posUno);
       }
-      //WHILE
       if(strncmp(posUno,"InicioMientras",14) == 0 )
       {
           fprintf(file_assembler,"%s:\n",posUno);
@@ -1983,6 +1988,26 @@ void generar_assembler()
       if(strncmp(posUno,"FIN_TRI",3) == 0 )
       {
           fprintf(file_assembler,"%s:\n",posUno);
+      }
+       if(strncmp(posUno,"ET_LEER",7) == 0 )
+      {
+        char tipo_id_aux_factor[15];
+        strcpy(tipo_id_aux_factor,check_tipo_variable_ts(posDos));
+        if(strcmp("INTEGER" , tipo_id_aux_factor) == 0)
+        {
+          fprintf(file_assembler,"\tGetInteger %s\n",posDos);
+        }
+        else if(strcmp("FLOAT" , tipo_id_aux_factor) == 0)
+        {
+          fprintf(file_assembler,"\tGetFloat %s\n",posDos);
+        }
+        else if(strcmp("STRING" , tipo_id_aux_factor) == 0)
+        {
+          fprintf(file_assembler,"\tgetString %s\n",posDos);
+        }
+        // printf("ES DE TIPO !!!! %s\n",tipo_id_aux_factor);
+        // getchar();
+        fprintf(file_assembler,"%s:\n",posUno);
       }
       if(strncmp(posUno,"ET_ESCRIBIR",11) == 0 )
       {
@@ -2013,7 +2038,7 @@ void generar_assembler()
         // fprintf(file_assembler,"\tINT 21h\n",posUno);
       }
 
-      //TODO  INSTRUCCION LEER CHECK QUE HACE O COMO FUNCIONA
+      //TODO  INSTRUCCION LEER SE AGREGO CODIGO -> VERIFICAR
       //TODO: Floats y string en assembler, los float no pueden tener un nombre con ., habria que sacarlo en la TS
       //TODO: WHILE parece ok -> revisar / comparar
       //TODO: Check cuentas que de verdad sume -> SUMA OK
@@ -2102,4 +2127,11 @@ void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBu
     colaTercetos=aux;
 }
 
-
+void reemplazarPuntoPorGuionBajo(char* str) {
+    int i;
+    for (i = 0; i < strlen(str); i++) {
+        if (str[i] == '.') {
+            str[i] = '_';
+        }
+    }
+}

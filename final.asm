@@ -12,7 +12,7 @@ cadena1              dd		 ?
 a2                   dd		 ?
 _1                   dd		 1                             
 _addddd              db		 "addddd", '$', 6 dup (?)
-_2.60                dd		 2.60                          
+_2_60                dd		 2.60                          
 aux_exp1             dd		 ?
 aux_exp2             dd		 ?
 aux_exp3             dd		 ?
@@ -27,16 +27,20 @@ START:
 	MOV DS,EAX
 	MOV ES,EAX
 
-	FLD _1
+	getString cadena1
+ET_LEER1:
+	displayString cadena1
+	newLine 1
+	FLD a5
 	FLD _1
 	FXCH
 	FCOM
 	FSTSW AX
 	SAHF
-	JNE ETIQ_IF6
+	JNE ETIQ_IF8
 	displayString _addddd
 	newLine 1
-ETIQ_IF6:
+ETIQ_IF8:
 	FLD _2.6
 	FSTP a2
 	FLD aux_exp1
