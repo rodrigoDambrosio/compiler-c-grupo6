@@ -1877,7 +1877,7 @@ void generar_assembler()
           fprintf(file_assembler,"\tFMUL\n");
           operacion = 1;
       }
-      if(strcmp("CMP",posUno) == 0 ) // TODO: CHECK EL ORDEN DEBERIAN VENIR DOS INTASIG1
+      if(strcmp("CMP",posUno) == 0 ) 
       {
           // strcpy(st, desapilar(&p_ass)); 
           // getchar();
@@ -2039,9 +2039,7 @@ void generar_assembler()
       }
 
       //TODO  INSTRUCCION LEER SE AGREGO CODIGO -> VERIFICAR
-      //TODO: Floats y string en assembler, los float no pueden tener un nombre con ., habria que sacarlo en la TS
       //TODO: WHILE parece ok -> revisar / comparar
-      //TODO: Check cuentas que de verdad sume -> SUMA OK
       //TODO: triangulos asignacion a expresion -> LISTO FALTA VALIDAR QUE HACE Y QUE NO
     }
     fprintf(file_assembler,"\nFFREE");
