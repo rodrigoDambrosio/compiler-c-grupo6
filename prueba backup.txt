@@ -16,18 +16,17 @@ init {
 *-     a2,a2,a2,a2, b3,y,a,x,e  : Float -*
 *- } -*
 
-*- Prueba expresion -*
-
-entero1:= ((entero2-21*10)/4) * 67
-
 *- entero1:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
 
 *- Asignaciones -*
+*- Prueba expresiones -*
 
 intAsig1 := 27 - c
 intAsig1 := 500 + c
 intAsig2 := 34 * 3
 intAsig2 := intAsig2 / intAsig2
+
+escribir(intAsig2)
 
 floatAsig1 := 99999.99
 floatAsig2 := 99.
@@ -52,19 +51,19 @@ cadena2 := "@sdaaaaafafg"
 
 mientras ( entero1>entero2 OR float2 == float1)
 {
-    escribir("a es mas grande que b")
+    escribir("entero1yentero2")
     a := a + 1.1
 }
 
 si (NOT entero1 == entero2)
 {
-    escribir("a es mas grande que b")
+    escribir("notTest")
     a := a + 1.2
 }
 
 si  (float1 > float2 AND entero1>entero2)
 {
-    escribir("a es mas grande que b")
+    escribir("a_es_mas_grande_que_b")
     entero1 := entero1 + 1
 }
 sino
@@ -82,9 +81,9 @@ x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
 x = sumaLosUltimos(0; [28, 13.5, 4, 5.5, 17, 52])
 x = sumaLosUltimos(4; [28, 52])
 
-y = triangulo(x, 1+1, float1)  
-y = triangulo(0, 1.5/float1, 0) 
-y = triangulo((32.3+5.5+float2)*float1, 1.78/x, 100) 
+cadena1 = triangulo(x, 1+1, float1)  
+cadena1 = triangulo(0, 1.5/float1, 0) 
+cadena1 = triangulo(32.3+float2*float1, 1.78/x, 100) 
 
 float2:= 1.2
 
