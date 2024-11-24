@@ -5,7 +5,6 @@ init {
     entero1, entero2,c,x : Int
     a2, b3,y,a,e  : Float
 }
+cadena1 = triangulo(1,2, 3)  
 
-
-cadena1:= "hola"
-
+escribir(cadena1)

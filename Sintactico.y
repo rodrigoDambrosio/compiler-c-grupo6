@@ -72,6 +72,7 @@ void escribirTercetoActualEnAnterior_etiqueta(int tercetoAEscribir,int tercetoBu
 void eliminar_corchetes(const char *cadena, char *resultado);
 void liberar_memoria_tabla_simbolos(); // TODO: VER COMO BORRAR ESTO Y QUE QUEDE FREE, TODAVIA NO USE EL METODO EN NINGUN LADO
 const char * check_es_cte(const char *nombre);
+void removeQuotes(char *str);
 int check_es_cte_columna_valor(const char *nombre);
 void generar_assembler();
 void trim_end(char * str);
@@ -910,8 +911,6 @@ triangulos:
             sprintf(auxUno,"[%d]",auxExp_triang1); //auxExp1
             sprintf(auxDos,"[%d]",auxExp_triang2); //auxExp2
             sprintf(auxTres,"[%d]",auxExp_triang3); //auxExp3
-            // printf("Exp1: %s Exp2: %s Exp3: %s\n",auxUno,auxDos,auxTres);
-            // getchar();
             char et_triang[25];
             // indTriang = crear_terceto("CMP",auxDos,auxUno,tercetosCreados);
             // int primerSaltoBNE = crear_terceto("BNE","_","_" ,tercetosCreados);
@@ -960,7 +959,7 @@ triangulos:
             // Si son iguales tengo que volver al tecerto de isosceles, caso contrario es escaleno a!=b!=c
             // ACA ESTARIA LA PRIMERA ET
             crear_terceto("TRI_1","_","_" ,tercetosCreados);
-            indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
+            // indTriang = crear_terceto("CMP",auxTres,auxUno,tercetosCreados);
             sprintf(auxBi,"[%d]",tercetosCreados-3);
             crear_terceto("BE","_","TRI_2" ,tercetosCreados); // En caso de que sea igual eso indicaria que es isosceles
             
@@ -1594,7 +1593,7 @@ void generar_assembler()
     crear_pila(&p_while);
     fprintf(file_assembler,  "include macros2.asm\n");
     fprintf(file_assembler,  "include number.asm\n");
-    fprintf(file_assembler, ".MODEL LARGE\n.STACK 200h\n.386\n.DATA\n\n");
+    fprintf(file_assembler, ".MODEL LARGE\n.STACK 200h\n.386\n.DATA\nMAXTEXTSIZE equ 200\n\n");
     char linea[1000];
     fgets(linea, sizeof(linea), file_symbol_table); // Skipeo el encabezado
     while(fgets(linea, sizeof(linea),file_symbol_table))
@@ -1653,6 +1652,29 @@ void generar_assembler()
     }
     
     fprintf(file_assembler,  "\n.CODE");
+    fprintf(file_assembler, "\nstrlen proc\n");
+    fprintf(file_assembler, "\tmov bx, 0\n");
+    fprintf(file_assembler, "\tstrLoop:\n");
+    fprintf(file_assembler, "\t\tcmp BYTE PTR [si+bx],'$'\n");
+    fprintf(file_assembler, "\t\tje strend\n");
+    fprintf(file_assembler, "\t\tinc bx\n");
+    fprintf(file_assembler, "\t\tjmp strLoop\n");
+    fprintf(file_assembler, "\tstrend:\n");
+    fprintf(file_assembler, "\t\tret\n");
+    fprintf(file_assembler, "strlen endp\n");
+    fprintf(file_assembler, "assignString proc\n");
+    fprintf(file_assembler, "\tcall strlen\n");
+    fprintf(file_assembler, "\tcmp bx , MAXTEXTSIZE\n");
+    fprintf(file_assembler, "\tjle assignStringSizeOk\n");
+    fprintf(file_assembler, "\tmov bx , MAXTEXTSIZE\n");
+    fprintf(file_assembler, "\tassignStringSizeOk:\n");
+    fprintf(file_assembler, "\tmov cx , bx\n");
+    fprintf(file_assembler, "\tcld\n");
+    fprintf(file_assembler, "\trep movsb\n");
+    fprintf(file_assembler, "\tmov al , '$'\n");
+    fprintf(file_assembler, "\tmov byte ptr[di],al\n");
+    fprintf(file_assembler, "\tret\n");
+    fprintf(file_assembler, "assignString endp\n");
     fprintf(file_assembler,  "\nSTART:\n");
     fprintf(file_assembler,  "\n\tMOV EAX,@DATA");
     fprintf(file_assembler,  "\n\tMOV DS,EAX");
@@ -1692,35 +1714,50 @@ void generar_assembler()
             eliminar_corchetes(posDos,numTercetoSinC);
             strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
         }
-        if(operacion == 0)
+        if(st[0]=='\"' || check_es_cte_string(st)) // ENTONCES TENGO QUE ASIGNAR UN STRING
         {
-          strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador);
-          fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);  
-          if(!es_pila_vacia(&p_ass))
-          {
-              strcpy(st, desapilar(&p_ass));
-          }
-          else
-          {
-              char numTercetoSinC[10];
-              eliminar_corchetes(posTres,numTercetoSinC);
-              strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
-          }
+          char op1[15];
+          char op2[15];
+          char var1[15];
+          char var2[15];
+
+          eliminar_corchetes(posDos,op1);
+          strcpy(var1,buscar_nombre(&dic,atoi(op1)));
+          eliminar_corchetes(posTres,op2);
+          strcpy(var2,buscar_nombre(&dic,atoi(op2)));
+
+          // printf("es una asig de string y las var1: %s var2: %s",var1,var2);
+          // getchar();
+          removeQuotes(var1);
+          removeQuotes(var2);
+          // printf("le saque las comillas y quedo -%s-",var2);
+          fprintf(file_assembler,"\tMOV si, OFFSET _%s\n",var2);// cte
+          fprintf(file_assembler,"\tMOV di, OFFSET %s\n",var1); // var
+          fprintf(file_assembler,"\tCALL assignString\n");
         }
-        strcpy(aux_check_operador, check_es_cte(st));
-        // if(check_es_cte_string(aux_check_operador) == TRUE) // TENGO QUE ASIGNAR UN STRING
-        // {
-        //     printf("XD AMIGS");
-        //     getchar();
-        // }
-        // else
-        // {
+        else // no es string uso assembler comun
+        {
+          if(operacion == 0)
+          {
+            strcpy(aux_check_operador, check_es_cte(st));
+            reemplazarPuntoPorGuionBajo(aux_check_operador);
+            fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);  
+            if(!es_pila_vacia(&p_ass))
+            {
+                strcpy(st, desapilar(&p_ass));
+            }
+            else
+            {
+                char numTercetoSinC[10];
+                eliminar_corchetes(posTres,numTercetoSinC);
+                strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
+            }
+          }
+          strcpy(aux_check_operador, check_es_cte(st));
           reemplazarPuntoPorGuionBajo(aux_check_operador);
           fprintf(file_assembler,"\tFSTP %s\n",aux_check_operador);  
           operacion = 0; 
-        // }
-         
+        }
       }
       if(strcmp("+",posUno) == 0 )
       {
@@ -2076,5 +2113,16 @@ void reemplazarPuntoPorGuionBajo(char* str) {
         if (str[i] == '.') {
             str[i] = '_';
         }
+    }
+}
+void removeQuotes(char *str) {
+    int len = strlen(str);
+
+    // Verifica que la cadena tenga al menos 2 caracteres y que comience y termine con comillas dobles
+    if (len >= 2 && str[0] == '"' && str[len - 1] == '"') {
+        // Desplaza la cadena hacia la izquierda para eliminar la primera comilla
+        memmove(str, str + 1, len - 1);
+        // Reemplaza la última comilla por un carácter nulo
+        str[len - 2] = '\0';
     }
 }
