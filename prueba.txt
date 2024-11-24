@@ -2,46 +2,10 @@ init {
     floatAsig1, floatAsig2,float1, float2 : Float
     intAsig1, intAsig2,base,var1 : Int
     cadena1, cadena2 : String
-    entero1, entero2,c : Int
-    a2, b3,y,a,x,e  : Float
+    entero1, entero2,c,x : Int
+    a2, b3,y,a,e  : Float
 }
 
-*-Ejemplo de duplicacion de variables-*
 
-*- init { -*
-*-     floatAsig1, floatAsig2,float1, float2 : Float -*
-*-     intAsig1, intAsig2,base,var1 : Int -*
-*-     cadena1, cadena2 : String -*
-*-     entero1, entero2,c : Int -*
-*-     a2,a2,a2,a2, b3,y,a,x,e  : Float -*
-*- } -*
-
-*- entero1:= ((e-21*10)/4) * 67; -* *-Ejemplo error sintactico con un char que no se espera (;)-*
-
-*- Asignaciones -*
-*- Prueba expresiones -*
-
-intAsig2 := 34 * 3
-intAsig1 := 500 + intAsig2
-floatAsig1 := 2.5
-escribir("antes_if")
-
-si( intAsig1> 1){
-    escribir("en_el_if")
-}
-
-si(intAsig2==0){
-        escribir("no_cumple")
-}
-sino{
-   escribir("sino_esto")
-}
-c:=0
-
-mientras(c<2){
-    escribir("escribir_algo_2_veces")
-    leer(cadena1)
-    c:=c+1
-}
-
+cadena1:= "hola"
 
