@@ -79,6 +79,7 @@ void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
 t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
+char* validar_ts_int_o_float(const char *nombre);
 char* agregarCorchetes(const char* cadena);
 t_tabla tabla_simbolos;
 char* validar_ts(const char *nombre,const char *tipo, 
@@ -735,13 +736,11 @@ escribir:
 ultimos: 
     ID IGUAL SUM_ULT 
     {
-      //  char aux_et [10];
-      //  sprintf(aux_et,"ET_ULT%d",contador_elementos_sumar_ult);
-      //  crear_terceto(aux_et,"_","_",tercetosCreados);
-      //  contador_elementos_sumar_ult++;
        ultInd = crear_terceto($1,"_","_",tercetosCreados);
-       validar_ts($1, "FLOAT", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
+       validar_ts_int_o_float($1); // verif en ts
        aux_id_ultimos = ultInd;
+       insertar_tabla_simbolos("_0", "CTE_INT", "", 0, 0.0);
+       insertar_tabla_simbolos("_0.0", "CTE_FLOAT", "", 0, 0.0);
     } 
     PA CTE_INT 
     {
@@ -792,11 +791,12 @@ ultimos:
             sprintf(ultIndChar,"[%d]",ultInd);
             ultInd = crear_terceto("+", auxUltId, ultIndChar, tercetosCreados);
 
-            char aux_ult_asig [10];
-            sprintf(aux_ult_asig,"[%d]",ultInd);
-            ultInd = crear_terceto(":=", auxUltId, aux_ult_asig, tercetosCreados);
+            // char aux_ult_asig [10]; Esto me genera una de mas, meh para assembler
+            // sprintf(aux_ult_asig,"[%d]",ultInd);
+            // ultInd = crear_terceto(":=", auxUltId, aux_ult_asig, tercetosCreados);
           }    
       }
+
       // Asignacion final del aux al ID inicial de la sentencia
       char id_string_aux [10];
       sprintf(id_string_aux,"[%d]",aux_id_ultimos);
@@ -816,22 +816,27 @@ lista_num: lista_num COMA num
 num: 
   CTE_INT 
     {
-    // Voy a apilar el nro y voy a sumar a un contador
-    // printf("\n\n\n NUM ->>>>>>>  %d",$1);
-    int auxiliar_numero= $1;
-    char factorIndiceString [10];
-    apilar(pilaSumarUltimos,itoa(auxiliar_numero,factorIndiceString,10),sizeof(factorIndiceString));
-    contador_elementos_sumar_ult++;
+      // Voy a apilar el nro y voy a sumar a un contador
+      // printf("\n\n\n NUM ->>>>>>>  %d",$1);
+      int auxiliar_numero= $1;
+      char factorIndiceString [10];
+      apilar(pilaSumarUltimos,itoa(auxiliar_numero,factorIndiceString,10),sizeof(factorIndiceString));
+      contador_elementos_sumar_ult++;
+      char str[10]; 
+      sprintf(str, "%d", $1); 
+      insertar_tabla_simbolos(str, "CTE_INT", "", $1, 0.0);
     } 
   | CTE_FLOAT 
     {
-    // Voy a apilar el nro y voy a sumar a un contador
-    // printf("\n\n\n NUM ->>>>>>>  %f",$1);
-    float auxiliar_numero= $1;
-    char str[10]; 
-    sprintf(str, "%.2f", auxiliar_numero); 
-    apilar(pilaSumarUltimos,str,sizeof(str));
-    contador_elementos_sumar_ult++;
+      // Voy a apilar el nro y voy a sumar a un contador
+      // printf("\n\n\n NUM ->>>>>>>  %f",$1);
+      float auxiliar_numero= $1;
+      char str[10]; 
+      sprintf(str, "%.2f", auxiliar_numero); 
+      apilar(pilaSumarUltimos,str,sizeof(str));
+      contador_elementos_sumar_ult++;
+      reemplazarPuntoPorGuionBajo(str);
+      insertar_tabla_simbolos(str, "CTE_FLOAT", "", 0, $1);
     }
 ;
 
@@ -1217,6 +1222,33 @@ char* validar_ts(const char *nombre,const char *tipo,
           if(strcmp(tabla->data.tipo,tipo) != 0) 
           {
             printf("El tipo de dato %s de la variable - %s - no coincide con el tipo %s esperado", nombre , tabla->data.tipo,tipo);
+            yyerror_message("ERROR DE TIPOS");
+          }
+          return NULL;
+      }    
+      if(tabla->next == NULL)
+      {
+        break;
+      }
+      tabla = tabla->next;
+  }
+  printf("\nLa variable %s no fue declarada previamente \n", nombre);
+  yyerror_message("ERROR VARIABLE NO DECLARADA");
+  return NULL;
+}
+
+char* validar_ts_int_o_float(const char *nombre)
+{    
+
+  t_simbolo *tabla = tabla_simbolos.primero;
+
+  while(tabla)
+  { 
+      if(strcmp(tabla->data.nombre, nombre) == 0)
+      {
+          if(strcmp(tabla->data.tipo,"STRING") == 0 )
+          {
+            printf("La variable %s no es de tipo entero o float, el comando ultimos espera ser asignado a un float o entero ", nombre);
             yyerror_message("ERROR DE TIPOS");
           }
           return NULL;
