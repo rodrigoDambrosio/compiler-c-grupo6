@@ -12,18 +12,15 @@ floatAsig1 := 2.5
 
 escribir("antes_if")
 
+x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 57])
 
-cadena1 = triangulo(1,1, 1)  
+cadena1 = triangulo(1, 2, 3)  
 
-x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 52])
-
-
-escribir("cadena1")
+escribir(cadena1)
 
 si(x>0){
     escribir("x_mayor_a_0")
 }
-
 
 si( intAsig1> 1){
     escribir("en_el_if")
