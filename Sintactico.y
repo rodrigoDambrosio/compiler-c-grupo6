@@ -64,6 +64,7 @@ int contador_leer= 1;
 int eraOr = 0; // TODO:Revisar nombre
 int et_inicio_while_count =1;
 int et_ultimos_contador = 1;
+int fue_not;
 char aux_et_inicio[50]; 
 char check_es_cte_aux[50];
 char aux_exp_c2[LONG_TERCETO];
@@ -300,29 +301,35 @@ si:
     printf("ES CONDICION SI\n");
     while(!es_pila_vacia(pilaComparacion))
     {
-        char* t = (char *) desapilar(pilaComparacion);
+        char* nro_terc_desapilado = (char *) desapilar(pilaComparacion);
         //escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
         //Cambio ET
-        printf("\n desapile %s y coso vale %d \n", t, es_primer_comp);
-        getchar();
-        if(eraOr==1)
+        if(eraOr == 1)
         {
             prox_condicion_invierte=1;
             eraOr=0;
         }
-        if(es_primer_comp == 2)
+        if(fue_not == 1)
         {
             eraOr=1;
-            escribir_terceto_actual_en_anterior_con_tag(condicionInd,atoi(t),"CUERPO_IF");
+            escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(nro_terc_desapilado),"ETIQ_IF");
+            eraOr=0;
+        }
+        else if(es_primer_comp == 2 && prox_condicion_invierte== 1)
+        {
+           getchar();
+           eraOr=1;
+           escribir_terceto_actual_en_anterior_con_tag(condicionInd,atoi(nro_terc_desapilado),"CUERPO_IF");
         }
         else
         {
-          escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(t),"ETIQ_IF");
+          escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(nro_terc_desapilado),"ETIQ_IF");
         }
         es_primer_comp++;
     }
     prox_condicion_invierte=0;
     eraOr = 0;
+    fue_not =0 ;
     es_primer_comp= 0;
     char resultado[50]; 
     sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
@@ -431,16 +438,13 @@ condicion:
   | 
   OP_NOT comparacion
   {
+    fue_not = 1;
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
     condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
   }
   | 
-  condicion {
-    eraOr =1;
-        escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,0,"");
-  }  OP_OR
-  comparacion 
+  condicion { eraOr =1;} OP_OR comparacion 
   {
     char condicionAux [LONG_TERCETO];
     // char comparacionAux [LONG_TERCETO];
@@ -1973,7 +1977,7 @@ void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercet
                 if(strcmp ("BNE",terceto.posUno)==0 && flag != 1) 
                 {
                   flag = 1;
-                  strcpy(terceto.posUno, "BEQ\0");                          
+                  strcpy(terceto.posUno, "BEQ\0");              
                 }                        
                 if(strcmp ("BLT",terceto.posUno)==0 && flag != 1) 
                 {

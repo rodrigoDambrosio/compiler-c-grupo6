@@ -25,9 +25,9 @@ b3                   dd      ?
 y                    dd      ?
 a                    dd      ?
 e                    dd      ?
-_2                   dd      2                             
+_20                  dd      20                            
 _5                   dd      5                             
-_0                   dd      0                             
+_206                 dd      206                           
 _x_mayor_a_0         db      "x_mayor_a_0", '$', 11 dup (?)
 
 .CODE
@@ -61,28 +61,20 @@ START:
     MOV DS,EAX
     MOV ES,EAX
 
-    FLD _2
+    FLD _20
     FSTP x
     FLD _5
     FSTP intAsig2
     FLD x
-    FLD _2
+    FLD _206
     FCOM
     FXCH
     FSTSW AX
     SAHF
-    JE CUERPO_IF15
-    FLD intAsig2
-    FLD _0
-    FCOM
-    FXCH
-    FSTSW AX
-    SAHF
-    JNE ETIQ_IF17
-CUERPO_IF15:
+    JE ETIQ_IF13
     displayString _x_mayor_a_0
     newLine 1
-ETIQ_IF17:
+ETIQ_IF13:
 
 FFREE
 mov ax,4c00h
