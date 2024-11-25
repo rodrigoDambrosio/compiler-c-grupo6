@@ -52,47 +52,30 @@ typedef struct
 typedef struct{
   char cadena[40];
 }t_nombresId;
-int auxExp_triang1;
-int auxExp_triang2;
-int auxExp_triang3;
-int tipo_factor = -1;
-int tipo_expresion = -1;
-int tipo_termino = -1;
-int tipo_expresion_izq =-1;
-int tipo_asig_u =-1;
-int contador_leer= 1;
-int eraOr = 0; // TODO:Revisar nombre
-int et_inicio_while_count =1;
-int et_ultimos_contador = 1;
-char aux_et_inicio[50]; 
-char check_es_cte_aux[50];
-char aux_exp_c2[LONG_TERCETO];
-char aux_ind_exp2[LONG_TERCETO];
-// TODO: mover
-void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
-void eliminar_corchetes(const char *cadena, char *resultado);
-void liberar_memoria_tabla_simbolos();
-const char * check_es_cte(const char *nombre);
-void removeQuotes(char *str);
-int check_es_cte_columna_valor(const char *nombre);
-void generar_assembler();
-void trim_end(char * str);
-void reemplazarPuntoPorGuionBajo(char* str);
+
 // Declaracion funciones
 void crear_tabla_simbolos();
 int insertar_tabla_simbolos(const char*, const char*, const char*, int, float);
 t_data* crearDatos(const char*, const char*, const char*, int, float);
 void guardar_tabla_simbolos();
 char* validar_ts_int_o_float(const char *nombre);
-char* agregarCorchetes(const char* cadena);
+char* agregar_corchetes(const char* cadena);
 t_tabla tabla_simbolos;
-char* validar_ts(const char *nombre,const char *tipo, 
-                            const char* valor_string, int valor_var_int, 
-                            float valor_var_float);
+char* validar_ts(const char *nombre,const char *tipo);
 int verificar_si_ya_existe_en_ts(const char *nombre);
 const char * check_tipo_variable_ts(const char *nombre);
 int verificar_si_falta_en_ts(const char *nombre);
 const char * check_tipo_define(int tipo_int);
+void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
+void eliminar_corchetes(const char *cadena, char *resultado);
+int check_es_cte_string_o_string_ts(const char *nombre);
+void liberar_memoria_tabla_simbolos();
+const char * check_es_cte(const char *nombre);
+void sacar_comillas_dobles(char *str);
+int check_es_cte_columna_valor(const char *nombre);
+void generar_assembler();
+void trim_end(char * str);
+void reemplazar_puntos_por_guion_bajo(char* str);
 
 // Declaracion variables
 
@@ -102,7 +85,7 @@ Pila* pilaFactor;
 Pila * pilaComparacion;
 Pila* pilaSumarUltimos;
 
-int i=0;
+int i;
 int aux_terceto_if_else=0;
 int aux_comp=0;
 char* dato_tope;
@@ -122,6 +105,24 @@ int nro_terceto_aux_ultimos=0;
 int aux_exp1=0,
  aux_exp2=0,
  aux_exp3=0;
+int auxExp_triang1;
+int auxExp_triang2;
+int auxExp_triang3;
+int tipo_factor = -1;
+int tipo_expresion = -1;
+int tipo_termino = -1;
+int tipo_expresion_izq =-1;
+int tipo_asig_u =-1;
+int contador_leer= 1;
+int eraOr = 0;
+int et_inicio_while_count =1;
+int et_ultimos_contador = 1;
+int fue_not;
+char aux_et_inicio[50]; 
+char check_es_cte_aux[50];
+char aux_exp_c2[LONG_TERCETO];
+char aux_ind_exp2[LONG_TERCETO];
+int nro_terceto_or_primer_comp=0;
 // Indices usados para los tercetos
 int     sentenciaIndice=0,
         programaIndice=0,
@@ -150,7 +151,7 @@ int auxPrimerLado = 0,
 auxSegundoLado = 0, 
 auxTercerLado = 0;
 int contador_et_escribir = 1;
-char comparador[4]; // TODO: Sacar variables que no se usan
+char comparador[4];
 
 int ultimos_pivote_aux=0;
 int contador_elementos_sumar_ult = 1;
@@ -293,25 +294,51 @@ asig_tipo:
 si: 
   IF PA condicion PC LA instrucciones LC 
   {
+    int es_primer_comp =1 ;
+    int prox_condicion_invierte =0;
     printf("ES CONDICION SI\n");
     while(!es_pila_vacia(pilaComparacion))
     {
-        char* t = (char *) desapilar(pilaComparacion);
+        char* nro_terc_desapilado = (char *) desapilar(pilaComparacion);
         //escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
-        
         //Cambio ET
-        escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(t),"ETIQ_IF");
+        if(eraOr == 1)
+        {
+            prox_condicion_invierte=1;
+            eraOr=0;
+        }
+        if(fue_not == 1)
+        {
+            eraOr=1;
+            escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(nro_terc_desapilado),"ETIQ_IF");
+            eraOr=0;
+        }
+        else if(es_primer_comp == 2 && prox_condicion_invierte== 1)
+        {
+           getchar();
+           eraOr=1;
+           escribir_terceto_actual_en_anterior_con_tag(condicionInd,atoi(nro_terc_desapilado),"CUERPO_IF");
+        }
+        else
+        {
+          escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(nro_terc_desapilado),"ETIQ_IF");
+        }
+        es_primer_comp++;
     }
+    prox_condicion_invierte=0;
+    eraOr = 0;
+    fue_not =0 ;
+    es_primer_comp= 0;
     char resultado[50]; 
     sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
     crear_terceto(resultado,"_","_",tercetosCreados);
+
   }
   // IF ELSE
   | IF PA condicion PC LA instrucciones LC 
   {
     // Apilo la posicion actual porque cuando reconozco todo, es cuando voy a saber a donde saltar
     // printf("************************************* \n \n \n ACA RECONOCI QUE TENGO UNA INSTRUCCION DENTRO DE LA PARTE IF");
-    // printf("\n \n \n ACA SETEO EL NRO EN EL IF %d \n \n \n",aux_terceto_if_else);
 
     saltoFinElse = crear_terceto("BI","_","_",tercetosCreados);
     // DEBERIA SER ASI
@@ -323,18 +350,12 @@ si:
   ELSE 
   {
     char resultado[50]; 
-    // printf("\n\n ESTOY EN EL TERCETO %d", aux_terceto_if_else);
-    // getchar();
-
     sprintf(resultado, "ETIQ_IF%d", aux_terceto_if_else);
     crear_terceto(resultado,"_","_",tercetosCreados);
   } 
   LA instrucciones LC 
   {
     printf("ES CONDICION SINO \n");
-    // printf("\n\n\nEL TERCETO ACTUAL ES %d \n", tercetosCreados);
-    //       getchar();
-
      while(!es_pila_vacia(pilaComparacion))
      {
         dato_tope = (char *) desapilar(pilaComparacion);
@@ -351,17 +372,13 @@ si:
           // printf("\n \n \n ESTO ES EL NRO DEL TERCETO DEL IF - %d - AHORA LO VOY A LLENAR con el salto al else - %d - \n \n \n",test_int, tercetosCreados);
           // printf("\n \n \n ESTO ES EL TERCETO ACTUAL %d \n \n \n",tercetosCreados);
 
-      // void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
-      // getchar();
       escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,saltoFinElse, "ETIQ_IF");
       
       char resultado[50]; 
       // printf("\n\n RECONOCI TODO EL ELSE Y ESTOY EN %d", tercetosCreados);
       // getchar();
-
       sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
       crear_terceto(resultado,"_","_",tercetosCreados);
-
       // escribir_terceto_actual_en_anterior(tercetosCreados,saltoFinElse);
   }
 ;
@@ -409,18 +426,18 @@ condicion:
   | 
   OP_NOT comparacion
   {
+    fue_not = 1;
     char comparacionAux [LONG_TERCETO];
     sprintf(comparacionAux, "[%d]", comparacionInd);
     condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
   }
   | 
-  condicion OP_OR comparacion 
+  condicion { eraOr =1; } OP_OR comparacion 
   {
     char condicionAux [LONG_TERCETO];
-    char comparacionAux [LONG_TERCETO];
-    sprintf(condicionAux,"[%d]",condicionInd);
-    sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crear_terceto("OR", condicionAux , comparacionAux,tercetosCreados );
+    sprintf(condicionAux, "CUERPO_IF%d", tercetosCreados);
+    condicionInd = crear_terceto(condicionAux, "_" ,"_",tercetosCreados ); // este pasa a ser una etiqueta para el primer salto
+    // tengo que guardar la pos del primer salto
   }
   | 
   condicion OP_AND comparacion 
@@ -445,7 +462,7 @@ comparacion:
         char* exp1 = (char*) desapilar(pilaExpresion);
         char* exp2 = (char*) desapilar(pilaExpresion);
         // printf ("A ver la comparacion %s %s \n",exp1, exp2);
-        comparacionInd=crear_terceto("CMP",agregarCorchetes(exp1),agregarCorchetes(exp2),tercetosCreados);
+        comparacionInd=crear_terceto("CMP",agregar_corchetes(exp1),agregar_corchetes(exp2),tercetosCreados);
         aux_comp = condicionInd+1;
         int t = crear_terceto(comparador,"_","_" ,tercetosCreados);
         apilar_nro_terceto(t);
@@ -823,7 +840,7 @@ num:
       sprintf(str, "%.2f", auxiliar_numero); 
       apilar(pilaSumarUltimos,str,sizeof(str));
       contador_elementos_sumar_ult++;
-      reemplazarPuntoPorGuionBajo(str);
+      reemplazar_puntos_por_guion_bajo(str);
       insertar_tabla_simbolos(str, "CTE_FLOAT", "", 0, $1);
     }
 ;
@@ -833,7 +850,7 @@ triangulos:
            {
               strcpy(tri_id_save,$1);
               // triangulos_id_aux = crear_terceto($1,"_","_",tercetosCreados);
-              validar_ts($1, "STRING", "", 0, 0); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
+              validar_ts($1, "STRING"); // Se verifica si el id que se quiere asignar esta en tabla de simbolos
               insertar_tabla_simbolos("_0.0", "CTE_FLOAT", "0", 0.0, 0); // Lo agrego por si falla alguna funcion de TS, lo voy a usar mas adelante
               insertar_tabla_simbolos("0", "CTE_INT", "0", 0, 0); // Lo agrego por si falla alguna funcion de TS, lo voy a usar mas adelante
               char str_aux_ini[40];
@@ -858,11 +875,6 @@ triangulos:
            }
            COMA expresion // LA 2DA
            {
-            // auxExp_triang2 = crear_terceto("aux_exp2","_","_",tercetosCreados);
-            // insertar_tabla_simbolos("aux_exp2", "FLOAT", "", 0, 0);
-            // printf("\n\n\n ************************** EXP %d ", expresionInd);
-            // char aux_exp_c2[LONG_TERCETO];
-            // char aux_ind_exp2[LONG_TERCETO];
             sprintf(aux_exp_c2,"[%d]",auxExp_triang2);
             sprintf(aux_ind_exp2,"[%d]",expresionInd);
             indTriangExp2= crear_terceto(":=",aux_ind_exp2,aux_exp_c2,tercetosCreados);
@@ -956,6 +968,10 @@ triangulos:
 
 //////////////////////////////////// FUNCIONES ////////////////////////////////////////////////
 
+/**************
+**** MAIN *****
+***************/
+
 int main(int argc, char *argv[])
 {
     if((yyin = fopen(argv[1], "rt"))==NULL)
@@ -989,6 +1005,10 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+/***************************
+**** FUNCIONES ERRORES *****
+****************************/
+
 int yyerror(void)
 {
   printf("\n ********* Error Sintactico ********* \n");
@@ -1001,6 +1021,9 @@ int yyerror_message(char* mensaje_error)
   exit (1);
 }
 
+/***************************
+**** TABLA DE SIMBOLOS *****
+****************************/
 
 int insertar_tabla_simbolos(const char *nombre,const char *tipo, 
                             const char* valor_string, int valor_var_int, 
@@ -1099,9 +1122,7 @@ int verificar_si_falta_en_ts(const char *nombre)
   yyerror_message("La variable no fue declarada previamente y se esta usando");
 }
 
-char* validar_ts(const char *nombre,const char *tipo, 
-                            const char* valor_string, int valor_var_int, 
-                            float valor_var_float)
+char* validar_ts(const char *nombre,const char *tipo)
 {    
 
   t_simbolo *tabla = tabla_simbolos.primero;
@@ -1176,6 +1197,7 @@ const char * check_tipo_variable_ts(const char *nombre)
   yyerror_message("Variable no declarada");
   return "";
 }
+
 int check_es_cte_columna_valor(const char *nombre)
 {
   t_simbolo *tabla = tabla_simbolos.primero;
@@ -1193,9 +1215,8 @@ int check_es_cte_columna_valor(const char *nombre)
   }
   return FALSE;
 } 
-int check_es_cte_string(const char *nombre);
 
-int check_es_cte_string(const char *nombre)
+int check_es_cte_string_o_string_ts(const char *nombre)
 {
   t_simbolo *tabla = tabla_simbolos.primero;
   while(tabla)
@@ -1341,7 +1362,7 @@ void guardar_tabla_simbolos()
         }
         else if(strcmp(aux->data.tipo, "CTE_FLOAT") == 0)
         {
-          reemplazarPuntoPorGuionBajo(aux->data.nombre);
+          reemplazar_puntos_por_guion_bajo(aux->data.nombre);
           if(strcmp(aux->data.valor.valor_var_str,"0.00")==0)
           {
             strcpy(aux->data.valor.valor_var_str,"0.0");
@@ -1366,7 +1387,7 @@ void guardar_tabla_simbolos()
             strncpy(aux_string, aux->data.valor.valor_var_str +1, strlen(aux->data.valor.valor_var_str)-2);
             char resultado[50]; 
             sprintf(resultado, "_%s", aux_string);
-            reemplazarPuntoPorGuionBajo(resultado);
+            reemplazar_puntos_por_guion_bajo(resultado);
             sprintf(linea, "%-30s%-30s%-40s%-d\n", resultado, aux->data.tipo, aux_string, strlen(aux_string));
         }
         fprintf(arch, "%s", linea);
@@ -1374,6 +1395,7 @@ void guardar_tabla_simbolos()
     }
     fclose(arch); 
 }
+
 void liberar_memoria_tabla_simbolos()
 {
     if(tabla_simbolos.primero == NULL)
@@ -1397,7 +1419,11 @@ void crear_tabla_simbolos()
     tabla_simbolos.primero = NULL;
 }
 
-char* agregarCorchetes(const char* cadena) 
+/*****************
+**** HELPERS *****
+******************/
+
+char* agregar_corchetes(const char* cadena) 
 {
     int longitud = strlen(cadena);
     char* resultado = (char*)malloc(longitud + 3);
@@ -1430,6 +1456,32 @@ const char * check_tipo_define(int tipo_int)
       return "";
   }
 }
+
+void sacar_comillas_dobles(char *str) 
+{
+    int len = strlen(str);
+
+    if (len >= 2 && str[0] == '"' && str[len - 1] == '"') 
+    {
+        memmove(str, str + 1, len - 1);
+        str[len - 2] = '\0';
+    }
+}
+
+void reemplazar_puntos_por_guion_bajo(char* str) 
+{
+    int i;
+    for (i = 0; i < strlen(str); i++) 
+    {
+        if (str[i] == '.') 
+        {
+            str[i] = '_';
+        }
+    }
+}
+/*******************
+**** ASSEMBLER *****
+********************/
 
 void generar_assembler()
 {
@@ -1530,7 +1582,8 @@ void generar_assembler()
         }
     }
     
-    fprintf(file_assembler,  "\n.CODE");
+    fprintf(file_assembler, "\n.CODE");
+    
     fprintf(file_assembler, "\nstrlen proc\n");
     fprintf(file_assembler, "\tmov bx, 0\n");
     fprintf(file_assembler, "\tstrLoop:\n");
@@ -1554,6 +1607,7 @@ void generar_assembler()
     fprintf(file_assembler, "\tmov byte ptr[di],al\n");
     fprintf(file_assembler, "\tret\n");
     fprintf(file_assembler, "assignString endp\n");
+
     fprintf(file_assembler,  "\nSTART:\n");
     fprintf(file_assembler,  "\n\tMOV EAX,@DATA");
     fprintf(file_assembler,  "\n\tMOV DS,EAX");
@@ -1578,7 +1632,7 @@ void generar_assembler()
       {
         char numTercetoSinC[10];
         eliminar_corchetes(numTerceto,numTercetoSinC);
-        // reemplazarPuntoPorGuionBajo(posUno);
+        // reemplazar_puntos_por_guion_bajo(posUno);
         agregar_entrada(&dic,posUno,atoi(numTercetoSinC));
         apilar(&p_ass, posUno, sizeof(posUno));
       }
@@ -1594,7 +1648,7 @@ void generar_assembler()
             eliminar_corchetes(posDos,numTercetoSinC);
             strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
         }
-        if(st[0]=='\"' || check_es_cte_string(st)) // ENTONCES TENGO QUE ASIGNAR UN STRING
+        if(st[0]=='\"' || check_es_cte_string_o_string_ts(st)) // ENTONCES TENGO QUE ASIGNAR UN STRING
         {
           char op1[15];
           char op2[15];
@@ -1605,8 +1659,8 @@ void generar_assembler()
           strcpy(var1,buscar_nombre(&dic,atoi(op1)));
           eliminar_corchetes(posTres,op2);
           strcpy(var2,buscar_nombre(&dic,atoi(op2)));
-          removeQuotes(var1);
-          removeQuotes(var2);
+          sacar_comillas_dobles(var1);
+          sacar_comillas_dobles(var2);
           fprintf(file_assembler,"\tMOV si, OFFSET _%s\n",var2);// cte
           fprintf(file_assembler,"\tMOV di, OFFSET %s\n",var1); // var
           fprintf(file_assembler,"\tCALL assignString\n");
@@ -1616,7 +1670,7 @@ void generar_assembler()
           if(operacion == 0)
           {
             strcpy(aux_check_operador, check_es_cte(st));
-            reemplazarPuntoPorGuionBajo(aux_check_operador);
+            reemplazar_puntos_por_guion_bajo(aux_check_operador);
             fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);  
             if(!es_pila_vacia(&p_ass))
             {
@@ -1630,7 +1684,7 @@ void generar_assembler()
             }
           }
           strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador);
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);
           fprintf(file_assembler,"\tFSTP %s\n",aux_check_operador);  
           operacion = 0; 
         }
@@ -1648,7 +1702,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st)); 
-          reemplazarPuntoPorGuionBajo(aux_check_operador);
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           if(!es_pila_vacia(&p_ass))
           {
@@ -1661,7 +1715,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st));  
-          reemplazarPuntoPorGuionBajo(aux_check_operador);
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           fprintf(file_assembler,"\tFADD\n");
           operacion = 1;
@@ -1679,7 +1733,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador); 
+          reemplazar_puntos_por_guion_bajo(aux_check_operador); 
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           if(!es_pila_vacia(&p_ass))
           {
@@ -1692,7 +1746,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st)); 
-          reemplazarPuntoPorGuionBajo(aux_check_operador);          
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);          
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           fprintf(file_assembler,"\tFSUB\n");
           operacion = 1;
@@ -1710,7 +1764,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           } 
           strcpy(aux_check_operador, check_es_cte(st));     
-          reemplazarPuntoPorGuionBajo(aux_check_operador);    
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);    
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           if(!es_pila_vacia(&p_ass))
           {
@@ -1723,7 +1777,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }  
           strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador);      
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);      
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           fprintf(file_assembler,"\tFDIV\n");
           operacion = 1;
@@ -1741,7 +1795,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador);      
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);      
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           if(!es_pila_vacia(&p_ass))
           {
@@ -1754,7 +1808,7 @@ void generar_assembler()
               strcpy(st,buscar_nombre(&dic,atoi(numTercetoSinC)));
           }
           strcpy(aux_check_operador, check_es_cte(st));
-          reemplazarPuntoPorGuionBajo(aux_check_operador);      
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);      
           fprintf(file_assembler,"\tFLD %s\n",aux_check_operador);
           fprintf(file_assembler,"\tFMUL\n");
           operacion = 1;
@@ -1773,7 +1827,7 @@ void generar_assembler()
           }
           strcpy(aux_check_operador, check_es_cte(st));
           char comp_aux_der[15];
-          reemplazarPuntoPorGuionBajo(aux_check_operador);      
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);      
           sprintf(comp_aux_der,"\tFLD %s\n",aux_check_operador);
           if(!es_pila_vacia(&p_ass))
           {
@@ -1787,7 +1841,7 @@ void generar_assembler()
           }      
           strcpy(aux_check_operador, check_es_cte(st));
           char comp_aux_izq[15];
-          reemplazarPuntoPorGuionBajo(aux_check_operador);      
+          reemplazar_puntos_por_guion_bajo(aux_check_operador);      
           sprintf(comp_aux_izq,"\tFLD %s\n",aux_check_operador); 
           fprintf(file_assembler,"%s",comp_aux_izq);
           fprintf(file_assembler,"%s",comp_aux_der);
@@ -1849,6 +1903,10 @@ void generar_assembler()
           fprintf(file_assembler,"%s:\n",posUno);
       }
       if(strncmp(posUno,"FIN_TRI",3) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
+      }
+      if(strncmp(posUno,"CUERPO",6) == 0 )
       {
           fprintf(file_assembler,"%s:\n",posUno);
       }
@@ -1942,7 +2000,7 @@ void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercet
                 if(strcmp ("BNE",terceto.posUno)==0 && flag != 1) 
                 {
                   flag = 1;
-                  strcpy(terceto.posUno, "BEQ\0");                          
+                  strcpy(terceto.posUno, "BEQ\0");              
                 }                        
                 if(strcmp ("BLT",terceto.posUno)==0 && flag != 1) 
                 {
@@ -1977,26 +2035,4 @@ void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercet
         poner_en_cola(&aux,&terceto,sizeof(terceto));
     }
     colaTercetos=aux;
-}
-
-void reemplazarPuntoPorGuionBajo(char* str) 
-{
-    int i;
-    for (i = 0; i < strlen(str); i++) 
-    {
-        if (str[i] == '.') 
-        {
-            str[i] = '_';
-        }
-    }
-}
-void removeQuotes(char *str) 
-{
-    int len = strlen(str);
-
-    if (len >= 2 && str[0] == '"' && str[len - 1] == '"') 
-    {
-        memmove(str, str + 1, len - 1);
-        str[len - 2] = '\0';
-    }
 }

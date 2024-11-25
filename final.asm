@@ -34,9 +34,9 @@ _0                   dd		 0
 _0_00                dd		 0.0                           
 aux_ult              dd		 ?
 _28                  dd		 28                            
-_13_50               dd		 13.50                         
+_13                  dd		 13                            
 _4                   dd		 4                             
-_5_50                dd		 5.50                          
+_5                   dd		 5                             
 _17                  dd		 17                            
 _57                  dd		 57                            
 aux_exp1             dd		 ?
@@ -104,8 +104,8 @@ START:
 	FLD _17
 	FLD _17
 	FADD
-	FLD _5_50
-	FLD _5_50
+	FLD _5
+	FLD _5
 	FADD
 	FLD _4
 	FLD _4
@@ -155,46 +155,53 @@ FIN_TRI:
 	FCOM
 	FSTSW AX
 	SAHF
-	JNA ETIQ_IF62
+	JNA ETIQ_IF67
+	FLD x
+	FLD _1
+	FXCH
+	FCOM
+	FSTSW AX
+	SAHF
+	JNA ETIQ_IF67
 	displayString _x_mayor_a_0
 	newLine 1
-ETIQ_IF62:
+ETIQ_IF67:
 	FLD intAsig1
 	FLD _1
 	FXCH
 	FCOM
 	FSTSW AX
 	SAHF
-	JNA ETIQ_IF71
+	JNA ETIQ_IF76
 	displayString _en_el_if
 	newLine 1
 	FLD _0
 	FSTP intAsig2
-ETIQ_IF71:
+ETIQ_IF76:
 	FLD intAsig2
 	FLD _0
 	FXCH
 	FCOM
 	FSTSW AX
 	SAHF
-	JNE ETIQ_IF78
+	JNE ETIQ_IF83
 	displayString _lo_puse_en_0
 	newLine 1
-	JMP ETIQ_IF80
-ETIQ_IF78:
+	JMP ETIQ_IF85
+ETIQ_IF83:
 	displayString _sino_esto
 	newLine 1
-ETIQ_IF80:
+ETIQ_IF85:
 	FLD _0
 	FSTP c
-InicioMientras84:
+InicioMientras89:
 	FLD c
 	FLD _2
 	FXCH
 	FCOM
 	FSTSW AX
 	SAHF
-	JAE ETIQ_CICLO97
+	JAE ETIQ_CICLO102
 	displayString _escribir_algo_2_veces
 	newLine 1
 	getString cadena1
@@ -203,8 +210,8 @@ ET_LEER1:
 	FLD c
 	FADD
 	FSTP c
-	JMP InicioMientras84
-ETIQ_CICLO97:
+	JMP InicioMientras89
+ETIQ_CICLO102:
 FFREE
 
 FFREE

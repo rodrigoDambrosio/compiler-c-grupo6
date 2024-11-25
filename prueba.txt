@@ -12,13 +12,13 @@ floatAsig1 := 2.5
 
 escribir("antes_if")
 
-x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 57])
+x = sumaLosUltimos(4; [28, 13, 4, 5, 17, 57])
 
 cadena1 = triangulo(1, 2, 3)  
 
 escribir(cadena1)
 
-si(x>0){
+si(x>0 AND x>1){
     escribir("x_mayor_a_0")
 }
 
@@ -33,6 +33,7 @@ si(intAsig2==0){
 sino{
    escribir("sino_esto")
 }
+
 c:=0
 
 mientras(c<2){
@@ -40,5 +41,3 @@ mientras(c<2){
     leer(cadena1)
     c:=c+1
 }
-
-
