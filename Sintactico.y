@@ -68,6 +68,7 @@ char aux_et_inicio[50];
 char check_es_cte_aux[50];
 char aux_exp_c2[LONG_TERCETO];
 char aux_ind_exp2[LONG_TERCETO];
+int nro_terceto_or_primer_comp=0;
 // TODO: mover
 void escribir_terceto_actual_en_anterior_con_tag(int tercetoAEscribir,int tercetoBuscado,char * etiqueta);
 void eliminar_corchetes(const char *cadena, char *resultado);
@@ -103,6 +104,7 @@ Pila * pilaComparacion;
 Pila* pilaSumarUltimos;
 
 int i=0;
+int ordinario = 0;
 int aux_terceto_if_else=0;
 int aux_comp=0;
 char* dato_tope;
@@ -293,18 +295,39 @@ asig_tipo:
 si: 
   IF PA condicion PC LA instrucciones LC 
   {
+    int es_primer_comp =1 ;
+    int prox_condicion_invierte =0;
     printf("ES CONDICION SI\n");
     while(!es_pila_vacia(pilaComparacion))
     {
         char* t = (char *) desapilar(pilaComparacion);
         //escribir_terceto_actual_en_anterior(tercetosCreados,atoi(t));
-        
         //Cambio ET
-        escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(t),"ETIQ_IF");
+        printf("\n desapile %s y coso vale %d \n", t, es_primer_comp);
+        getchar();
+        if(eraOr==1)
+        {
+            prox_condicion_invierte=1;
+            eraOr=0;
+        }
+        if(es_primer_comp == 2)
+        {
+            eraOr=1;
+            escribir_terceto_actual_en_anterior_con_tag(condicionInd,atoi(t),"CUERPO_IF");
+        }
+        else
+        {
+          escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,atoi(t),"ETIQ_IF");
+        }
+        es_primer_comp++;
     }
+    prox_condicion_invierte=0;
+    eraOr = 0;
+    es_primer_comp= 0;
     char resultado[50]; 
     sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
     crear_terceto(resultado,"_","_",tercetosCreados);
+
   }
   // IF ELSE
   | IF PA condicion PC LA instrucciones LC 
@@ -361,7 +384,6 @@ si:
 
       sprintf(resultado, "ETIQ_IF%d", tercetosCreados);
       crear_terceto(resultado,"_","_",tercetosCreados);
-
       // escribir_terceto_actual_en_anterior(tercetosCreados,saltoFinElse);
   }
 ;
@@ -414,13 +436,18 @@ condicion:
     condicionInd = crear_terceto("NOT", comparacionAux,"_",tercetosCreados );
   }
   | 
-  condicion OP_OR comparacion 
+  condicion {
+    eraOr =1;
+        escribir_terceto_actual_en_anterior_con_tag(tercetosCreados,0,"");
+  }  OP_OR
+  comparacion 
   {
     char condicionAux [LONG_TERCETO];
-    char comparacionAux [LONG_TERCETO];
-    sprintf(condicionAux,"[%d]",condicionInd);
-    sprintf(comparacionAux, "[%d]", comparacionInd);
-    condicionInd = crear_terceto("OR", condicionAux , comparacionAux,tercetosCreados );
+    // char comparacionAux [LONG_TERCETO];
+    // sprintf(condicionAux,"[%d]",condicionInd);
+    sprintf(condicionAux, "CUERPO_IF%d", tercetosCreados);
+    condicionInd = crear_terceto(condicionAux, "_" ,"_",tercetosCreados ); // este pasa a ser una etiqueta para el primer salto
+    // tengo que guardar la pos del primer salto
   }
   | 
   condicion OP_AND comparacion 
@@ -1791,8 +1818,8 @@ void generar_assembler()
           sprintf(comp_aux_izq,"\tFLD %s\n",aux_check_operador); 
           fprintf(file_assembler,"%s",comp_aux_izq);
           fprintf(file_assembler,"%s",comp_aux_der);
-          fprintf(file_assembler,"\tFXCH\n"); 
           fprintf(file_assembler,"\tFCOM\n");
+          fprintf(file_assembler,"\tFXCH\n"); 
           fprintf(file_assembler,"\tFSTSW AX\n");
           fprintf(file_assembler,"\tSAHF\n");
       }
@@ -1849,6 +1876,10 @@ void generar_assembler()
           fprintf(file_assembler,"%s:\n",posUno);
       }
       if(strncmp(posUno,"FIN_TRI",3) == 0 )
+      {
+          fprintf(file_assembler,"%s:\n",posUno);
+      }
+      if(strncmp(posUno,"CUERPO",6) == 0 )
       {
           fprintf(file_assembler,"%s:\n",posUno);
       }

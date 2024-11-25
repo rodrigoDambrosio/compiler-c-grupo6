@@ -5,40 +5,9 @@ init {
     entero1, entero2,c,x : Int
     a2, b3,y,a,e  : Float
 }
-
-intAsig2 := 34 * 3
-intAsig1 := 500 + intAsig2
-floatAsig1 := 2.5
-
-escribir("antes_if")
-
-x = sumaLosUltimos(4; [28, 13.5, 4, 5.5, 17, 57])
-
-cadena1 = triangulo(1, 2, 3)  
-
-escribir(cadena1)
-
-si(x>0){
+x:= 2
+intAsig2:= 5
+si(x==2 OR intAsig2 == 0){
     escribir("x_mayor_a_0")
 }
-
-si( intAsig1> 1){
-    escribir("en_el_if")
-    intAsig2:= 0
-}
-
-si(intAsig2==0){
-        escribir("lo_puse_en_0")
-}
-sino{
-   escribir("sino_esto")
-}
-c:=0
-
-mientras(c<2){
-    escribir("escribir_algo_2_veces")
-    leer(cadena1)
-    c:=c+1
-}
-
 
